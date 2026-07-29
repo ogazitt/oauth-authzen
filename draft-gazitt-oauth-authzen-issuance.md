@@ -29,8 +29,6 @@ author:
     email: "ogazitt@gmail.com"
 
 normative:
-  RFC2119:
-  RFC8174:
   RFC6749:
   RFC7519:
   RFC8693:
