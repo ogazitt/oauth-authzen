@@ -891,19 +891,32 @@ Table of Contents
 
 9.1.  Related Work
 
-   Two earlier efforts place an AuthZEN PDP behind an authorization
-   server.  [I-D.brossard-oauth-rar-authzen] maps the
-   authorization_details of [RFC9396] onto AuthZEN evaluation requests;
-   it has expired, and where this document treats authorization_details
-   as a shaping output it is in scope for a future revision of that work
-   rather than for this one.  The AuthZEN Working Group's Access Request
-   OAuth Profile addresses the authorization request rather than the
-   token issuance decision, and the two are complementary: one governs
-   what a client may ask for, the other whether the resulting token is
-   issued.
+   Two other efforts place an AuthZEN Policy Decision Point behind an
+   authorization server.
 
-   Neither defines a response vocabulary that shapes the issued token,
-   which is the part of the problem this document is concerned with.
+   [I-D.brossard-oauth-rar-authzen] carries an AuthZEN request and
+   response inside authorization_details, placing the evaluation on the
+   OAuth wire.  It has expired.  This document does not adopt that
+   approach: the evaluation stays between the authorization server and
+   its Policy Decision Point, and the client sees only an OAuth
+   response.
+
+   The AuthZEN Working Group's Access Request OAuth Profile (AROP)
+   governs the same decision moment as this document, and the two divide
+   along the value of decision.  AROP specifies the deny path: where
+   policy marks a denial as requestable, the denial becomes an
+   asynchronous approval, and issuance follows a re-evaluation once the
+   approval is recorded.  This document specifies the allow path: how
+   the evaluation request is formed, and how a permit may narrow what is
+   issued.  AROP therefore already establishes that response context
+   shapes issuance; it does so for approval state, where this document
+   does so for the granted authorization.
+
+   Because both documents must construct an evaluation request from an
+   OAuth request, that construction is shared surface.  AROP's treatment
+   of it is deliberately brief, being incidental to its subject.  Where
+   the two overlap, this document is intended to supply the detail
+   rather than to compete, and aligning the two is expected work.
 
 10.  Security Considerations
 
