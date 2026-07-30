@@ -1219,12 +1219,12 @@ Table of Contents
 
 Acknowledgments
 
-   This work was motivated in significant part by Karl McGuinness, whose
-   sustained initiative to bridge OAuth and AuthZEN — in [ARAP] and its
-   OAuth completion mode — established that a Policy Decision Point
-   belongs behind the token endpoint, and that the response of such a
-   Policy Decision Point may legitimately shape what is issued.  This
-   document takes up the other half of that decision.
+   This work was motivated in part by Karl McGuinness, whose initiative
+   to bridge OAuth and AuthZEN — in [ARAP] and its OAuth completion mode
+   — established that a Policy Decision Point belongs behind the token
+   endpoint, and that the response of such a Policy Decision Point may
+   legitimately shape what is issued.  This document takes up the other
+   half of that decision.
 
    Thanks also to the participants in the OpenID AuthZEN
    interoperability events, whose December 2025 identity provider
