@@ -55,6 +55,14 @@ informative:
   I-D.ietf-oauth-identity-chaining:
   I-D.ietf-oauth-identity-assertion-authz-grant:
   I-D.ietf-oauth-transaction-tokens:
+  ARAP:
+    title: "AuthZEN Access Request and Approval Profile 1.0"
+    target: "https://openid.github.io/authzen/authzen-access-request-approval-profile-1_0"
+    date: 2026-07-27
+    author:
+      - ins: K. McGuinness
+        name: "Karl McGuinness"
+        org: "Independent"
   ZANZIBAR:
     title: "Zanzibar: Google's Consistent, Global Authorization System"
     target: "https://www.usenix.org/conference/atc19/presentation/pang"
@@ -782,21 +790,29 @@ has expired. This document does not adopt that approach: the evaluation
 stays between the authorization server and its Policy Decision Point, and
 the client sees only an OAuth response.
 
-The AuthZEN Working Group's Access Request OAuth Profile (AROP) governs the
-same decision moment as this document, and the two divide along the value of
-`decision`. AROP specifies the deny path: where policy marks a denial as
-requestable, the denial becomes an asynchronous approval, and issuance
-follows a re-evaluation once the approval is recorded. This document
-specifies the allow path: how the evaluation request is formed, and how a
-permit may narrow what is issued. AROP therefore already establishes that
-response `context` shapes issuance; it does so for approval state, where
-this document does so for the granted authorization.
+{{ARAP}} defines what happens when a Policy Decision Point denies a request
+but marks the denial as requestable: the enforcement point submits an access
+request, an approval is obtained out of band, and a fresh evaluation is
+performed so that the Policy Decision Point remains authoritative at
+enforcement time. That profile deliberately does not bind the loop to OAuth,
+requiring instead that a separate profile define a completion mode
+appropriate to the flow. The AuthZEN Working Group's Access Request OAuth
+Profile supplies that completion mode, and it governs the same moment as
+this document.
 
-Because both documents must construct an evaluation request from an OAuth
-request, that construction is shared surface. AROP's treatment of it is
-deliberately brief, being incidental to its subject. Where the two overlap,
-this document is intended to supply the detail rather than to compete, and
-aligning the two is expected work.
+The two divide along the value of `decision`. The approval work specifies
+the deny path: a requestable denial becomes an asynchronous approval, and
+issuance follows the re-evaluation. This document specifies the allow path:
+how the evaluation request is formed, and how a permit may narrow what is
+issued. The approval work therefore already establishes that response
+`context` shapes issuance; it does so for approval state, where this
+document does so for the granted authorization.
+
+Because both must construct an evaluation request from an OAuth token
+request, that construction is shared surface, and its treatment in the
+approval profiles is deliberately brief, being incidental to their subject.
+Where the two overlap, this document is intended to supply the detail rather
+than to compete, and aligning the two is expected work.
 
 # Security Considerations
 
@@ -955,4 +971,14 @@ values are carried verbatim and are not a registered vocabulary.
 # Acknowledgments
 {:numbered="false"}
 
-TODO.
+This work was motivated in significant part by Karl McGuinness, whose
+sustained initiative to bridge OAuth and AuthZEN — in {{ARAP}} and its OAuth
+completion mode — established that a Policy Decision Point belongs behind
+the token endpoint, and that the response of such a Policy Decision Point
+may legitimately shape what is issued. This document takes up the other half
+of that decision.
+
+Thanks also to the participants in the OpenID AuthZEN interoperability
+events, whose December 2025 identity provider scenario demonstrated AuthZEN
+search operations populating token claims, and to the members of the AuthZEN
+Working Group and the OAuth Working Group.
