@@ -346,16 +346,21 @@ without it.
 
 Where a request yields more than one tuple, the AS MUST use the Access
 Evaluations API of {{AUTHZEN}} with `options.evaluations_semantic` set to
-`execute_all`, and MUST place the gate tuple, if present, at index 0.
+`execute_all`, and MUST place gate tuples, where present, at the leading
+indices of the `evaluations` array, beginning at index 0.
+
+This document produces at most one gate tuple. Bindings may produce more:
+the token exchange family evaluates the authority of the requesting party
+separately from that of the subject, and so produces two.
 
 `execute_all` is required because scope denials must be able to narrow the
 grant rather than fail it: an AS that requested three scopes and received
 two permits issues a token bearing two scopes, and reports the reduced set
 in the `scope` response parameter as {{RFC6749}} already requires.
 
-A gate denial, by contrast, is fatal. If the tuple at index 0 is a gate
-tuple and its decision is `false`, the AS MUST fail the request and MUST NOT
-issue a token, irrespective of the other results.
+A gate denial, by contrast, is fatal. If any leading gate tuple has a
+decision of `false`, the AS MUST fail the request and MUST NOT issue a
+token, irrespective of the other results.
 
 {{AUTHZEN}} evaluation semantics are selected per request and cannot mark an
 individual batch item as a precondition, so this composition rule is
