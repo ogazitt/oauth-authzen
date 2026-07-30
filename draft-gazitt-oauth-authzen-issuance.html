@@ -1061,7 +1061,7 @@ svg {
 </tr></thead>
 <tfoot><tr>
 <td class="left">Gazitt</td>
-<td class="center">Expires 30 January 2027</td>
+<td class="center">Expires 31 January 2027</td>
 <td class="right">[Page]</td>
 </tr></tfoot>
 </table>
@@ -1074,12 +1074,12 @@ svg {
 <dd class="internet-draft">draft-gazitt-oauth-authzen-issuance-latest</dd>
 <dt class="label-published">Published:</dt>
 <dd class="published">
-<time datetime="2026-07-29" class="published">29 July 2026</time>
+<time datetime="2026-07-30" class="published">30 July 2026</time>
     </dd>
 <dt class="label-intended-status">Intended Status:</dt>
 <dd class="intended-status">Standards Track</dd>
 <dt class="label-expires">Expires:</dt>
-<dd class="expires"><time datetime="2027-01-30">30 January 2027</time></dd>
+<dd class="expires"><time datetime="2027-01-31">31 January 2027</time></dd>
 <dt class="label-authors">Author:</dt>
 <dd class="authors">
 <div class="author">
@@ -1140,7 +1140,7 @@ documents.<a href="#section-abstract-3" class="pilcrow">¶</a></p>
         time. It is inappropriate to use Internet-Drafts as reference
         material or to cite them other than as "work in progress."<a href="#section-boilerplate.1-3" class="pilcrow">¶</a></p>
 <p id="section-boilerplate.1-4">
-        This Internet-Draft will expire on 30 January 2027.<a href="#section-boilerplate.1-4" class="pilcrow">¶</a></p>
+        This Internet-Draft will expire on 31 January 2027.<a href="#section-boilerplate.1-4" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="copyright">
@@ -2369,20 +2369,27 @@ inside <code>authorization_details</code>, placing the evaluation on the OAuth w
 has expired. This document does not adopt that approach: the evaluation
 stays between the authorization server and its Policy Decision Point, and
 the client sees only an OAuth response.<a href="#section-9.1-2" class="pilcrow">¶</a></p>
-<p id="section-9.1-3">The AuthZEN Working Group's Access Request OAuth Profile (AROP) governs the
-same decision moment as this document, and the two divide along the value of
-<code>decision</code>. AROP specifies the deny path: where policy marks a denial as
-requestable, the denial becomes an asynchronous approval, and issuance
-follows a re-evaluation once the approval is recorded. This document
-specifies the allow path: how the evaluation request is formed, and how a
-permit may narrow what is issued. AROP therefore already establishes that
-response <code>context</code> shapes issuance; it does so for approval state, where
-this document does so for the granted authorization.<a href="#section-9.1-3" class="pilcrow">¶</a></p>
-<p id="section-9.1-4">Because both documents must construct an evaluation request from an OAuth
-request, that construction is shared surface. AROP's treatment of it is
-deliberately brief, being incidental to its subject. Where the two overlap,
-this document is intended to supply the detail rather than to compete, and
-aligning the two is expected work.<a href="#section-9.1-4" class="pilcrow">¶</a></p>
+<p id="section-9.1-3"><span>[<a href="#ARAP" class="cite xref">ARAP</a>]</span> defines what happens when a Policy Decision Point denies a request
+but marks the denial as requestable: the enforcement point submits an access
+request, an approval is obtained out of band, and a fresh evaluation is
+performed so that the Policy Decision Point remains authoritative at
+enforcement time. That profile deliberately does not bind the loop to OAuth,
+requiring instead that a separate profile define a completion mode
+appropriate to the flow. The AuthZEN Working Group's Access Request OAuth
+Profile supplies that completion mode, and it governs the same moment as
+this document.<a href="#section-9.1-3" class="pilcrow">¶</a></p>
+<p id="section-9.1-4">The two divide along the value of <code>decision</code>. The approval work specifies
+the deny path: a requestable denial becomes an asynchronous approval, and
+issuance follows the re-evaluation. This document specifies the allow path:
+how the evaluation request is formed, and how a permit may narrow what is
+issued. The approval work therefore already establishes that response
+<code>context</code> shapes issuance; it does so for approval state, where this
+document does so for the granted authorization.<a href="#section-9.1-4" class="pilcrow">¶</a></p>
+<p id="section-9.1-5">Because both must construct an evaluation request from an OAuth token
+request, that construction is shared surface, and its treatment in the
+approval profiles is deliberately brief, being incidental to their subject.
+Where the two overlap, this document is intended to supply the detail rather
+than to compete, and aligning the two is expected work.<a href="#section-9.1-5" class="pilcrow">¶</a></p>
 </section>
 </div>
 </section>
@@ -2701,6 +2708,10 @@ values are carried verbatim and are not a registered vocabulary.<a href="#sectio
 <a href="#section-12.2" class="section-number selfRef">12.2. </a><a href="#name-informative-references" class="section-name selfRef">Informative References</a>
         </h3>
 <dl class="references">
+<dt id="ARAP">[ARAP]</dt>
+        <dd>
+<span class="refAuthor">McGuinness, K.</span>, <span class="refTitle">"AuthZEN Access Request and Approval Profile 1.0"</span>, <time datetime="2026-07-27" class="refDate">27 July 2026</time>, <span>&lt;<a href="https://openid.github.io/authzen/authzen-access-request-approval-profile-1_0">https://openid.github.io/authzen/authzen-access-request-approval-profile-1_0</a>&gt;</span>. </dd>
+<dd class="break"></dd>
 <dt id="I-D.brossard-oauth-rar-authzen">[I-D.brossard-oauth-rar-authzen]</dt>
         <dd>
 <span class="refAuthor">Brossard, D.</span>, <span class="refAuthor">Gazitt, O.</span>, and <span class="refAuthor">A. Babeanu</span>, <span class="refTitle">"AuthZEN Request/Response Profile for OAuth 2.0 Rich Authorization Requests"</span>, <span class="refContent">Work in Progress</span>, <span class="seriesInfo">Internet-Draft, draft-brossard-oauth-rar-authzen-03</span>, <time datetime="2024-07-08" class="refDate">8 July 2024</time>, <span>&lt;<a href="https://datatracker.ietf.org/doc/html/draft-brossard-oauth-rar-authzen-03">https://datatracker.ietf.org/doc/html/draft-brossard-oauth-rar-authzen-03</a>&gt;</span>. </dd>
@@ -2767,7 +2778,16 @@ values are carried verbatim and are not a registered vocabulary.<a href="#sectio
       <h2 id="name-acknowledgments">
 <a href="#name-acknowledgments" class="section-name selfRef">Acknowledgments</a>
       </h2>
-<p id="appendix-A-1">TODO.<a href="#appendix-A-1" class="pilcrow">¶</a></p>
+<p id="appendix-A-1">This work was motivated in significant part by Karl McGuinness, whose
+sustained initiative to bridge OAuth and AuthZEN — in <span>[<a href="#ARAP" class="cite xref">ARAP</a>]</span> and its OAuth
+completion mode — established that a Policy Decision Point belongs behind
+the token endpoint, and that the response of such a Policy Decision Point
+may legitimately shape what is issued. This document takes up the other half
+of that decision.<a href="#appendix-A-1" class="pilcrow">¶</a></p>
+<p id="appendix-A-2">Thanks also to the participants in the OpenID AuthZEN interoperability
+events, whose December 2025 identity provider scenario demonstrated AuthZEN
+search operations populating token claims, and to the members of the AuthZEN
+Working Group and the OAuth Working Group.<a href="#appendix-A-2" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="authors-addresses">
