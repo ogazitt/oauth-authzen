@@ -1362,7 +1362,7 @@ documents.<a href="#section-abstract-3" class="pilcrow">¶</a></p>
 <a href="#section-1" class="section-number selfRef">1. </a><a href="#name-introduction" class="section-name selfRef">Introduction</a>
       </h2>
 <p id="section-1-1">Consider the moment an OAuth 2.0 authorization server (AS) has authenticated
-a client, validated a grant, and must decide whether to mint a token — and
+a client, validated a grant, and must decide whether to mint a token - and
 if so, with what scopes, what audience, what lifetime, and what claims.
 Every specification that defines such a moment models its inputs in careful
 detail and then stops short of the decision.<a href="#section-1-1" class="pilcrow">¶</a></p>
@@ -1376,7 +1376,7 @@ tokens (<span>[<a href="#I-D.ietf-oauth-transaction-tokens" class="cite xref">I-
 policy is expressed, evaluated, or externalized.<a href="#section-1-2" class="pilcrow">¶</a></p>
 <p id="section-1-3">Leaving the decision to local policy is the correct choice for those
 documents. But it means that the single most security-relevant step in token
-issuance is, today, an implementation detail — expressed in vendor-specific
+issuance is, today, an implementation detail - expressed in vendor-specific
 rules engines, inline hooks, and scripting extensions that do not port
 between authorization servers and cannot be reasoned about by anything
 outside the AS.<a href="#section-1-3" class="pilcrow">¶</a></p>
@@ -1397,8 +1397,8 @@ grant or token type, and are expected to be short.<a href="#section-1.1-1" class
           <span>[<a href="#AUTHZEN" class="cite xref">AUTHZEN</a>]</span> requires five fields in every evaluation request: <code>subject.type</code>,
 <code>subject.id</code>, <code>action.name</code>, <code>resource.type</code>, and <code>resource.id</code>. That
 requirement exists so that relationship-based PDPs in the style of
-<span>[<a href="#ZANZIBAR" class="cite xref">ZANZIBAR</a>]</span> — which reason over a typed graph of subjects, relations, and
-objects — can participate in the same ecosystem as attribute-based engines.
+<span>[<a href="#ZANZIBAR" class="cite xref">ZANZIBAR</a>]</span> - which reason over a typed graph of subjects, relations, and
+objects - can participate in the same ecosystem as attribute-based engines.
 A profile that carried its decision-critical inputs in free-form property
 bags would nominally use AuthZEN while excluding an entire class of PDP from
 implementing it.<a href="#section-1.1-2" class="pilcrow">¶</a></p>
@@ -1426,8 +1426,8 @@ authorization server at its token endpoint, before a token is minted. It
 does not address enforcement at a resource server, which is the ordinary
 case AuthZEN already serves and requires no profile.<a href="#section-1.2-1" class="pilcrow">¶</a></p>
 <p id="section-1.2-2">The framework decides an <strong>issuance gate</strong>. Where a deployment's policy
-depends on quantitative or transactional constraints — a payment amount, a
-rate limit — those flow in as advisory context and out as token shaping
+depends on quantitative or transactional constraints - a payment amount, a
+rate limit - those flow in as advisory context and out as token shaping
 (<a href="#shaping" class="auto internal xref">Section 5</a>), to be enforced by downstream policy enforcement points. A
 relationship-based PDP adjudicates the gate; an attribute-based PDP may
 additionally adjudicate the context. Stating this boundary is what keeps the
@@ -1459,14 +1459,14 @@ Policy Enforcement Point (PEP), Subject, Action, Resource, and Context from
 <span class="break"></span><dl class="dlParallel" id="section-2-2">
         <dt id="section-2-2.1">Issuance target:</dt>
         <dd style="margin-left: 1.5em" id="section-2-2.2">
-          <p id="section-2-2.2.1">The audience of the access being granted — the party the issued token
+          <p id="section-2-2.2.1">The audience of the access being granted - the party the issued token
 authorizes its bearer to act against. Usually the value the AS intends for
 the token's <code>aud</code> claim.<a href="#section-2-2.2.1" class="pilcrow">¶</a></p>
 </dd>
         <dd class="break"></dd>
 <dt id="section-2-2.3">Gate tuple:</dt>
         <dd style="margin-left: 1.5em" id="section-2-2.4">
-          <p id="section-2-2.4.1">An evaluation request whose action expresses <em>issuance authority</em> — whether
+          <p id="section-2-2.4.1">An evaluation request whose action expresses <em>issuance authority</em> - whether
 the subject may obtain a token of a given type for the issuance target.
 See <a href="#gate-and-scope" class="auto internal xref">Section 4.3</a>.<a href="#section-2-2.4.1" class="pilcrow">¶</a></p>
 </dd>
@@ -1529,20 +1529,20 @@ them.<a href="#section-3-2" class="pilcrow">¶</a></p>
 <p id="section-4.1-2"><code>subject.type</code> <span class="bcp14">MUST</span> be one of the registered values in <a href="#iana-types" class="auto internal xref">Section 11.3</a>:<a href="#section-4.1-2" class="pilcrow">¶</a></p>
 <ul class="normal">
 <li class="normal" id="section-4.1-3.1">
-            <p id="section-4.1-3.1.1"><code>user</code> — a natural person.<a href="#section-4.1-3.1.1" class="pilcrow">¶</a></p>
+            <p id="section-4.1-3.1.1"><code>user</code> - a natural person.<a href="#section-4.1-3.1.1" class="pilcrow">¶</a></p>
 </li>
           <li class="normal" id="section-4.1-3.2">
-            <p id="section-4.1-3.2.1"><code>client</code> — an OAuth client acting on its own behalf.<a href="#section-4.1-3.2.1" class="pilcrow">¶</a></p>
+            <p id="section-4.1-3.2.1"><code>client</code> - an OAuth client acting on its own behalf.<a href="#section-4.1-3.2.1" class="pilcrow">¶</a></p>
 </li>
           <li class="normal" id="section-4.1-3.3">
-            <p id="section-4.1-3.3.1"><code>workload</code> — a non-human software identity, such as a workload with a
+            <p id="section-4.1-3.3.1"><code>workload</code> - a non-human software identity, such as a workload with a
 cryptographic identity document.<a href="#section-4.1-3.3.1" class="pilcrow">¶</a></p>
 </li>
         </ul>
 <p id="section-4.1-4"><code>subject.id</code> <span class="bcp14">MUST</span> be the identifier the AS intends to place in the issued
 token's subject claim. Where the AS applies a transformation to subject
-identifiers — pairwise or pseudonymous identifiers, or a mapping from an
-external identity to a local account — that transformation <span class="bcp14">MUST</span> be applied
+identifiers - pairwise or pseudonymous identifiers, or a mapping from an
+external identity to a local account - that transformation <span class="bcp14">MUST</span> be applied
 <em>before</em> the evaluation request is constructed, so that the identifier the
 PDP authorizes is the identifier the token carries.<a href="#section-4.1-4" class="pilcrow">¶</a></p>
 </section>
@@ -1559,8 +1559,8 @@ target.<a href="#section-4.2-1" class="pilcrow">¶</a></p>
 the <em>protocol role</em> the target plays, not a guess at its nature. Policies
 written against <code>audience</code> port across deployments; policies written against
 locally invented type names do not.<a href="#section-4.2-2" class="pilcrow">¶</a></p>
-<p id="section-4.2-3">Where the request carries an explicit target — an <code>audience</code> parameter, or a
-<code>resource</code> parameter in the sense of <span>[<a href="#RFC8707" class="cite xref">RFC8707</a>]</span> — that value determines
+<p id="section-4.2-3">Where the request carries an explicit target - an <code>audience</code> parameter, or a
+<code>resource</code> parameter in the sense of <span>[<a href="#RFC8707" class="cite xref">RFC8707</a>]</span> - that value determines
 <code>resource.id</code>. Where it does not, the AS's default audience for the grant
 determines it.<a href="#section-4.2-3" class="pilcrow">¶</a></p>
 </section>
@@ -1596,7 +1596,7 @@ rather than as two interpretations of one <code>action.name</code>.<a href="#sec
 <a href="#section-4.3.1" class="section-number selfRef">4.3.1. </a><a href="#name-gate-tuple" class="section-name selfRef">Gate Tuple</a>
           </h4>
 <p id="section-4.3.1-1">A gate tuple is an evaluation whose <code>action.name</code> is <code>issue:</code> followed by a
-token type short name registered in <a href="#iana-actions" class="auto internal xref">Section 11.4</a> — for example
+token type short name registered in <a href="#iana-actions" class="auto internal xref">Section 11.4</a> - for example
 <code>issue:access_token</code>, <code>issue:id-jag</code>, <code>issue:txn_token</code>.<a href="#section-4.3.1-1" class="pilcrow">¶</a></p>
 <p id="section-4.3.1-2">The <code>issue:</code> prefix is reserved. A deployment <span class="bcp14">MUST NOT</span> use a scope value
 beginning with <code>issue:</code> as a scope tuple action.<a href="#section-4.3.1-2" class="pilcrow">¶</a></p>
@@ -1623,7 +1623,7 @@ decides what that means in its own policy vocabulary.<a href="#section-4.3.2-2" 
 <p id="section-4.3.3-1">A gate tuple <span class="bcp14">MUST</span> be included when either:<a href="#section-4.3.3-1" class="pilcrow">¶</a></p>
 <ol start="1" type="1" class="normal type-1" id="section-4.3.3-2">
 <li id="section-4.3.3-2.1">
-              <p id="section-4.3.3-2.1.1">the request produces no scope tuples — that is, no scopes were requested
+              <p id="section-4.3.3-2.1.1">the request produces no scope tuples - that is, no scopes were requested
 and the AS has no default set to expand; or<a href="#section-4.3.3-2.1.1" class="pilcrow">¶</a></p>
 </li>
             <li id="section-4.3.3-2.2">
@@ -1717,7 +1717,7 @@ tuple and its decision is <code>false</code>, the AS <span class="bcp14">MUST</s
 issue a token, irrespective of the other results.<a href="#section-4.5-3" class="pilcrow">¶</a></p>
 <p id="section-4.5-4"><span>[<a href="#AUTHZEN" class="cite xref">AUTHZEN</a>]</span> evaluation semantics are selected per request and cannot mark an
 individual batch item as a precondition, so this composition rule is
-enforced by the AS. This is well within the PEP's role — the AS is already
+enforced by the AS. This is well within the PEP's role - the AS is already
 interpreting per-item results in order to downscope.<a href="#section-4.5-4" class="pilcrow">¶</a></p>
 <p id="section-4.5-5">If every scope tuple is denied and no gate tuple is present, the AS <span class="bcp14">MUST</span>
 fail the request rather than issue a token with an empty scope set.<a href="#section-4.5-5" class="pilcrow">¶</a></p>
@@ -1771,11 +1771,11 @@ It is not sufficient here, because the consequences are asymmetric:<a href="#sec
 <ul class="normal">
 <li class="normal" id="section-5.2-2.1">
             <p id="section-5.2-2.1.1">Ignoring a key that <strong>narrows</strong> the grant yields a token <strong>broader than
-the PDP authorized</strong> — a silent privilege escalation.<a href="#section-5.2-2.1.1" class="pilcrow">¶</a></p>
+the PDP authorized</strong> - a silent privilege escalation.<a href="#section-5.2-2.1.1" class="pilcrow">¶</a></p>
 </li>
           <li class="normal" id="section-5.2-2.2">
             <p id="section-5.2-2.2.1">Ignoring a key that <strong>adds</strong> information yields a token narrower than
-intended — a functional shortfall, not a security failure.<a href="#section-5.2-2.2.1" class="pilcrow">¶</a></p>
+intended - a functional shortfall, not a security failure.<a href="#section-5.2-2.2.1" class="pilcrow">¶</a></p>
 </li>
         </ul>
 <p id="section-5.2-3">This profile therefore adopts the following rule, from which the treatment
@@ -1817,7 +1817,7 @@ considered.<a href="#section-5.3-2" class="pilcrow">¶</a></p>
 <p id="section-5.4.1-1">A space-delimited string in the syntax of the <code>scope</code> parameter of
 <span>[<a href="#RFC6749" class="cite xref">RFC6749</a>]</span>, giving the scope set the AS is authorized to grant.<a href="#section-5.4.1-1" class="pilcrow">¶</a></p>
 <p id="section-5.4.1-2"><code>granted_scope</code> <span class="bcp14">MUST</span> be a subset of the scopes the AS would otherwise have
-granted — the requested scopes, or for a request naming none, the AS's
+granted - the requested scopes, or for a request naming none, the AS's
 default set for that client and target. The AS <span class="bcp14">MUST</span> reject the decision
 otherwise.<a href="#section-5.4.1-2" class="pilcrow">¶</a></p>
 <p id="section-5.4.1-3">Its principal use is the gate-only evaluation, where there are no scope
@@ -1859,7 +1859,7 @@ exchange requests the appropriate error is <code>invalid_target</code> (<span>[<
           <h4 id="name-authorization_details">
 <a href="#section-5.4.4" class="section-number selfRef">5.4.4. </a><a href="#name-authorization_details" class="section-name selfRef"><code>authorization_details</code></a>
           </h4>
-<p id="section-5.4.4-1">An array in the syntax of <span>[<a href="#RFC9396" class="cite xref">RFC9396</a>]</span>, replacing — not merged with — the
+<p id="section-5.4.4-1">An array in the syntax of <span>[<a href="#RFC9396" class="cite xref">RFC9396</a>]</span>, replacing - not merged with - the
 authorization details of the request.<a href="#section-5.4.4-1" class="pilcrow">¶</a></p>
 <p id="section-5.4.4-2">Replacement admits arbitrary structured narrowing, which is what a PDP
 filtering rich authorization requests needs, but "narrower" is not decidable
@@ -1892,7 +1892,7 @@ and apply a named member <span class="bcp14">MUST</span> treat the permit as a d
 <p id="section-5.4.5-2"><code>crit</code> exists because the static classification in this section is
 incomplete. An additive claim is normally safe to ignore, except where the
 claim <em>is</em> a constraint that a downstream enforcement point is expected to
-apply — a ceiling asserted by policy, for instance. Dropping such a claim
+apply - a ceiling asserted by policy, for instance. Dropping such a claim
 broadens what the token effectively authorizes.<a href="#section-5.4.5-2" class="pilcrow">¶</a></p>
 <p id="section-5.4.5-3">A PDP <span class="bcp14">MUST NOT</span> include <code>crit</code> unless the AS has declared support for the
 corresponding capability (<a href="#discovery" class="auto internal xref">Section 6</a>).<a href="#section-5.4.5-3" class="pilcrow">¶</a></p>
@@ -1912,7 +1912,7 @@ corresponding capability (<a href="#discovery" class="auto internal xref">Sectio
           </h4>
 <p id="section-5.5.1-1">An object whose members are claim names, in the sense of <span>[<a href="#RFC7519" class="cite xref">RFC7519</a>]</span>, and
 the values to be included in the issued token. This is the mechanism by
-which policy-derived attributes reach the token — group memberships, roles,
+which policy-derived attributes reach the token - group memberships, roles,
 and entitlements of the kind <span>[<a href="#RFC9068" class="cite xref">RFC9068</a>]</span> describes for JWT access tokens,
 drawn from the schema of <span>[<a href="#RFC7643" class="cite xref">RFC7643</a>]</span>.<a href="#section-5.5.1-1" class="pilcrow">¶</a></p>
 <p id="section-5.5.1-2">Members of <code>claims</code> are advisory under <a href="#mtu" class="auto internal xref">Section 5.2</a>: an AS that drops them issues
@@ -2192,9 +2192,9 @@ allowing a property of the enforcement point to influence policy.<a href="#secti
 operator of the AS. An AS <span class="bcp14">MUST NOT</span> relay PDP reason strings to the client,
 as they may disclose policy structure to a party that is not authorized to
 learn it.<a href="#section-7-2" class="pilcrow">¶</a></p>
-<p id="section-7-3">Where a PDP returns a denial accompanied by authentication requirements —
+<p id="section-7-3">Where a PDP returns a denial accompanied by authentication requirements -
 the step-up pattern of <span>[<a href="#AUTHZEN" class="cite xref">AUTHZEN</a>]</span>, in which required <code>acr</code> and <code>amr</code> values
-are named — an AS <span class="bcp14">SHOULD</span> surface this to the client. This document does not
+are named - an AS <span class="bcp14">SHOULD</span> surface this to the client. This document does not
 define that mapping: <code>insufficient_user_authentication</code> in <span>[<a href="#RFC9470" class="cite xref">RFC9470</a>]</span> is
 defined for resource servers rather than for the token endpoint, and no
 equivalent signal exists there. This is an open item.<a href="#section-7-3" class="pilcrow">¶</a></p>
@@ -2350,9 +2350,9 @@ is a single evaluation.<a href="#section-8.3-1" class="pilcrow">¶</a></p>
       </h2>
 <p id="section-9-1">This document defines the mapping and the shaping vocabulary. It does not
 define how any particular grant type supplies them, and is not implementable
-on its own. Bindings are expected for the token exchange family — including
+on its own. Bindings are expected for the token exchange family - including
 identity chaining, identity assertion authorization grants, and transaction
-tokens — and a profile describing the use of AuthZEN search operations to
+tokens - and a profile describing the use of AuthZEN search operations to
 populate the authorization claims of <span>[<a href="#RFC9068" class="cite xref">RFC9068</a>]</span>.<a href="#section-9-1" class="pilcrow">¶</a></p>
 <p id="section-9-2">Bindings specify the subject derivation for their grant, any additional
 context keys, the token type short names they register, and any invariants
@@ -2404,10 +2404,10 @@ than to compete, and aligning the two is expected work.<a href="#section-9.1-5" 
         <h3 id="name-fail-closed">
 <a href="#section-10.1" class="section-number selfRef">10.1. </a><a href="#name-fail-closed" class="section-name selfRef">Fail Closed</a>
         </h3>
-<p id="section-10.1-1">Every failure of the profile — an unreachable PDP, a malformed response, a
-shaping value that violates <a href="#no-broadening" class="auto internal xref">Section 5.3</a>, an unrecognized <code>crit</code> member
-— <span class="bcp14">MUST</span> result in no token being issued. A PDP that cannot be consulted is
-not an authorization to proceed.<a href="#section-10.1-1" class="pilcrow">¶</a></p>
+<p id="section-10.1-1">Every failure of the profile - an unreachable PDP, a malformed response, a
+shaping value that violates <a href="#no-broadening" class="auto internal xref">Section 5.3</a>, an unrecognized <code>crit</code>
+member - <span class="bcp14">MUST</span> result in no token being issued. A PDP that cannot be
+consulted is not an authorization to proceed.<a href="#section-10.1-1" class="pilcrow">¶</a></p>
 <p id="section-10.1-2">Because the PDP is on the token issuance path, its availability becomes the
 AS's availability. Deployments should consider caching of decisions, local
 policy fallback that is explicitly configured rather than implicit, and the
@@ -2779,7 +2779,7 @@ values are carried verbatim and are not a registered vocabulary.<a href="#sectio
 <a href="#name-acknowledgments" class="section-name selfRef">Acknowledgments</a>
       </h2>
 <p id="appendix-A-1">This work was motivated in part by Karl McGuinness, whose initiative to
-bridge OAuth and AuthZEN — in <span>[<a href="#ARAP" class="cite xref">ARAP</a>]</span> and its OAuth completion mode —
+bridge OAuth and AuthZEN - in <span>[<a href="#ARAP" class="cite xref">ARAP</a>]</span> and its OAuth completion mode -
 established that a Policy Decision Point belongs behind the token endpoint,
 and that the response of such a Policy Decision Point may legitimately shape
 what is issued. This document takes up the other half of that decision.<a href="#appendix-A-1" class="pilcrow">¶</a></p>
