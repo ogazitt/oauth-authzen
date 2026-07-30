@@ -95,7 +95,7 @@ documents.
 # Introduction
 
 Consider the moment an OAuth 2.0 authorization server (AS) has authenticated
-a client, validated a grant, and must decide whether to mint a token — and
+a client, validated a grant, and must decide whether to mint a token - and
 if so, with what scopes, what audience, what lifetime, and what claims.
 Every specification that defines such a moment models its inputs in careful
 detail and then stops short of the decision.
@@ -111,7 +111,7 @@ policy is expressed, evaluated, or externalized.
 
 Leaving the decision to local policy is the correct choice for those
 documents. But it means that the single most security-relevant step in token
-issuance is, today, an implementation detail — expressed in vendor-specific
+issuance is, today, an implementation detail - expressed in vendor-specific
 rules engines, inline hooks, and scripting extensions that do not port
 between authorization servers and cannot be reasoned about by anything
 outside the AS.
@@ -132,8 +132,8 @@ grant or token type, and are expected to be short.
 {{AUTHZEN}} requires five fields in every evaluation request: `subject.type`,
 `subject.id`, `action.name`, `resource.type`, and `resource.id`. That
 requirement exists so that relationship-based PDPs in the style of
-{{ZANZIBAR}} — which reason over a typed graph of subjects, relations, and
-objects — can participate in the same ecosystem as attribute-based engines.
+{{ZANZIBAR}} - which reason over a typed graph of subjects, relations, and
+objects - can participate in the same ecosystem as attribute-based engines.
 A profile that carried its decision-critical inputs in free-form property
 bags would nominally use AuthZEN while excluding an entire class of PDP from
 implementing it.
@@ -157,8 +157,8 @@ does not address enforcement at a resource server, which is the ordinary
 case AuthZEN already serves and requires no profile.
 
 The framework decides an **issuance gate**. Where a deployment's policy
-depends on quantitative or transactional constraints — a payment amount, a
-rate limit — those flow in as advisory context and out as token shaping
+depends on quantitative or transactional constraints - a payment amount, a
+rate limit - those flow in as advisory context and out as token shaping
 ({{shaping}}), to be enforced by downstream policy enforcement points. A
 relationship-based PDP adjudicates the gate; an attribute-based PDP may
 additionally adjudicate the context. Stating this boundary is what keeps the
@@ -176,12 +176,12 @@ Policy Enforcement Point (PEP), Subject, Action, Resource, and Context from
 {{AUTHZEN}}.
 
 Issuance target:
-: The audience of the access being granted — the party the issued token
+: The audience of the access being granted - the party the issued token
   authorizes its bearer to act against. Usually the value the AS intends for
   the token's `aud` claim.
 
 Gate tuple:
-: An evaluation request whose action expresses *issuance authority* — whether
+: An evaluation request whose action expresses *issuance authority* - whether
   the subject may obtain a token of a given type for the issuance target.
   See {{gate-and-scope}}.
 
@@ -227,15 +227,15 @@ them.
 
 `subject.type` MUST be one of the registered values in {{iana-types}}:
 
-* `user` — a natural person.
-* `client` — an OAuth client acting on its own behalf.
-* `workload` — a non-human software identity, such as a workload with a
+* `user` - a natural person.
+* `client` - an OAuth client acting on its own behalf.
+* `workload` - a non-human software identity, such as a workload with a
   cryptographic identity document.
 
 `subject.id` MUST be the identifier the AS intends to place in the issued
 token's subject claim. Where the AS applies a transformation to subject
-identifiers — pairwise or pseudonymous identifiers, or a mapping from an
-external identity to a local account — that transformation MUST be applied
+identifiers - pairwise or pseudonymous identifiers, or a mapping from an
+external identity to a local account - that transformation MUST be applied
 *before* the evaluation request is constructed, so that the identifier the
 PDP authorizes is the identifier the token carries.
 
@@ -250,8 +250,8 @@ the *protocol role* the target plays, not a guess at its nature. Policies
 written against `audience` port across deployments; policies written against
 locally invented type names do not.
 
-Where the request carries an explicit target — an `audience` parameter, or a
-`resource` parameter in the sense of {{RFC8707}} — that value determines
+Where the request carries an explicit target - an `audience` parameter, or a
+`resource` parameter in the sense of {{RFC8707}} - that value determines
 `resource.id`. Where it does not, the AS's default audience for the grant
 determines it.
 
@@ -278,7 +278,7 @@ rather than as two interpretations of one `action.name`.
 ### Gate Tuple
 
 A gate tuple is an evaluation whose `action.name` is `issue:` followed by a
-token type short name registered in {{iana-actions}} — for example
+token type short name registered in {{iana-actions}} - for example
 `issue:access_token`, `issue:id-jag`, `issue:txn_token`.
 
 The `issue:` prefix is reserved. A deployment MUST NOT use a scope value
@@ -298,7 +298,7 @@ decides what that means in its own policy vocabulary.
 
 A gate tuple MUST be included when either:
 
-1. the request produces no scope tuples — that is, no scopes were requested
+1. the request produces no scope tuples - that is, no scopes were requested
    and the AS has no default set to expand; or
 2. the flow admits more than one issuable token type, meaning the token type
    is a variable of the request rather than fixed by the grant.
@@ -359,7 +359,7 @@ issue a token, irrespective of the other results.
 
 {{AUTHZEN}} evaluation semantics are selected per request and cannot mark an
 individual batch item as a precondition, so this composition rule is
-enforced by the AS. This is well within the PEP's role — the AS is already
+enforced by the AS. This is well within the PEP's role - the AS is already
 interpreting per-item results in order to downscope.
 
 If every scope tuple is denied and no gate tuple is present, the AS MUST
@@ -401,9 +401,9 @@ appropriate for a general-purpose API in which response context is advisory.
 It is not sufficient here, because the consequences are asymmetric:
 
 * Ignoring a key that **narrows** the grant yields a token **broader than
-  the PDP authorized** — a silent privilege escalation.
+  the PDP authorized** - a silent privilege escalation.
 * Ignoring a key that **adds** information yields a token narrower than
-  intended — a functional shortfall, not a security failure.
+  intended - a functional shortfall, not a security failure.
 
 This profile therefore adopts the following rule, from which the treatment
 of every key below is derived:
@@ -433,7 +433,7 @@ A space-delimited string in the syntax of the `scope` parameter of
 {{RFC6749}}, giving the scope set the AS is authorized to grant.
 
 `granted_scope` MUST be a subset of the scopes the AS would otherwise have
-granted — the requested scopes, or for a request naming none, the AS's
+granted - the requested scopes, or for a request naming none, the AS's
 default set for that client and target. The AS MUST reject the decision
 otherwise.
 
@@ -467,7 +467,7 @@ exchange requests the appropriate error is `invalid_target` ({{RFC8693}}).
 
 ### `authorization_details`
 
-An array in the syntax of {{RFC9396}}, replacing — not merged with — the
+An array in the syntax of {{RFC9396}}, replacing - not merged with - the
 authorization details of the request.
 
 Replacement admits arbitrary structured narrowing, which is what a PDP
@@ -493,7 +493,7 @@ and apply a named member MUST treat the permit as a denial.
 `crit` exists because the static classification in this section is
 incomplete. An additive claim is normally safe to ignore, except where the
 claim *is* a constraint that a downstream enforcement point is expected to
-apply — a ceiling asserted by policy, for instance. Dropping such a claim
+apply - a ceiling asserted by policy, for instance. Dropping such a claim
 broadens what the token effectively authorizes.
 
 A PDP MUST NOT include `crit` unless the AS has declared support for the
@@ -505,7 +505,7 @@ corresponding capability ({{discovery}}).
 
 An object whose members are claim names, in the sense of {{RFC7519}}, and
 the values to be included in the issued token. This is the mechanism by
-which policy-derived attributes reach the token — group memberships, roles,
+which policy-derived attributes reach the token - group memberships, roles,
 and entitlements of the kind {{RFC9068}} describes for JWT access tokens,
 drawn from the schema of {{RFC7643}}.
 
@@ -638,9 +638,9 @@ operator of the AS. An AS MUST NOT relay PDP reason strings to the client,
 as they may disclose policy structure to a party that is not authorized to
 learn it.
 
-Where a PDP returns a denial accompanied by authentication requirements —
+Where a PDP returns a denial accompanied by authentication requirements -
 the step-up pattern of {{AUTHZEN}}, in which required `acr` and `amr` values
-are named — an AS SHOULD surface this to the client. This document does not
+are named - an AS SHOULD surface this to the client. This document does not
 define that mapping: `insufficient_user_authentication` in {{RFC9470}} is
 defined for resource servers rather than for the token endpoint, and no
 equivalent signal exists there. This is an open item.
@@ -770,9 +770,9 @@ is a single evaluation.
 
 This document defines the mapping and the shaping vocabulary. It does not
 define how any particular grant type supplies them, and is not implementable
-on its own. Bindings are expected for the token exchange family — including
+on its own. Bindings are expected for the token exchange family - including
 identity chaining, identity assertion authorization grants, and transaction
-tokens — and a profile describing the use of AuthZEN search operations to
+tokens - and a profile describing the use of AuthZEN search operations to
 populate the authorization claims of {{RFC9068}}.
 
 Bindings specify the subject derivation for their grant, any additional
@@ -818,10 +818,10 @@ than to compete, and aligning the two is expected work.
 
 ## Fail Closed
 
-Every failure of the profile — an unreachable PDP, a malformed response, a
-shaping value that violates {{no-broadening}}, an unrecognized `crit` member
-— MUST result in no token being issued. A PDP that cannot be consulted is
-not an authorization to proceed.
+Every failure of the profile - an unreachable PDP, a malformed response, a
+shaping value that violates {{no-broadening}}, an unrecognized `crit`
+member - MUST result in no token being issued. A PDP that cannot be
+consulted is not an authorization to proceed.
 
 Because the PDP is on the token issuance path, its availability becomes the
 AS's availability. Deployments should consider caching of decisions, local
@@ -972,7 +972,7 @@ values are carried verbatim and are not a registered vocabulary.
 {:numbered="false"}
 
 This work was motivated in part by Karl McGuinness, whose initiative to
-bridge OAuth and AuthZEN — in {{ARAP}} and its OAuth completion mode —
+bridge OAuth and AuthZEN - in {{ARAP}} and its OAuth completion mode -
 established that a Policy Decision Point belongs behind the token endpoint,
 and that the response of such a Policy Decision Point may legitimately shape
 what is issued. This document takes up the other half of that decision.
