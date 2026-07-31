@@ -1,5 +1,5 @@
 ---
-title: "An AuthZEN Binding for OAuth 2.0 Token Exchange"
+title: "AuthZEN Binding for OAuth 2.0 Token Exchange"
 abbrev: "AuthZEN Token Exchange Binding"
 category: std
 docname: draft-gazitt-oauth-authzen-token-exchange-latest
@@ -41,7 +41,7 @@ normative:
       - ins: "OpenID Foundation AuthZEN Working Group"
         org: "OpenID Foundation"
   ISSUANCE:
-    title: "An AuthZEN Profile for OAuth 2.0 Token Issuance"
+    title: "AuthZEN Profile for OAuth 2.0 Token Issuance"
     target: "https://ogazitt.github.io/oauth-authzen/draft-gazitt-oauth-authzen-issuance.html"
     author:
       - ins: O. Gazitt

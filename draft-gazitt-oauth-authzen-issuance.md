@@ -1,5 +1,5 @@
 ---
-title: "An AuthZEN Profile for OAuth 2.0 Token Issuance"
+title: "AuthZEN Profile for OAuth 2.0 Token Issuance"
 abbrev: "AuthZEN Token Issuance"
 category: std
 docname: draft-gazitt-oauth-authzen-issuance-latest

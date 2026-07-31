@@ -1,8 +1,8 @@
 <!-- regenerate: on (set to off if you edit this file) -->
 
-# An AuthZEN Profile for OAuth 2.0 Token Issuance
+# AuthZEN Profile for OAuth 2.0 Token Issuance
 
-This is the working area for the individual Internet-Draft, "An AuthZEN Profile for OAuth 2.0 Token Issuance".
+This is the working area for the individual Internet-Draft, "AuthZEN Profile for OAuth 2.0 Token Issuance".
 
 * [Editor's Copy](https://ogazitt.github.io/oauth-authzen/#go.draft-gazitt-oauth-authzen-issuance.html)
 * [Datatracker Page](https://datatracker.ietf.org/doc/draft-gazitt-oauth-authzen-issuance)
