@@ -8,7 +8,7 @@ Intended status: Standards Track                            31 July 2026
 Expires: 1 February 2027
 
 
-            An AuthZEN Profile for OAuth 2.0 Token Issuance
+              AuthZEN Profile for OAuth 2.0 Token Issuance
                draft-gazitt-oauth-authzen-issuance-latest
 
 Abstract
