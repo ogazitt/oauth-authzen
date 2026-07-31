@@ -358,7 +358,7 @@ Table of Contents
        token type is a variable of the request rather than fixed by the
        grant.
 
-   Otherwise the gate tuple SHOULD be omitted.
+   Otherwise a gate tuple MAY be included.
 
    Condition 2 is determined by the grant.  In the token exchange
    family, a requested_token_type parameter selects among token types,
@@ -373,27 +373,27 @@ Table of Contents
    exists to externalize.  The condition for requiring the gate is
    deliberately drawn from facts observable in the request.
 
-   Omission in the remaining cases is a recommendation rather than a
-   prohibition, and the two directions are not symmetric.  Omitting a
-   required gate skips a decision; adding an unrequired one cannot
-   loosen the outcome, because an additional tuple can only narrow what
-   is issued.  What omission buys is a predictable request shape: a
-   policy author who knows that an authorization code grant carries
-   scope tuples alone can write policy once and have it serve any
-   conforming AS.  It also keeps the common cases on the single-
-   evaluation API rather than the batch one.
+   The conditions above are a floor, not a ceiling.  Requiring a gate
+   and forbidding one are not symmetric obligations: omitting a required
+   gate skips a decision, whereas adding an unrequired one cannot loosen
+   the outcome, since a further tuple can only narrow what is issued.
+   An AS that gates every issuance it performs is running a more
+   conservative deployment, not a nonconforming one.
 
-   An AS that includes a gate tuple anyway is relying on the PDP having
-   a corresponding issue: policy.  A gate denial is fatal (Section 4.5),
-   so a PDP that default-denies unfamiliar actions refuses such a
-   request outright instead of narrowing it.  A deployment that prefers
-   a uniform request shape is better served by making that choice for
-   every grant it handles than by varying it from request to request.
+   The discretion is safe to grant because the PDP side is not left
+   guessing.  A PDP that advertises support for this profile renders a
+   decision on any registered gate action it is sent (Section 6.1), so
+   an AS that gates where these conditions do not require it cannot
+   thereby break a conforming PDP.  Deployments are encouraged to write
+   issuance policy for every token type their AS can issue, whether or
+   not the AS is obliged to ask: policy written that way is insensitive
+   to how much discretion a given AS exercises.
 
-   By default, therefore, the most common cases produce a single
-   evaluation rather than a batch: an authorization code or client
-   credentials request naming one scope produces one scope tuple, and a
-   request naming no scopes produces one gate tuple.
+   An AS that sends only what is required will find that the most common
+   cases produce a single evaluation rather than a batch: an
+   authorization code or client credentials request naming one scope
+   produces one scope tuple, and a request naming no scopes produces one
+   gate tuple.
 
 4.4.  Context
 
@@ -712,6 +712,20 @@ Table of Contents
        "urn:ietf:params:authzen:token-issuance"
      ]
    }
+
+   Advertising the capability is a commitment to the request shapes this
+   profile can produce, not only to the ones a given AS is obliged to
+   send.  A PDP that advertises it MUST render a decision for a gate
+   tuple naming any action name registered in Section 11.4, and MUST NOT
+   reject the evaluation on the grounds that it holds no policy for that
+   action.  Denying is a decision; a protocol error is not.  The same
+   applies to a batch that mixes a gate tuple with scope tuples, which
+   is the ordinary shape of a gated request (Section 4.5).
+
+   This is what makes the latitude in Section 4.3.3 inconsequential.  A
+   deployment whose policy covers every token type its AS can issue
+   behaves the same way whether the AS gates only where required or
+   gates every issuance, so the two can be configured independently.
 
 6.2.  Policy Enforcement Point Capabilities
 
