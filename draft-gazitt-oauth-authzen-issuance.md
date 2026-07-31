@@ -303,24 +303,40 @@ A gate tuple MUST be included when either:
 2. the flow admits more than one issuable token type, meaning the token type
    is a variable of the request rather than fixed by the grant.
 
-Otherwise the gate tuple MUST be omitted.
+Otherwise the gate tuple SHOULD be omitted.
 
 Condition 2 is determined by the grant. In the token exchange family, a
 `requested_token_type` parameter selects among token types, so the gate is
 required. In the authorization code, client credentials, and refresh token
 grants the token type is fixed, so it is not.
 
-An AS MUST NOT omit a gate tuple on the grounds that it believes the
-corresponding policy is permissive. Whether a gate is permissive is
-internal to the PDP; an AS that acted on such a belief would be making the
-policy decision this profile exists to externalize. The condition for
-omitting the gate is deliberately drawn from facts observable in the
-request.
+An AS MUST NOT omit a gate tuple required by the conditions above on the
+grounds that it believes the corresponding policy is permissive. Whether a
+gate is permissive is internal to the PDP; an AS that acted on such a belief
+would be making the policy decision this profile exists to externalize. The
+condition for requiring the gate is deliberately drawn from facts observable
+in the request.
 
-A consequence of {{gate-required}} is that the most common cases require a
-single evaluation rather than a batch: an authorization code or client
-credentials request naming one scope produces one scope tuple, and a
-request naming no scopes produces one gate tuple.
+Omission in the remaining cases is a recommendation rather than a
+prohibition, and the two directions are not symmetric. Omitting a required
+gate skips a decision; adding an unrequired one cannot loosen the outcome,
+because an additional tuple can only narrow what is issued. What omission
+buys is a predictable request shape: a policy author who knows that an
+authorization code grant carries scope tuples alone can write policy once
+and have it serve any conforming AS. It also keeps the common cases on the
+single-evaluation API rather than the batch one.
+
+An AS that includes a gate tuple anyway is relying on the PDP having a
+corresponding `issue:` policy. A gate denial is fatal ({{composition}}), so
+a PDP that default-denies unfamiliar actions refuses such a request outright
+instead of narrowing it. A deployment that prefers a uniform request shape
+is better served by making that choice for every grant it handles than by
+varying it from request to request.
+
+By default, therefore, the most common cases produce a single evaluation
+rather than a batch: an authorization code or client credentials request
+naming one scope produces one scope tuple, and a request naming no scopes
+produces one gate tuple.
 
 ## Context
 
