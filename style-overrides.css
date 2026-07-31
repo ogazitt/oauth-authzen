@@ -1,0 +1,10 @@
+/* Appended to i-d-template's lib/v3.css when building the editor's copy. */
+
+/* That stylesheet gives the paragraph after the Abstract heading a larger
+   lede treatment, which only reads as deliberate when the abstract is a
+   single paragraph. These abstracts are not, so the first paragraph came out
+   two points bigger than the two below it. */
+#abstract + p {
+  font-size: inherit;
+  line-height: inherit;
+}

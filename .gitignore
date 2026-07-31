@@ -22,3 +22,6 @@ Gemfile.lock
 package-lock.json
 report.xml
 !requirements.txt
+
+# Generated: lib/v3.css plus style-overrides.css.
+/rfc-style.css
