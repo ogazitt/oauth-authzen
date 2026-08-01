@@ -1691,20 +1691,12 @@ decides what that means in its own policy vocabulary.<a href="#section-4.3.3-2" 
           </h4>
 <p id="section-4.3.4-1">An AS <span class="bcp14">MUST</span> include a gate tuple in every evaluation request it forms under
 this profile. A binding <span class="bcp14">MAY</span> require more than one (<a href="#composition" class="auto internal xref">Section 4.5</a>).<a href="#section-4.3.4-1" class="pilcrow">¶</a></p>
-<p id="section-4.3.4-2">There is no condition under which the gate may be omitted, because the gate
-is the only tuple that carries the grant. A request naming a single scope
-would otherwise reduce to one scope tuple, and an authorization code
-issuance and a refresh of it would reach the PDP as the same evaluation.<a href="#section-4.3.4-2" class="pilcrow">¶</a></p>
-<p id="section-4.3.4-3">An AS <span class="bcp14">MUST NOT</span> omit a gate tuple on the grounds that it believes the
-corresponding policy is permissive. Whether a gate is permissive is internal
-to the PDP; an AS that acted on such a belief would be making the policy
-decision this profile exists to externalize.<a href="#section-4.3.4-3" class="pilcrow">¶</a></p>
-<p id="section-4.3.4-4">The floor is therefore two evaluations for a request naming scopes, and one
+<p id="section-4.3.4-2">The floor is therefore two evaluations for a request naming scopes, and one
 for a request naming none. Deployments are expected to write issuance policy
 for every token type and grant combination their AS can produce; a PDP that
 advertises support for this profile renders a decision on any registered gate
 action it is sent (<a href="#pdp-capabilities" class="auto internal xref">Section 6.1</a>), so an AS never has to predict which
-combinations a given PDP has policy for.<a href="#section-4.3.4-4" class="pilcrow">¶</a></p>
+combinations a given PDP has policy for.<a href="#section-4.3.4-2" class="pilcrow">¶</a></p>
 </section>
 </div>
 </section>
