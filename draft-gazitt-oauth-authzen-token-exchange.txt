@@ -738,7 +738,7 @@ Table of Contents
        "client_id": "gateway-client",
        "may_act": { "sub": "spiffe://cluster/ns/prod/sa/gateway" },
        "issuance": {
-         "supported_capabilities": [
+         "capabilities": [
            "urn:ietf:params:authzen:token-issuance"
          ]
        }
@@ -807,7 +807,7 @@ Table of Contents
      "context": {
        "client_id": "chatterbox-idp-7f3a",
        "issuance": {
-         "supported_capabilities": [
+         "capabilities": [
            "urn:ietf:params:authzen:token-issuance"
          ]
        }
