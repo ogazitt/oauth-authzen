@@ -1688,6 +1688,7 @@ advisory: a PDP <span class="bcp14">MUST</span> be able to render a decision fro
 <thead>
             <tr>
               <th class="text-left" rowspan="1" colspan="1">Key</th>
+              <th class="text-left" rowspan="1" colspan="1">Type</th>
               <th class="text-left" rowspan="1" colspan="1">Value</th>
             </tr>
           </thead>
@@ -1696,52 +1697,61 @@ advisory: a PDP <span class="bcp14">MUST</span> be able to render a decision fro
               <td class="text-left" rowspan="1" colspan="1">
                 <code>requested_token_type</code>
 </td>
+              <td class="text-left" rowspan="1" colspan="1">string</td>
               <td class="text-left" rowspan="1" colspan="1">The <code>requested_token_type</code> parameter, verbatim</td>
             </tr>
             <tr>
               <td class="text-left" rowspan="1" colspan="1">
                 <code>subject_token_type</code>
 </td>
+              <td class="text-left" rowspan="1" colspan="1">string</td>
               <td class="text-left" rowspan="1" colspan="1">The <code>subject_token_type</code> parameter, verbatim</td>
             </tr>
             <tr>
               <td class="text-left" rowspan="1" colspan="1">
                 <code>actor_token_type</code>
 </td>
+              <td class="text-left" rowspan="1" colspan="1">string</td>
               <td class="text-left" rowspan="1" colspan="1">The <code>actor_token_type</code> parameter, if present</td>
             </tr>
             <tr>
               <td class="text-left" rowspan="1" colspan="1">
                 <code>subject_token</code>
 </td>
-              <td class="text-left" rowspan="1" colspan="1">An object carrying selected validated claims of the subject token, such as <code>iss</code>, <code>acr</code>, <code>amr</code>, and <code>auth_time</code>
+              <td class="text-left" rowspan="1" colspan="1">object</td>
+              <td class="text-left" rowspan="1" colspan="1">Selected validated claims of the subject token, such as <code>iss</code>, <code>acr</code>, <code>amr</code>, and <code>auth_time</code>
 </td>
             </tr>
             <tr>
               <td class="text-left" rowspan="1" colspan="1">
                 <code>act</code>
 </td>
+              <td class="text-left" rowspan="1" colspan="1">object</td>
               <td class="text-left" rowspan="1" colspan="1">The <code>act</code> claim of the subject token, if present, conveying an existing delegation chain</td>
             </tr>
             <tr>
               <td class="text-left" rowspan="1" colspan="1">
                 <code>may_act</code>
 </td>
+              <td class="text-left" rowspan="1" colspan="1">object</td>
               <td class="text-left" rowspan="1" colspan="1">The <code>may_act</code> claim of the subject token, if present</td>
             </tr>
             <tr>
               <td class="text-left" rowspan="1" colspan="1">
                 <code>cnf</code>
 </td>
+              <td class="text-left" rowspan="1" colspan="1">object</td>
               <td class="text-left" rowspan="1" colspan="1">The confirmation method of the presented credential, where the exchange is sender-constrained under <span>[<a href="#RFC8705" class="cite xref">RFC8705</a>]</span> or <span>[<a href="#RFC9449" class="cite xref">RFC9449</a>]</span>
 </td>
             </tr>
           </tbody>
         </table>
-<p id="section-4.5-3">An AS <span class="bcp14">MUST NOT</span> place raw token strings in <code>context</code>. Only claims the AS has
+<p id="section-4.5-3">Each key has one JSON type, as <span>[<a href="#ISSUANCE" class="cite xref">ISSUANCE</a>]</span> requires of context keys defined
+by a binding.<a href="#section-4.5-3" class="pilcrow">¶</a></p>
+<p id="section-4.5-4">An AS <span class="bcp14">MUST NOT</span> place raw token strings in <code>context</code>. Only claims the AS has
 already validated are conveyed, and only those a deployment's policies
 consume. The subject token may carry claims about a party that has not
-authorized their disclosure to the PDP.<a href="#section-4.5-3" class="pilcrow">¶</a></p>
+authorized their disclosure to the PDP.<a href="#section-4.5-4" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="composition">

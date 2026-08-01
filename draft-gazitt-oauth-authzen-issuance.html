@@ -1698,6 +1698,7 @@ to render a decision without it.<a href="#section-4.4-1" class="pilcrow">¶</a><
 <thead>
             <tr>
               <th class="text-left" rowspan="1" colspan="1">Key</th>
+              <th class="text-left" rowspan="1" colspan="1">Type</th>
               <th class="text-left" rowspan="1" colspan="1">Value</th>
             </tr>
           </thead>
@@ -1706,30 +1707,53 @@ to render a decision without it.<a href="#section-4.4-1" class="pilcrow">¶</a><
               <td class="text-left" rowspan="1" colspan="1">
                 <code>grant_type</code>
 </td>
+              <td class="text-left" rowspan="1" colspan="1">string</td>
               <td class="text-left" rowspan="1" colspan="1">The grant type URI of the request</td>
             </tr>
             <tr>
               <td class="text-left" rowspan="1" colspan="1">
                 <code>client_id</code>
 </td>
+              <td class="text-left" rowspan="1" colspan="1">string</td>
               <td class="text-left" rowspan="1" colspan="1">The authenticated client identifier</td>
             </tr>
             <tr>
               <td class="text-left" rowspan="1" colspan="1">
-                <code>acr</code>, <code>amr</code>, <code>auth_time</code>
+                <code>acr</code>
 </td>
-              <td class="text-left" rowspan="1" colspan="1">Authentication context of the subject</td>
+              <td class="text-left" rowspan="1" colspan="1">string</td>
+              <td class="text-left" rowspan="1" colspan="1">Authentication context class of the subject</td>
+            </tr>
+            <tr>
+              <td class="text-left" rowspan="1" colspan="1">
+                <code>amr</code>
+</td>
+              <td class="text-left" rowspan="1" colspan="1">array of strings</td>
+              <td class="text-left" rowspan="1" colspan="1">Authentication methods, per <span>[<a href="#RFC8176" class="cite xref">RFC8176</a>]</span>
+</td>
+            </tr>
+            <tr>
+              <td class="text-left" rowspan="1" colspan="1">
+                <code>auth_time</code>
+</td>
+              <td class="text-left" rowspan="1" colspan="1">integer</td>
+              <td class="text-left" rowspan="1" colspan="1">Time of authentication, as in <span>[<a href="#RFC7519" class="cite xref">RFC7519</a>]</span>
+</td>
             </tr>
             <tr>
               <td class="text-left" rowspan="1" colspan="1">
                 <code>cnf</code>
 </td>
+              <td class="text-left" rowspan="1" colspan="1">object</td>
               <td class="text-left" rowspan="1" colspan="1">Confirmation method of the presented credential</td>
             </tr>
           </tbody>
         </table>
-<p id="section-4.4-4">Per <a href="#design-goals" class="auto internal xref">Section 1.1</a>, any input on which the decision genuinely depends
-belongs in the five-tuple, not here.<a href="#section-4.4-4" class="pilcrow">¶</a></p>
+<p id="section-4.4-4">The single-type rule of <a href="#envelope" class="auto internal xref">Section 5.1</a> applies here as well: each key above has
+one JSON type, and bindings defining further context keys <span class="bcp14">MUST</span> state a type
+for each.<a href="#section-4.4-4" class="pilcrow">¶</a></p>
+<p id="section-4.4-5">Per <a href="#design-goals" class="auto internal xref">Section 1.1</a>, any input on which the decision genuinely depends
+belongs in the five-tuple, not here.<a href="#section-4.4-5" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="composition">
@@ -1768,7 +1792,7 @@ fail the request rather than issue a token with an empty scope set.<a href="#sec
       </h2>
 <p id="section-5-1">A PDP <span class="bcp14">MAY</span> return, in the response <code>context</code>, information that shapes the
 token the AS issues.<a href="#section-5-1" class="pilcrow">¶</a></p>
-<div id="the-issuance-envelope">
+<div id="envelope">
 <section id="section-5.1">
         <h3 id="name-the-issuance-envelope">
 <a href="#section-5.1" class="section-number selfRef">5.1. </a><a href="#name-the-issuance-envelope" class="section-name selfRef">The <code>issuance</code> Envelope</a>
@@ -1792,6 +1816,13 @@ the response <code>context</code>:<a href="#section-5.1-1" class="pilcrow">¶</a
 <p id="section-5.1-3">An AS implementing this profile <span class="bcp14">MUST</span> process <code>context.issuance</code> and <span class="bcp14">MUST</span>
 ignore unrecognized members outside it, preserving the advisory character
 that <span>[<a href="#AUTHZEN" class="cite xref">AUTHZEN</a>]</span> gives response context generally.<a href="#section-5.1-3" class="pilcrow">¶</a></p>
+<p id="section-5.1-4">Every key defined below has exactly one JSON type, and bindings that define
+further keys <span class="bcp14">MUST</span> do the same. Where the corresponding OAuth or JWT
+construct admits more than one - <code>aud</code> is the notable case, per Section
+4.1.3 of <span>[<a href="#RFC7519" class="cite xref">RFC7519</a>]</span> - this profile picks one rather than carrying the
+polymorphism forward. An AS validates the response context before acting on
+it, and a union type costs more to validate, to schematize, and to project
+into a typed representation than the shorthand saves.<a href="#section-5.1-4" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="mtu">
@@ -1883,11 +1914,16 @@ mint an already-expired token.<a href="#section-5.4.2-2" class="pilcrow">¶</a><
           <h4 id="name-audience">
 <a href="#section-5.4.3" class="section-number selfRef">5.4.3. </a><a href="#name-audience" class="section-name selfRef"><code>audience</code></a>
           </h4>
-<p id="section-5.4.3-1">A string or array of strings, narrowing the set of targets for which the
-token may be issued. Each value <span class="bcp14">MUST</span> appear among the <code>resource.id</code> values
-of the permitted evaluations.<a href="#section-5.4.3-1" class="pilcrow">¶</a></p>
-<p id="section-5.4.3-2">Where the resulting set is empty, the AS <span class="bcp14">MUST</span> fail the request; for token
-exchange requests the appropriate error is <code>invalid_target</code> (<span>[<a href="#RFC8693" class="cite xref">RFC8693</a>]</span>).<a href="#section-5.4.3-2" class="pilcrow">¶</a></p>
+<p id="section-5.4.3-1">An array of strings, narrowing the set of targets for which the token may be
+issued. Each value <span class="bcp14">MUST</span> appear among the <code>resource.id</code> values of the
+permitted evaluations.<a href="#section-5.4.3-1" class="pilcrow">¶</a></p>
+<p id="section-5.4.3-2">The value is an array even when it names a single target. This is the key
+where the single-type rule above is most visible, and where it also makes
+the aggregation rule of <a href="#aggregation" class="auto internal xref">Section 5.6</a> state plainly: intersection is an
+operation over sets. An AS remains free to render a single-element set as a
+bare string in the token's own <code>aud</code> claim, where <span>[<a href="#RFC7519" class="cite xref">RFC7519</a>]</span> permits it.<a href="#section-5.4.3-2" class="pilcrow">¶</a></p>
+<p id="section-5.4.3-3">Where the resulting set is empty, the AS <span class="bcp14">MUST</span> fail the request; for token
+exchange requests the appropriate error is <code>invalid_target</code> (<span>[<a href="#RFC8693" class="cite xref">RFC8693</a>]</span>).<a href="#section-5.4.3-3" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="authorizationdetails">
@@ -2798,6 +2834,10 @@ values are carried verbatim and are not a registered vocabulary.<a href="#sectio
 <dt id="RFC8126">[RFC8126]</dt>
         <dd>
 <span class="refAuthor">Cotton, M.</span>, <span class="refAuthor">Leiba, B.</span>, and <span class="refAuthor">T. Narten</span>, <span class="refTitle">"Guidelines for Writing an IANA Considerations Section in RFCs"</span>, <span class="seriesInfo">BCP 26</span>, <span class="seriesInfo">RFC 8126</span>, <span class="seriesInfo">DOI 10.17487/RFC8126</span>, <time datetime="2017-06" class="refDate">June 2017</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc8126">https://www.rfc-editor.org/rfc/rfc8126</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="RFC8176">[RFC8176]</dt>
+        <dd>
+<span class="refAuthor">Jones, M.</span>, <span class="refAuthor">Hunt, P.</span>, and <span class="refAuthor">A. Nadalin</span>, <span class="refTitle">"Authentication Method Reference Values"</span>, <span class="seriesInfo">RFC 8176</span>, <span class="seriesInfo">DOI 10.17487/RFC8176</span>, <time datetime="2017-06" class="refDate">June 2017</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc8176">https://www.rfc-editor.org/rfc/rfc8176</a>&gt;</span>. </dd>
 <dd class="break"></dd>
 <dt id="RFC8707">[RFC8707]</dt>
         <dd>
