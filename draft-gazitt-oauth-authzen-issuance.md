@@ -658,7 +658,11 @@ The URN asserts support for the request mapping and response vocabulary of
 this document. It is not a statement about the content of the PDP's policy,
 and a PDP MUST NOT be read as claiming to hold rules for any particular
 issuance. What a deployment's policy permits is disclosed only through
-decisions.
+decisions. This is the same line
+{{I-D.ietf-oauth-identity-assertion-authz-grant}} draws for
+`authorization_grant_profiles_supported`, which indicates that a server
+implements a profile's processing rules and not that any particular issuer,
+client, subject, or audience will be accepted.
 
 Advertising the capability is accordingly a commitment to the request shapes
 this profile can produce. A PDP that advertises it MUST render a decision for
@@ -681,6 +685,18 @@ and would publish the shape of a deployment's issuance policy in an
 unauthenticated metadata document. Capability granularity in this profile
 tracks vocabulary, not policy: an extension that adds keys registers its own
 URN.
+
+An operator enabling a new grant or token type nonetheless has a real
+question to answer: whether the deployment's policy anticipates the gate
+actions the AS is about to start sending, or whether every such request will
+be denied. That question is about policy content, so its answer belongs on
+the authenticated evaluation surface rather than in metadata; {{AUTHZEN}}
+notes that an unauthenticated PDP can be probed for the shape of its policy.
+The Action Search API of {{AUTHZEN}} answers it directly: a search for a
+representative subject and an `audience` resource returns the action names
+policy would permit, and gate actions among them indicate the issuances the
+deployment is prepared for. This is a deployment-time check, not a
+per-request one, and nothing in this profile requires it.
 
 ## Policy Enforcement Point Capabilities
 
