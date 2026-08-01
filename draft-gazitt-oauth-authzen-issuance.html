@@ -1215,10 +1215,13 @@ documents.<a href="#section-abstract-3" class="pilcrow">¶</a></p>
                     <p id="section-toc.1-1.4.2.3.2.1.1"><a href="#section-4.3.1" class="auto internal xref">4.3.1</a>.  <a href="#name-gate-tuple" class="internal xref">Gate Tuple</a></p>
 </li>
                   <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.4.2.3.2.2">
-                    <p id="section-toc.1-1.4.2.3.2.2.1"><a href="#section-4.3.2" class="auto internal xref">4.3.2</a>.  <a href="#name-scope-tuple" class="internal xref">Scope Tuple</a></p>
+                    <p id="section-toc.1-1.4.2.3.2.2.1"><a href="#section-4.3.2" class="auto internal xref">4.3.2</a>.  <a href="#name-action-name-portability" class="internal xref">Action Name Portability</a></p>
 </li>
                   <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.4.2.3.2.3">
-                    <p id="section-toc.1-1.4.2.3.2.3.1"><a href="#section-4.3.3" class="auto internal xref">4.3.3</a>.  <a href="#name-when-a-gate-tuple-is-requir" class="internal xref">When a Gate Tuple Is Required</a></p>
+                    <p id="section-toc.1-1.4.2.3.2.3.1"><a href="#section-4.3.3" class="auto internal xref">4.3.3</a>.  <a href="#name-scope-tuple" class="internal xref">Scope Tuple</a></p>
+</li>
+                  <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.4.2.3.2.4">
+                    <p id="section-toc.1-1.4.2.3.2.4.1"><a href="#section-4.3.4" class="auto internal xref">4.3.4</a>.  <a href="#name-gate-tuples-are-always-pres" class="internal xref">Gate Tuples Are Always Present</a></p>
 </li>
                 </ul>
 </li>
@@ -1617,70 +1620,92 @@ rather than as two interpretations of one <code>action.name</code>.<a href="#sec
           <h4 id="name-gate-tuple">
 <a href="#section-4.3.1" class="section-number selfRef">4.3.1. </a><a href="#name-gate-tuple" class="section-name selfRef">Gate Tuple</a>
           </h4>
-<p id="section-4.3.1-1">A gate tuple is an evaluation whose <code>action.name</code> is <code>issue:</code> followed by a
-token type short name registered in <a href="#iana-actions" class="auto internal xref">Section 11.4</a> - for example
-<code>issue:access_token</code>, <code>issue:id-jag</code>, <code>issue:txn_token</code>.<a href="#section-4.3.1-1" class="pilcrow">¶</a></p>
-<p id="section-4.3.1-2">The <code>issue:</code> prefix is reserved. A deployment <span class="bcp14">MUST NOT</span> use a scope value
-beginning with <code>issue:</code> as a scope tuple action.<a href="#section-4.3.1-2" class="pilcrow">¶</a></p>
+<p id="section-4.3.1-1">A gate tuple is an evaluation whose <code>action.name</code> has three colon-separated
+segments:<a href="#section-4.3.1-1" class="pilcrow">¶</a></p>
+<div class="alignLeft art-text artwork" id="section-4.3.1-2">
+<pre>
+issue:&lt;token-type&gt;:&lt;grant-type&gt;
+</pre><a href="#section-4.3.1-2" class="pilcrow">¶</a>
+</div>
+<p id="section-4.3.1-3">where <code>&lt;token-type&gt;</code> and <code>&lt;grant-type&gt;</code> are short names registered in
+<a href="#iana-actions" class="auto internal xref">Section 11.4</a> - for example <code>issue:access_token:authorization_code</code>,
+<code>issue:id_token:authorization_code</code>, <code>issue:refresh_token:token_exchange</code>.<a href="#section-4.3.1-3" class="pilcrow">¶</a></p>
+<p id="section-4.3.1-4">The <code>issue:</code> prefix is reserved. A deployment <span class="bcp14">MUST NOT</span> use a scope value
+beginning with <code>issue:</code> as a scope tuple action.<a href="#section-4.3.1-4" class="pilcrow">¶</a></p>
+<p id="section-4.3.1-5">The grant is part of the action because it is not recoverable from the rest
+of the tuple and it is not implied by the token type. The same subject,
+audience, and token type arise from an authorization code request and from
+its later refresh, and from a client requesting a token for itself and that
+same client exchanging for one. A policy that
+distinguishes those cases - requiring fresh authorization at a high-value
+audience, or permitting a client to hold a token but not to exchange for one
+- has nothing to attach to unless the grant is in the five-tuple.<a href="#section-4.3.1-5" class="pilcrow">¶</a></p>
+<p id="section-4.3.1-6">Neither segment subsumes the other. A single authorization code request may
+mint an access token, a refresh token, and an ID token, which are separately
+gateable; and a token exchange selects its output through
+<code>requested_token_type</code>, so its token type is a variable of the request.
+Together the two segments name one privilege: what may be minted, and by
+what means.<a href="#section-4.3.1-6" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="action-portability">
+<section id="section-4.3.2">
+          <h4 id="name-action-name-portability">
+<a href="#section-4.3.2" class="section-number selfRef">4.3.2. </a><a href="#name-action-name-portability" class="section-name selfRef">Action Name Portability</a>
+          </h4>
+<p id="section-4.3.2-1">Short names registered under <a href="#iana-actions" class="auto internal xref">Section 11.4</a> <span class="bcp14">MUST</span> match
+<code>[a-z][a-z0-9_]{0,30}</code>, and a composed gate action name <span class="bcp14">MUST NOT</span> exceed 50
+characters.<a href="#section-4.3.2-1" class="pilcrow">¶</a></p>
+<p id="section-4.3.2-2">These bounds are not aesthetic. Relationship-based engines validate relation
+identifiers against a restricted grammar: at the time of writing, OpenFGA
+requires <code>^[^:#@\s]{1,50}$</code>, SpiceDB permits lowercase letters, digits, and
+underscores within 64 characters, and Topaz permits lowercase letters,
+digits, dots, underscores, and dashes within 64. None admits a colon. With
+the bounds above, replacing each <code>:</code> with <code>_</code> turns any action name this
+document defines into an identifier all three accept, so the transformation
+is mechanical and a policy written against these names ports unchanged.<a href="#section-4.3.2-2" class="pilcrow">¶</a></p>
+<p id="section-4.3.2-3">Carrying a grant type URI verbatim would not survive this. The action name
+would reach 66 characters for the token exchange grant, which exceeds the
+shortest of these limits before any question of characters arises.<a href="#section-4.3.2-3" class="pilcrow">¶</a></p>
+<p id="section-4.3.2-4">The guarantee covers only the vocabulary this document defines. Scope values
+are carried verbatim (<a href="#scope-tuple" class="auto internal xref">Section 4.3.3</a>) and routinely contain characters no
+such grammar admits; mapping them remains internal to the PDP.<a href="#section-4.3.2-4" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="scope-tuple">
-<section id="section-4.3.2">
+<section id="section-4.3.3">
           <h4 id="name-scope-tuple">
-<a href="#section-4.3.2" class="section-number selfRef">4.3.2. </a><a href="#name-scope-tuple" class="section-name selfRef">Scope Tuple</a>
+<a href="#section-4.3.3" class="section-number selfRef">4.3.3. </a><a href="#name-scope-tuple" class="section-name selfRef">Scope Tuple</a>
           </h4>
-<p id="section-4.3.2-1">A scope tuple is an evaluation whose <code>action.name</code> is a single requested
-scope value, carried verbatim.<a href="#section-4.3.2-1" class="pilcrow">¶</a></p>
-<p id="section-4.3.2-2">Scope values are not transformed into policy-engine relation names by the
+<p id="section-4.3.3-1">A scope tuple is an evaluation whose <code>action.name</code> is a single requested
+scope value, carried verbatim.<a href="#section-4.3.3-1" class="pilcrow">¶</a></p>
+<p id="section-4.3.3-2">Scope values are not transformed into policy-engine relation names by the
 AS. Any such mapping is internal to the PDP. This keeps <code>action.name</code> a
 stable interface: the AS reports what the client asked for, and the PDP
-decides what that means in its own policy vocabulary.<a href="#section-4.3.2-2" class="pilcrow">¶</a></p>
+decides what that means in its own policy vocabulary.<a href="#section-4.3.3-2" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="gate-required">
-<section id="section-4.3.3">
-          <h4 id="name-when-a-gate-tuple-is-requir">
-<a href="#section-4.3.3" class="section-number selfRef">4.3.3. </a><a href="#name-when-a-gate-tuple-is-requir" class="section-name selfRef">When a Gate Tuple Is Required</a>
+<section id="section-4.3.4">
+          <h4 id="name-gate-tuples-are-always-pres">
+<a href="#section-4.3.4" class="section-number selfRef">4.3.4. </a><a href="#name-gate-tuples-are-always-pres" class="section-name selfRef">Gate Tuples Are Always Present</a>
           </h4>
-<p id="section-4.3.3-1">A gate tuple <span class="bcp14">MUST</span> be included when either:<a href="#section-4.3.3-1" class="pilcrow">¶</a></p>
-<ol start="1" type="1" class="normal type-1" id="section-4.3.3-2">
-<li id="section-4.3.3-2.1">
-              <p id="section-4.3.3-2.1.1">the request produces no scope tuples - that is, no scopes were requested
-and the AS has no default set to expand; or<a href="#section-4.3.3-2.1.1" class="pilcrow">¶</a></p>
-</li>
-            <li id="section-4.3.3-2.2">
-              <p id="section-4.3.3-2.2.1">the flow admits more than one issuable token type, meaning the token type
-is a variable of the request rather than fixed by the grant.<a href="#section-4.3.3-2.2.1" class="pilcrow">¶</a></p>
-</li>
-          </ol>
-<p id="section-4.3.3-3">Otherwise a gate tuple <span class="bcp14">MAY</span> be included.<a href="#section-4.3.3-3" class="pilcrow">¶</a></p>
-<p id="section-4.3.3-4">Condition 2 is determined by the grant. In the token exchange family, a
-<code>requested_token_type</code> parameter selects among token types, so the gate is
-required. In the authorization code, client credentials, and refresh token
-grants the token type is fixed, so it is not.<a href="#section-4.3.3-4" class="pilcrow">¶</a></p>
-<p id="section-4.3.3-5">An AS <span class="bcp14">MUST NOT</span> omit a gate tuple required by the conditions above on the
-grounds that it believes the corresponding policy is permissive. Whether a
-gate is permissive is internal to the PDP; an AS that acted on such a belief
-would be making the policy decision this profile exists to externalize. The
-condition for requiring the gate is deliberately drawn from facts observable
-in the request.<a href="#section-4.3.3-5" class="pilcrow">¶</a></p>
-<p id="section-4.3.3-6">The conditions above are a floor, not a ceiling. Requiring a gate and
-forbidding one are not symmetric obligations: omitting a required gate skips
-a decision, whereas adding an unrequired one cannot loosen the outcome,
-since a further tuple can only narrow what is issued. An AS that gates every
-issuance it performs is running a more conservative deployment, not a
-nonconforming one.<a href="#section-4.3.3-6" class="pilcrow">¶</a></p>
-<p id="section-4.3.3-7">The discretion is safe to grant because the PDP side is not left guessing. A
-PDP that advertises support for this profile renders a decision on any
-registered gate action it is sent (<a href="#pdp-capabilities" class="auto internal xref">Section 6.1</a>), so an AS that gates
-where these conditions do not require it cannot thereby break a conforming
-PDP. Deployments are encouraged to write issuance policy for every token
-type their AS can issue, whether or not the AS is obliged to ask: policy
-written that way is insensitive to how much discretion a given AS exercises.<a href="#section-4.3.3-7" class="pilcrow">¶</a></p>
-<p id="section-4.3.3-8">An AS that sends only what is required will find that the most common cases
-produce a single evaluation rather than a batch: an authorization code or
-client credentials request naming one scope produces one scope tuple, and a
-request naming no scopes produces one gate tuple.<a href="#section-4.3.3-8" class="pilcrow">¶</a></p>
+<p id="section-4.3.4-1">An AS <span class="bcp14">MUST</span> include a gate tuple in every evaluation request it forms under
+this profile. A binding <span class="bcp14">MAY</span> require more than one (<a href="#composition" class="auto internal xref">Section 4.5</a>).<a href="#section-4.3.4-1" class="pilcrow">¶</a></p>
+<p id="section-4.3.4-2">There is no condition under which the gate may be omitted, because the gate
+is the only tuple that carries the grant. A request naming a single scope
+would otherwise reduce to one scope tuple, and an authorization code
+issuance and a refresh of it would reach the PDP as the same evaluation.<a href="#section-4.3.4-2" class="pilcrow">¶</a></p>
+<p id="section-4.3.4-3">An AS <span class="bcp14">MUST NOT</span> omit a gate tuple on the grounds that it believes the
+corresponding policy is permissive. Whether a gate is permissive is internal
+to the PDP; an AS that acted on such a belief would be making the policy
+decision this profile exists to externalize.<a href="#section-4.3.4-3" class="pilcrow">¶</a></p>
+<p id="section-4.3.4-4">The floor is therefore two evaluations for a request naming scopes, and one
+for a request naming none. Deployments are expected to write issuance policy
+for every token type and grant combination their AS can produce; a PDP that
+advertises support for this profile renders a decision on any registered gate
+action it is sent (<a href="#pdp-capabilities" class="auto internal xref">Section 6.1</a>), so an AS never has to predict which
+combinations a given PDP has policy for.<a href="#section-4.3.4-4" class="pilcrow">¶</a></p>
 </section>
 </div>
 </section>
@@ -1703,13 +1728,6 @@ to render a decision without it.<a href="#section-4.4-1" class="pilcrow">¶</a><
             </tr>
           </thead>
           <tbody>
-            <tr>
-              <td class="text-left" rowspan="1" colspan="1">
-                <code>grant_type</code>
-</td>
-              <td class="text-left" rowspan="1" colspan="1">string</td>
-              <td class="text-left" rowspan="1" colspan="1">The grant type URI of the request</td>
-            </tr>
             <tr>
               <td class="text-left" rowspan="1" colspan="1">
                 <code>client_id</code>
@@ -1753,7 +1771,9 @@ to render a decision without it.<a href="#section-4.4-1" class="pilcrow">¶</a><
 one JSON type, and bindings defining further context keys <span class="bcp14">MUST</span> state a type
 for each.<a href="#section-4.4-4" class="pilcrow">¶</a></p>
 <p id="section-4.4-5">Per <a href="#design-goals" class="auto internal xref">Section 1.1</a>, any input on which the decision genuinely depends
-belongs in the five-tuple, not here.<a href="#section-4.4-5" class="pilcrow">¶</a></p>
+belongs in the five-tuple, not here. The grant type is the worked example:
+it is decision-critical, so it is a segment of the gate action name
+(<a href="#gate-tuple" class="auto internal xref">Section 4.3.1</a>) and does not appear in <code>context</code> at all.<a href="#section-4.4-5" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="composition">
@@ -1763,24 +1783,28 @@ belongs in the five-tuple, not here.<a href="#section-4.4-5" class="pilcrow">¶<
         </h3>
 <p id="section-4.5-1">Where a request yields more than one tuple, the AS <span class="bcp14">MUST</span> use the Access
 Evaluations API of <span>[<a href="#AUTHZEN" class="cite xref">AUTHZEN</a>]</span> with <code>options.evaluations_semantic</code> set to
-<code>execute_all</code>, and <span class="bcp14">MUST</span> place gate tuples, where present, at the leading
-indices of the <code>evaluations</code> array, beginning at index 0.<a href="#section-4.5-1" class="pilcrow">¶</a></p>
-<p id="section-4.5-2">This document produces at most one gate tuple. Bindings may produce more:
+<code>execute_all</code>, and <span class="bcp14">MUST</span> place gate tuples at the leading indices of the
+<code>evaluations</code> array, beginning at index 0.<a href="#section-4.5-1" class="pilcrow">¶</a></p>
+<p id="section-4.5-2">A request reduces to a single evaluation only when it names no scopes, in
+which case the gate tuple stands alone.<a href="#section-4.5-2" class="pilcrow">¶</a></p>
+<p id="section-4.5-3">This document produces exactly one gate tuple. Bindings may produce more:
 the token exchange family evaluates the authority of the requesting party
-separately from that of the subject, and so produces two.<a href="#section-4.5-2" class="pilcrow">¶</a></p>
-<p id="section-4.5-3"><code>execute_all</code> is required because scope denials must be able to narrow the
+separately from that of the subject, and so produces two.<a href="#section-4.5-3" class="pilcrow">¶</a></p>
+<p id="section-4.5-4"><code>execute_all</code> is required because scope denials must be able to narrow the
 grant rather than fail it: an AS that requested three scopes and received
 two permits issues a token bearing two scopes, and reports the reduced set
-in the <code>scope</code> response parameter as <span>[<a href="#RFC6749" class="cite xref">RFC6749</a>]</span> already requires.<a href="#section-4.5-3" class="pilcrow">¶</a></p>
-<p id="section-4.5-4">A gate denial, by contrast, is fatal. If any leading gate tuple has a
+in the <code>scope</code> response parameter as <span>[<a href="#RFC6749" class="cite xref">RFC6749</a>]</span> already requires.<a href="#section-4.5-4" class="pilcrow">¶</a></p>
+<p id="section-4.5-5">A gate denial, by contrast, is fatal. If any leading gate tuple has a
 decision of <code>false</code>, the AS <span class="bcp14">MUST</span> fail the request and <span class="bcp14">MUST NOT</span> issue a
-token, irrespective of the other results.<a href="#section-4.5-4" class="pilcrow">¶</a></p>
-<p id="section-4.5-5"><span>[<a href="#AUTHZEN" class="cite xref">AUTHZEN</a>]</span> evaluation semantics are selected per request and cannot mark an
+token, irrespective of the other results.<a href="#section-4.5-5" class="pilcrow">¶</a></p>
+<p id="section-4.5-6"><span>[<a href="#AUTHZEN" class="cite xref">AUTHZEN</a>]</span> evaluation semantics are selected per request and cannot mark an
 individual batch item as a precondition, so this composition rule is
 enforced by the AS. This is well within the PEP's role - the AS is already
-interpreting per-item results in order to downscope.<a href="#section-4.5-5" class="pilcrow">¶</a></p>
-<p id="section-4.5-6">If every scope tuple is denied and no gate tuple is present, the AS <span class="bcp14">MUST</span>
-fail the request rather than issue a token with an empty scope set.<a href="#section-4.5-6" class="pilcrow">¶</a></p>
+interpreting per-item results in order to downscope.<a href="#section-4.5-6" class="pilcrow">¶</a></p>
+<p id="section-4.5-7">Where the request named scopes and every scope tuple is denied, the AS <span class="bcp14">MUST</span>
+fail the request rather than issue a token with an empty scope set, even
+though the gate permitted it. A permitted gate authorizes a token of that
+kind to exist; it does not authorize an empty one.<a href="#section-4.5-7" class="pilcrow">¶</a></p>
 </section>
 </div>
 </section>
@@ -2170,18 +2194,18 @@ metadata document, retrievable at <code>/.well-known/authzen-configuration</code
 }
 </pre><a href="#section-6.1-2" class="pilcrow">¶</a>
 </div>
-<p id="section-6.1-3">Advertising the capability is a commitment to the request shapes this profile
-can produce, not only to the ones a given AS is obliged to send. A PDP that
-advertises it <span class="bcp14">MUST</span> render a decision for a gate tuple naming any action name
-registered in <a href="#iana-actions" class="auto internal xref">Section 11.4</a>, and <span class="bcp14">MUST NOT</span> reject the evaluation on the
-grounds that it holds no policy for that action. Denying is a decision; a
-protocol error is not. The same applies to a batch that mixes a gate tuple
-with scope tuples, which is the ordinary shape of a gated request
+<p id="section-6.1-3">Advertising the capability is a commitment to the request shapes this
+profile can produce. A PDP that advertises it <span class="bcp14">MUST</span> render a decision for a
+gate tuple naming any action name composable from the short names registered
+in <a href="#iana-actions" class="auto internal xref">Section 11.4</a>, and <span class="bcp14">MUST NOT</span> reject the evaluation on the grounds that
+it holds no policy for that action. Denying is a decision; a protocol error
+is not. The same applies to a batch that mixes a gate tuple with scope
+tuples, which is the ordinary shape of a request naming scopes
 (<a href="#composition" class="auto internal xref">Section 4.5</a>).<a href="#section-6.1-3" class="pilcrow">¶</a></p>
-<p id="section-6.1-4">This is what makes the latitude in <a href="#gate-required" class="auto internal xref">Section 4.3.3</a> inconsequential. A
-deployment whose policy covers every token type its AS can issue behaves the
-same way whether the AS gates only where required or gates every issuance,
-so the two can be configured independently.<a href="#section-6.1-4" class="pilcrow">¶</a></p>
+<p id="section-6.1-4">The obligation matters because the gate vocabulary is a product of two
+registries and grows as bindings register short names. An AS pairs the token
+type it is about to mint with the grant it received; it cannot know which
+pairings a given deployment's policy anticipated, and must not have to.<a href="#section-6.1-4" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="policy-enforcement-point-capabilities">
@@ -2195,13 +2219,12 @@ in the request context, using the same URNs:<a href="#section-6.2-1" class="pilc
 <pre>
 {
   "subject":  { "type": "user", "id": "U0405936" },
-  "action":   { "name": "files.read" },
+  "action":   { "name": "issue:access_token:authorization_code" },
   "resource": {
     "type": "audience",
     "id": "https://api.example/files"
   },
   "context": {
-    "grant_type": "authorization_code",
     "issuance": {
       "supported_capabilities": [
         "urn:ietf:params:authzen:token-issuance"
@@ -2294,33 +2317,46 @@ equivalent signal exists there. This is an open item.<a href="#section-7-3" clas
         <h3 id="name-client-credentials-one-scop">
 <a href="#section-8.1" class="section-number selfRef">8.1. </a><a href="#name-client-credentials-one-scop" class="section-name selfRef">Client Credentials, One Scope</a>
         </h3>
-<p id="section-8.1-1">The token type is fixed by the grant and one scope is requested, so a single
-scope tuple results and no gate tuple is required.<a href="#section-8.1-1" class="pilcrow">¶</a></p>
+<p id="section-8.1-1">One scope is requested, so the request is the gate tuple and one scope
+tuple. This is the floor: two evaluations.<a href="#section-8.1-1" class="pilcrow">¶</a></p>
 <div class="lang-json sourcecode" id="section-8.1-2">
 <pre>
 {
   "subject":  { "type": "client", "id": "svc-reporting" },
-  "action":   { "name": "telemetry.write" },
   "resource": {
     "type": "audience",
     "id": "https://telemetry.example"
   },
   "context": {
-    "grant_type": "client_credentials",
+    "client_id": "svc-reporting",
     "issuance": {
       "supported_capabilities": [
         "urn:ietf:params:authzen:token-issuance"
       ]
     }
-  }
+  },
+  "evaluations": [
+    {
+      "action": {
+        "name": "issue:access_token:client_credentials"
+      }
+    },
+    { "action": { "name": "telemetry.write" } }
+  ],
+  "options": { "evaluations_semantic": "execute_all" }
 }
 </pre><a href="#section-8.1-2" class="pilcrow">¶</a>
 </div>
 <div class="lang-json sourcecode" id="section-8.1-3">
 <pre>
 {
-  "decision": true,
-  "context": { "issuance": { "token_lifetime": 900 } }
+  "evaluations": [
+    {
+      "decision": true,
+      "context": { "issuance": { "token_lifetime": 900 } }
+    },
+    { "decision": true }
+  ]
 }
 </pre><a href="#section-8.1-3" class="pilcrow">¶</a>
 </div>
@@ -2331,8 +2367,8 @@ scope tuple results and no gate tuple is required.<a href="#section-8.1-1" class
         <h3 id="name-authorization-code-downscop">
 <a href="#section-8.2" class="section-number selfRef">8.2. </a><a href="#name-authorization-code-downscop" class="section-name selfRef">Authorization Code, Downscoping</a>
         </h3>
-<p id="section-8.2-1">Three scopes are requested. <code>execute_all</code> allows the AS to issue the
-permitted subset.<a href="#section-8.2-1" class="pilcrow">¶</a></p>
+<p id="section-8.2-1">Three scopes are requested. The gate leads at index 0 and <code>execute_all</code>
+allows the AS to issue the permitted subset of the rest.<a href="#section-8.2-1" class="pilcrow">¶</a></p>
 <div class="lang-json sourcecode" id="section-8.2-2">
 <pre>
 {
@@ -2342,7 +2378,6 @@ permitted subset.<a href="#section-8.2-1" class="pilcrow">¶</a></p>
     "id": "https://api.example/files"
   },
   "context": {
-    "grant_type": "authorization_code",
     "client_id": "chatterbox",
     "acr": "urn:example:loa:2",
     "issuance": {
@@ -2352,6 +2387,11 @@ permitted subset.<a href="#section-8.2-1" class="pilcrow">¶</a></p>
     }
   },
   "evaluations": [
+    {
+      "action": {
+        "name": "issue:access_token:authorization_code"
+      }
+    },
     { "action": { "name": "files.read"   } },
     { "action": { "name": "files.write"  } },
     { "action": { "name": "files.delete" } }
@@ -2364,6 +2404,7 @@ permitted subset.<a href="#section-8.2-1" class="pilcrow">¶</a></p>
 <pre>
 {
   "evaluations": [
+    { "decision": true },
     {
       "decision": true,
       "context": {
@@ -2381,6 +2422,10 @@ permitted subset.<a href="#section-8.2-1" class="pilcrow">¶</a></p>
 </div>
 <p id="section-8.2-4">The AS issues a token bearing <code>files.read files.write</code>, a <code>groups</code> claim,
 and reports the reduced scope set in the token response.<a href="#section-8.2-4" class="pilcrow">¶</a></p>
+<p id="section-8.2-5">Had the same subject arrived at the same audience with the same scopes on a
+refresh, index 0 would have read
+<code>issue:access_token:refresh_token</code>, and a policy that requires fresh
+authorization here could deny it while leaving the scope tuples untouched.<a href="#section-8.2-5" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="no-scopes-requested">
@@ -2394,13 +2439,14 @@ is a single evaluation.<a href="#section-8.3-1" class="pilcrow">¶</a></p>
 <pre>
 {
   "subject":  { "type": "client", "id": "svc-reporting" },
-  "action":   { "name": "issue:access_token" },
+  "action":   {
+    "name": "issue:access_token:client_credentials"
+  },
   "resource": {
     "type": "audience",
     "id": "https://telemetry.example"
   },
   "context": {
-    "grant_type": "client_credentials",
     "issuance": {
       "supported_capabilities": [
         "urn:ietf:params:authzen:token-issuance"
@@ -2700,19 +2746,31 @@ Entity Types" registry, with a registration policy of Specification Required
         </h3>
 <p id="section-11.4-1">IANA is requested to establish the "OAuth Token Issuance Authorization
 Action Names" registry, with a registration policy of Specification Required
-<span>[<a href="#RFC8126" class="cite xref">RFC8126</a>]</span>, for action names in the reserved <code>issue:</code> space.<a href="#section-11.4-1" class="pilcrow">¶</a></p>
+<span>[<a href="#RFC8126" class="cite xref">RFC8126</a>]</span>, for the two short-name vocabularies from which action names in
+the reserved <code>issue:</code> space are composed.<a href="#section-11.4-1" class="pilcrow">¶</a></p>
+<p id="section-11.4-2">A gate action name is <code>issue:&lt;token-type&gt;:&lt;grant-type&gt;</code>, so the registry
+grows with the number of token types plus the number of grant types, not
+with their product. The combinations that are meaningful in a deployment are
+a matter of policy, not of registration.<a href="#section-11.4-2" class="pilcrow">¶</a></p>
+<p id="section-11.4-3">Every short name <span class="bcp14">MUST</span> match <code>[a-z][a-z0-9_]{0,30}</code>, and a composed action
+name <span class="bcp14">MUST NOT</span> exceed 50 characters. <a href="#action-portability" class="auto internal xref">Section 4.3.2</a> gives the reason:
+these bounds are what let the name be transformed mechanically into a
+relation identifier that widely deployed relationship-based engines accept.
+Registrants should note that hyphens are excluded deliberately, being
+rejected by at least one such engine.<a href="#section-11.4-3" class="pilcrow">¶</a></p>
+<p id="section-11.4-4">Token type short names, initially:<a href="#section-11.4-4" class="pilcrow">¶</a></p>
 <table class="center" id="table-6">
           <caption><a href="#table-6" class="selfRef">Table 6</a></caption>
 <thead>
             <tr>
-              <th class="text-left" rowspan="1" colspan="1">Action name</th>
+              <th class="text-left" rowspan="1" colspan="1">Short name</th>
               <th class="text-left" rowspan="1" colspan="1">Token type</th>
             </tr>
           </thead>
           <tbody>
             <tr>
               <td class="text-left" rowspan="1" colspan="1">
-                <code>issue:access_token</code>
+                <code>access_token</code>
 </td>
               <td class="text-left" rowspan="1" colspan="1">
                 <code>urn:ietf:params:oauth:token-type:access_token</code>
@@ -2720,7 +2778,7 @@ Action Names" registry, with a registration policy of Specification Required
             </tr>
             <tr>
               <td class="text-left" rowspan="1" colspan="1">
-                <code>issue:refresh_token</code>
+                <code>refresh_token</code>
 </td>
               <td class="text-left" rowspan="1" colspan="1">
                 <code>urn:ietf:params:oauth:token-type:refresh_token</code>
@@ -2728,7 +2786,7 @@ Action Names" registry, with a registration policy of Specification Required
             </tr>
             <tr>
               <td class="text-left" rowspan="1" colspan="1">
-                <code>issue:id_token</code>
+                <code>id_token</code>
 </td>
               <td class="text-left" rowspan="1" colspan="1">
                 <code>urn:ietf:params:oauth:token-type:id_token</code>
@@ -2736,9 +2794,78 @@ Action Names" registry, with a registration policy of Specification Required
             </tr>
           </tbody>
         </table>
-<p id="section-11.4-3">Registrations <span class="bcp14">MUST</span> give the token type URI the short name corresponds to.
+<p id="section-11.4-6">Grant type short names, initially:<a href="#section-11.4-6" class="pilcrow">¶</a></p>
+<table class="center" id="table-7">
+          <caption><a href="#table-7" class="selfRef">Table 7</a></caption>
+<thead>
+            <tr>
+              <th class="text-left" rowspan="1" colspan="1">Short name</th>
+              <th class="text-left" rowspan="1" colspan="1">Grant type</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="text-left" rowspan="1" colspan="1">
+                <code>authorization_code</code>
+</td>
+              <td class="text-left" rowspan="1" colspan="1">
+                <code>authorization_code</code>
+</td>
+            </tr>
+            <tr>
+              <td class="text-left" rowspan="1" colspan="1">
+                <code>client_credentials</code>
+</td>
+              <td class="text-left" rowspan="1" colspan="1">
+                <code>client_credentials</code>
+</td>
+            </tr>
+            <tr>
+              <td class="text-left" rowspan="1" colspan="1">
+                <code>refresh_token</code>
+</td>
+              <td class="text-left" rowspan="1" colspan="1">
+                <code>refresh_token</code>
+</td>
+            </tr>
+            <tr>
+              <td class="text-left" rowspan="1" colspan="1">
+                <code>token_exchange</code>
+</td>
+              <td class="text-left" rowspan="1" colspan="1">
+                <code>urn:ietf:params:oauth:grant-type:token-exchange</code>
+</td>
+            </tr>
+            <tr>
+              <td class="text-left" rowspan="1" colspan="1">
+                <code>device_code</code>
+</td>
+              <td class="text-left" rowspan="1" colspan="1">
+                <code>urn:ietf:params:oauth:grant-type:device_code</code>
+</td>
+            </tr>
+            <tr>
+              <td class="text-left" rowspan="1" colspan="1">
+                <code>jwt_bearer</code>
+</td>
+              <td class="text-left" rowspan="1" colspan="1">
+                <code>urn:ietf:params:oauth:grant-type:jwt-bearer</code>
+</td>
+            </tr>
+            <tr>
+              <td class="text-left" rowspan="1" colspan="1">
+                <code>saml2_bearer</code>
+</td>
+              <td class="text-left" rowspan="1" colspan="1">
+                <code>urn:ietf:params:oauth:grant-type:saml2-bearer</code>
+</td>
+            </tr>
+          </tbody>
+        </table>
+<p id="section-11.4-8">Registrations <span class="bcp14">MUST</span> give the URI or parameter value the short name
+corresponds to, and <span class="bcp14">MUST</span> state which of the two vocabularies they join.
 Names outside the <code>issue:</code> prefix are not registered here, since scope
-values are carried verbatim and are not a registered vocabulary.<a href="#section-11.4-3" class="pilcrow">¶</a></p>
+values are carried verbatim and are not a registered vocabulary.<a href="#section-11.4-8" class="pilcrow">¶</a></p>
 </section>
 </div>
 </section>

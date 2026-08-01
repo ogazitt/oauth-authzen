@@ -90,8 +90,9 @@ Table of Contents
      4.2.  Resource
      4.3.  Actions: Gate Tuples and Scope Tuples
        4.3.1.  Gate Tuple
-       4.3.2.  Scope Tuple
-       4.3.3.  When a Gate Tuple Is Required
+       4.3.2.  Action Name Portability
+       4.3.3.  Scope Tuple
+       4.3.4.  Gate Tuples Are Always Present
      4.4.  Context
      4.5.  Batching and Result Composition
    5.  Processing the Evaluation Response
@@ -343,14 +344,63 @@ Table of Contents
 
 4.3.1.  Gate Tuple
 
-   A gate tuple is an evaluation whose action.name is issue: followed by
-   a token type short name registered in Section 11.4 - for example
-   issue:access_token, issue:id-jag, issue:txn_token.
+   A gate tuple is an evaluation whose action.name has three colon-
+   separated segments:
+
+   issue:<token-type>:<grant-type>
+
+   where <token-type> and <grant-type> are short names registered in
+   Section 11.4 - for example issue:access_token:authorization_code,
+   issue:id_token:authorization_code,
+   issue:refresh_token:token_exchange.
 
    The issue: prefix is reserved.  A deployment MUST NOT use a scope
    value beginning with issue: as a scope tuple action.
 
-4.3.2.  Scope Tuple
+   The grant is part of the action because it is not recoverable from
+   the rest of the tuple and it is not implied by the token type.  The
+   same subject, audience, and token type arise from an authorization
+   code request and from its later refresh, and from a client requesting
+   a token for itself and that same client exchanging for one.  A policy
+   that distinguishes those cases - requiring fresh authorization at a
+   high-value audience, or permitting a client to hold a token but not
+   to exchange for one - has nothing to attach to unless the grant is in
+   the five-tuple.
+
+   Neither segment subsumes the other.  A single authorization code
+   request may mint an access token, a refresh token, and an ID token,
+   which are separately gateable; and a token exchange selects its
+   output through requested_token_type, so its token type is a variable
+   of the request.  Together the two segments name one privilege: what
+   may be minted, and by what means.
+
+4.3.2.  Action Name Portability
+
+   Short names registered under Section 11.4 MUST match
+   [a-z][a-z0-9_]{0,30}, and a composed gate action name MUST NOT exceed
+   50 characters.
+
+   These bounds are not aesthetic.  Relationship-based engines validate
+   relation identifiers against a restricted grammar: at the time of
+   writing, OpenFGA requires ^[^:#@\s]{1,50}$, SpiceDB permits lowercase
+   letters, digits, and underscores within 64 characters, and Topaz
+   permits lowercase letters, digits, dots, underscores, and dashes
+   within 64.  None admits a colon.  With the bounds above, replacing
+   each : with _ turns any action name this document defines into an
+   identifier all three accept, so the transformation is mechanical and
+   a policy written against these names ports unchanged.
+
+   Carrying a grant type URI verbatim would not survive this.  The
+   action name would reach 66 characters for the token exchange grant,
+   which exceeds the shortest of these limits before any question of
+   characters arises.
+
+   The guarantee covers only the vocabulary this document defines.
+   Scope values are carried verbatim (Section 4.3.3) and routinely
+   contain characters no such grammar admits; mapping them remains
+   internal to the PDP.
+
+4.3.3.  Scope Tuple
 
    A scope tuple is an evaluation whose action.name is a single
    requested scope value, carried verbatim.
@@ -361,53 +411,30 @@ Table of Contents
    for, and the PDP decides what that means in its own policy
    vocabulary.
 
-4.3.3.  When a Gate Tuple Is Required
+4.3.4.  Gate Tuples Are Always Present
 
-   A gate tuple MUST be included when either:
+   An AS MUST include a gate tuple in every evaluation request it forms
+   under this profile.  A binding MAY require more than one
+   (Section 4.5).
 
-   1.  the request produces no scope tuples - that is, no scopes were
-       requested and the AS has no default set to expand; or
+   There is no condition under which the gate may be omitted, because
+   the gate is the only tuple that carries the grant.  A request naming
+   a single scope would otherwise reduce to one scope tuple, and an
+   authorization code issuance and a refresh of it would reach the PDP
+   as the same evaluation.
 
-   2.  the flow admits more than one issuable token type, meaning the
-       token type is a variable of the request rather than fixed by the
-       grant.
+   An AS MUST NOT omit a gate tuple on the grounds that it believes the
+   corresponding policy is permissive.  Whether a gate is permissive is
+   internal to the PDP; an AS that acted on such a belief would be
+   making the policy decision this profile exists to externalize.
 
-   Otherwise a gate tuple MAY be included.
-
-   Condition 2 is determined by the grant.  In the token exchange
-   family, a requested_token_type parameter selects among token types,
-   so the gate is required.  In the authorization code, client
-   credentials, and refresh token grants the token type is fixed, so it
-   is not.
-
-   An AS MUST NOT omit a gate tuple required by the conditions above on
-   the grounds that it believes the corresponding policy is permissive.
-   Whether a gate is permissive is internal to the PDP; an AS that acted
-   on such a belief would be making the policy decision this profile
-   exists to externalize.  The condition for requiring the gate is
-   deliberately drawn from facts observable in the request.
-
-   The conditions above are a floor, not a ceiling.  Requiring a gate
-   and forbidding one are not symmetric obligations: omitting a required
-   gate skips a decision, whereas adding an unrequired one cannot loosen
-   the outcome, since a further tuple can only narrow what is issued.
-   An AS that gates every issuance it performs is running a more
-   conservative deployment, not a nonconforming one.
-
-   The discretion is safe to grant because the PDP side is not left
-   guessing.  A PDP that advertises support for this profile renders a
+   The floor is therefore two evaluations for a request naming scopes,
+   and one for a request naming none.  Deployments are expected to write
+   issuance policy for every token type and grant combination their AS
+   can produce; a PDP that advertises support for this profile renders a
    decision on any registered gate action it is sent (Section 6.1), so
-   an AS that gates where these conditions do not require it cannot
-   thereby break a conforming PDP.  Deployments are encouraged to write
-   issuance policy for every token type their AS can issue, whether or
-   not the AS is obliged to ask: policy written that way is insensitive
-   to how much discretion a given AS exercises.
-
-   An AS that sends only what is required will find that the most common
-   cases produce a single evaluation rather than a batch: an
-   authorization code or client credentials request naming one scope
-   produces one scope tuple, and a request naming no scopes produces one
-   gate tuple.
+   an AS never has to predict which combinations a given PDP has policy
+   for.
 
 4.4.  Context
 
@@ -417,43 +444,46 @@ Table of Contents
    The following keys are defined by this document; bindings may define
    more:
 
-      +============+==========+=====================================+
-      | Key        | Type     | Value                               |
-      +============+==========+=====================================+
-      | grant_type | string   | The grant type URI of the request   |
-      +------------+----------+-------------------------------------+
-      | client_id  | string   | The authenticated client identifier |
-      +------------+----------+-------------------------------------+
-      | acr        | string   | Authentication context class of the |
-      |            |          | subject                             |
-      +------------+----------+-------------------------------------+
-      | amr        | array of | Authentication methods, per         |
-      |            | strings  | [RFC8176]                           |
-      +------------+----------+-------------------------------------+
-      | auth_time  | integer  | Time of authentication, as in       |
-      |            |          | [RFC7519]                           |
-      +------------+----------+-------------------------------------+
-      | cnf        | object   | Confirmation method of the          |
-      |            |          | presented credential                |
-      +------------+----------+-------------------------------------+
+      +===========+==========+=====================================+
+      | Key       | Type     | Value                               |
+      +===========+==========+=====================================+
+      | client_id | string   | The authenticated client identifier |
+      +-----------+----------+-------------------------------------+
+      | acr       | string   | Authentication context class of the |
+      |           |          | subject                             |
+      +-----------+----------+-------------------------------------+
+      | amr       | array of | Authentication methods, per         |
+      |           | strings  | [RFC8176]                           |
+      +-----------+----------+-------------------------------------+
+      | auth_time | integer  | Time of authentication, as in       |
+      |           |          | [RFC7519]                           |
+      +-----------+----------+-------------------------------------+
+      | cnf       | object   | Confirmation method of the          |
+      |           |          | presented credential                |
+      +-----------+----------+-------------------------------------+
 
-                                  Table 1
+                                 Table 1
 
    The single-type rule of Section 5.1 applies here as well: each key
    above has one JSON type, and bindings defining further context keys
    MUST state a type for each.
 
    Per Section 1.1, any input on which the decision genuinely depends
-   belongs in the five-tuple, not here.
+   belongs in the five-tuple, not here.  The grant type is the worked
+   example: it is decision-critical, so it is a segment of the gate
+   action name (Section 4.3.1) and does not appear in context at all.
 
 4.5.  Batching and Result Composition
 
    Where a request yields more than one tuple, the AS MUST use the
    Access Evaluations API of [AUTHZEN] with options.evaluations_semantic
-   set to execute_all, and MUST place gate tuples, where present, at the
-   leading indices of the evaluations array, beginning at index 0.
+   set to execute_all, and MUST place gate tuples at the leading indices
+   of the evaluations array, beginning at index 0.
 
-   This document produces at most one gate tuple.  Bindings may produce
+   A request reduces to a single evaluation only when it names no
+   scopes, in which case the gate tuple stands alone.
+
+   This document produces exactly one gate tuple.  Bindings may produce
    more: the token exchange family evaluates the authority of the
    requesting party separately from that of the subject, and so produces
    two.
@@ -473,9 +503,11 @@ Table of Contents
    rule is enforced by the AS.  This is well within the PEP's role - the
    AS is already interpreting per-item results in order to downscope.
 
-   If every scope tuple is denied and no gate tuple is present, the AS
-   MUST fail the request rather than issue a token with an empty scope
-   set.
+   Where the request named scopes and every scope tuple is denied, the
+   AS MUST fail the request rather than issue a token with an empty
+   scope set, even though the gate permitted it.  A permitted gate
+   authorizes a token of that kind to exist; it does not authorize an
+   empty one.
 
 5.  Processing the Evaluation Response
 
@@ -752,18 +784,19 @@ Table of Contents
    }
 
    Advertising the capability is a commitment to the request shapes this
-   profile can produce, not only to the ones a given AS is obliged to
-   send.  A PDP that advertises it MUST render a decision for a gate
-   tuple naming any action name registered in Section 11.4, and MUST NOT
-   reject the evaluation on the grounds that it holds no policy for that
-   action.  Denying is a decision; a protocol error is not.  The same
-   applies to a batch that mixes a gate tuple with scope tuples, which
-   is the ordinary shape of a gated request (Section 4.5).
+   profile can produce.  A PDP that advertises it MUST render a decision
+   for a gate tuple naming any action name composable from the short
+   names registered in Section 11.4, and MUST NOT reject the evaluation
+   on the grounds that it holds no policy for that action.  Denying is a
+   decision; a protocol error is not.  The same applies to a batch that
+   mixes a gate tuple with scope tuples, which is the ordinary shape of
+   a request naming scopes (Section 4.5).
 
-   This is what makes the latitude in Section 4.3.3 inconsequential.  A
-   deployment whose policy covers every token type its AS can issue
-   behaves the same way whether the AS gates only where required or
-   gates every issuance, so the two can be configured independently.
+   The obligation matters because the gate vocabulary is a product of
+   two registries and grows as bindings register short names.  An AS
+   pairs the token type it is about to mint with the grant it received;
+   it cannot know which pairings a given deployment's policy
+   anticipated, and must not have to.
 
 6.2.  Policy Enforcement Point Capabilities
 
@@ -772,13 +805,12 @@ Table of Contents
 
    {
      "subject":  { "type": "user", "id": "U0405936" },
-     "action":   { "name": "files.read" },
+     "action":   { "name": "issue:access_token:authorization_code" },
      "resource": {
        "type": "audience",
        "id": "https://api.example/files"
      },
      "context": {
-       "grant_type": "authorization_code",
        "issuance": {
          "supported_capabilities": [
            "urn:ietf:params:authzen:token-issuance"
@@ -844,35 +876,48 @@ Table of Contents
 
 8.1.  Client Credentials, One Scope
 
-   The token type is fixed by the grant and one scope is requested, so a
-   single scope tuple results and no gate tuple is required.
+   One scope is requested, so the request is the gate tuple and one
+   scope tuple.  This is the floor: two evaluations.
 
    {
      "subject":  { "type": "client", "id": "svc-reporting" },
-     "action":   { "name": "telemetry.write" },
      "resource": {
        "type": "audience",
        "id": "https://telemetry.example"
      },
      "context": {
-       "grant_type": "client_credentials",
+       "client_id": "svc-reporting",
        "issuance": {
          "supported_capabilities": [
            "urn:ietf:params:authzen:token-issuance"
          ]
        }
-     }
+     },
+     "evaluations": [
+       {
+         "action": {
+           "name": "issue:access_token:client_credentials"
+         }
+       },
+       { "action": { "name": "telemetry.write" } }
+     ],
+     "options": { "evaluations_semantic": "execute_all" }
    }
 
    {
-     "decision": true,
-     "context": { "issuance": { "token_lifetime": 900 } }
+     "evaluations": [
+       {
+         "decision": true,
+         "context": { "issuance": { "token_lifetime": 900 } }
+       },
+       { "decision": true }
+     ]
    }
 
 8.2.  Authorization Code, Downscoping
 
-   Three scopes are requested. execute_all allows the AS to issue the
-   permitted subset.
+   Three scopes are requested.  The gate leads at index 0 and
+   execute_all allows the AS to issue the permitted subset of the rest.
 
    {
      "subject":  { "type": "user", "id": "U0405936" },
@@ -881,7 +926,6 @@ Table of Contents
        "id": "https://api.example/files"
      },
      "context": {
-       "grant_type": "authorization_code",
        "client_id": "chatterbox",
        "acr": "urn:example:loa:2",
        "issuance": {
@@ -891,6 +935,11 @@ Table of Contents
        }
      },
      "evaluations": [
+       {
+         "action": {
+           "name": "issue:access_token:authorization_code"
+         }
+       },
        { "action": { "name": "files.read"   } },
        { "action": { "name": "files.write"  } },
        { "action": { "name": "files.delete" } }
@@ -900,6 +949,7 @@ Table of Contents
 
    {
      "evaluations": [
+       { "decision": true },
        {
          "decision": true,
          "context": {
@@ -917,6 +967,12 @@ Table of Contents
    The AS issues a token bearing files.read files.write, a groups claim,
    and reports the reduced scope set in the token response.
 
+   Had the same subject arrived at the same audience with the same
+   scopes on a refresh, index 0 would have read
+   issue:access_token:refresh_token, and a policy that requires fresh
+   authorization here could deny it while leaving the scope tuples
+   untouched.
+
 8.3.  No Scopes Requested
 
    No scopes and no default set, so the gate tuple stands alone and the
@@ -924,13 +980,14 @@ Table of Contents
 
    {
      "subject":  { "type": "client", "id": "svc-reporting" },
-     "action":   { "name": "issue:access_token" },
+     "action":   {
+       "name": "issue:access_token:client_credentials"
+     },
      "resource": {
        "type": "audience",
        "id": "https://telemetry.example"
      },
      "context": {
-       "grant_type": "client_credentials",
        "issuance": {
          "supported_capabilities": [
            "urn:ietf:params:authzen:token-issuance"
@@ -1153,23 +1210,62 @@ Table of Contents
 
    IANA is requested to establish the "OAuth Token Issuance
    Authorization Action Names" registry, with a registration policy of
-   Specification Required [RFC8126], for action names in the reserved
-   issue: space.
+   Specification Required [RFC8126], for the two short-name vocabularies
+   from which action names in the reserved issue: space are composed.
 
-   +===================+==============================================+
-   |Action name        |Token type                                    |
-   +===================+==============================================+
-   |issue:access_token |urn:ietf:params:oauth:token-type:access_token |
-   +-------------------+----------------------------------------------+
-   |issue:refresh_token|urn:ietf:params:oauth:token-type:refresh_token|
-   +-------------------+----------------------------------------------+
-   |issue:id_token     |urn:ietf:params:oauth:token-type:id_token     |
-   +-------------------+----------------------------------------------+
+   A gate action name is issue:<token-type>:<grant-type>, so the
+   registry grows with the number of token types plus the number of
+   grant types, not with their product.  The combinations that are
+   meaningful in a deployment are a matter of policy, not of
+   registration.
+
+   Every short name MUST match [a-z][a-z0-9_]{0,30}, and a composed
+   action name MUST NOT exceed 50 characters.  Section 4.3.2 gives the
+   reason: these bounds are what let the name be transformed
+   mechanically into a relation identifier that widely deployed
+   relationship-based engines accept.  Registrants should note that
+   hyphens are excluded deliberately, being rejected by at least one
+   such engine.
+
+   Token type short names, initially:
+
+    +===============+================================================+
+    | Short name    | Token type                                     |
+    +===============+================================================+
+    | access_token  | urn:ietf:params:oauth:token-type:access_token  |
+    +---------------+------------------------------------------------+
+    | refresh_token | urn:ietf:params:oauth:token-type:refresh_token |
+    +---------------+------------------------------------------------+
+    | id_token      | urn:ietf:params:oauth:token-type:id_token      |
+    +---------------+------------------------------------------------+
 
                                  Table 6
 
-   Registrations MUST give the token type URI the short name corresponds
-   to.  Names outside the issue: prefix are not registered here, since
+   Grant type short names, initially:
+
+   +==================+===============================================+
+   |Short name        |Grant type                                     |
+   +==================+===============================================+
+   |authorization_code|authorization_code                             |
+   +------------------+-----------------------------------------------+
+   |client_credentials|client_credentials                             |
+   +------------------+-----------------------------------------------+
+   |refresh_token     |refresh_token                                  |
+   +------------------+-----------------------------------------------+
+   |token_exchange    |urn:ietf:params:oauth:grant-type:token-exchange|
+   +------------------+-----------------------------------------------+
+   |device_code       |urn:ietf:params:oauth:grant-type:device_code   |
+   +------------------+-----------------------------------------------+
+   |jwt_bearer        |urn:ietf:params:oauth:grant-type:jwt-bearer    |
+   +------------------+-----------------------------------------------+
+   |saml2_bearer      |urn:ietf:params:oauth:grant-type:saml2-bearer  |
+   +------------------+-----------------------------------------------+
+
+                                 Table 7
+
+   Registrations MUST give the URI or parameter value the short name
+   corresponds to, and MUST state which of the two vocabularies they
+   join.  Names outside the issue: prefix are not registered here, since
    scope values are carried verbatim and are not a registered
    vocabulary.
 

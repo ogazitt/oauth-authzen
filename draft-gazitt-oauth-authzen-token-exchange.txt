@@ -282,19 +282,25 @@ Table of Contents
 4.3.  Actions
 
    A token exchange request produces gate tuples and scope tuples as
-   defined in [ISSUANCE].  Because requested_token_type makes the token
-   type a variable of the request, the condition in [ISSUANCE] for
-   requiring a gate tuple is always met: *every request within the scope
-   of this document produces at least one gate tuple.*
+   defined in [ISSUANCE], which requires a gate tuple on every request.
+   This binding produces *two*, because a token exchange has two parties
+   whose authority is in question.
+
+   Both carry the same action.name, of the form issue:<token-
+   type>:token_exchange, where the token type short name is the one
+   registered for the value of requested_token_type (Section 10.1).  The
+   grant segment is token_exchange throughout, since that is the grant
+   this binding applies to; it is what distinguishes these tuples from
+   those a direct request by the same party for the same target would
+   produce.
+
+   Where requested_token_type is absent, [RFC8693] directs the AS to its
+   default, and the short name for that default type is used.
 
 4.3.1.  Subject Gate Tuple
 
    The AS MUST include a gate tuple whose subject is the exchange
-   subject and whose action.name is issue: followed by the short name
-   registered for the value of requested_token_type (Section 10.1).
-
-   Where requested_token_type is absent, [RFC8693] directs the AS to its
-   default, and the short name for that default type is used.
+   subject.
 
 4.3.2.  Requesting Party Gate Tuple
 
@@ -323,7 +329,7 @@ Table of Contents
    A deployment in which every requesting party is permitted still
    evaluates the tuple.  Per [ISSUANCE], an AS MUST NOT omit a gate
    tuple on the grounds that it believes the corresponding policy is
-   permissive.
+   permissive; whether a gate is permissive is internal to the PDP.
 
    Where the requesting party and the exchange subject are the same
    entity - a client exchanging a token it obtained for itself - the two
@@ -410,39 +416,43 @@ Table of Contents
    are advisory: a PDP MUST be able to render a decision from the five-
    tuple alone.
 
-    +======================+========+=================================+
-    | Key                  | Type   | Value                           |
-    +======================+========+=================================+
-    | requested_token_type | string | The requested_token_type        |
-    |                      |        | parameter, verbatim             |
-    +----------------------+--------+---------------------------------+
-    | subject_token_type   | string | The subject_token_type          |
-    |                      |        | parameter, verbatim             |
-    +----------------------+--------+---------------------------------+
-    | actor_token_type     | string | The actor_token_type parameter, |
-    |                      |        | if present                      |
-    +----------------------+--------+---------------------------------+
-    | subject_token        | object | Selected validated claims of    |
-    |                      |        | the subject token, such as iss, |
-    |                      |        | acr, amr, and auth_time         |
-    +----------------------+--------+---------------------------------+
-    | act                  | object | The act claim of the subject    |
-    |                      |        | token, if present, conveying an |
-    |                      |        | existing delegation chain       |
-    +----------------------+--------+---------------------------------+
-    | may_act              | object | The may_act claim of the        |
-    |                      |        | subject token, if present       |
-    +----------------------+--------+---------------------------------+
-    | cnf                  | object | The confirmation method of the  |
-    |                      |        | presented credential, where the |
-    |                      |        | exchange is sender-constrained  |
-    |                      |        | under [RFC8705] or [RFC9449]    |
-    +----------------------+--------+---------------------------------+
+     +====================+========+=================================+
+     | Key                | Type   | Value                           |
+     +====================+========+=================================+
+     | subject_token_type | string | The subject_token_type          |
+     |                    |        | parameter, verbatim             |
+     +--------------------+--------+---------------------------------+
+     | actor_token_type   | string | The actor_token_type parameter, |
+     |                    |        | if present                      |
+     +--------------------+--------+---------------------------------+
+     | subject_token      | object | Selected validated claims of    |
+     |                    |        | the subject token, such as iss, |
+     |                    |        | acr, amr, and auth_time         |
+     +--------------------+--------+---------------------------------+
+     | act                | object | The act claim of the subject    |
+     |                    |        | token, if present, conveying an |
+     |                    |        | existing delegation chain       |
+     +--------------------+--------+---------------------------------+
+     | may_act            | object | The may_act claim of the        |
+     |                    |        | subject token, if present       |
+     +--------------------+--------+---------------------------------+
+     | cnf                | object | The confirmation method of the  |
+     |                    |        | presented credential, where the |
+     |                    |        | exchange is sender-constrained  |
+     |                    |        | under [RFC8705] or [RFC9449]    |
+     +--------------------+--------+---------------------------------+
 
                                   Table 2
 
    Each key has one JSON type, as [ISSUANCE] requires of context keys
    defined by a binding.
+
+   requested_token_type is not among them.  It determines the token type
+   segment of the gate action name, so it is already in the five-tuple,
+   and repeating it in context would give a PDP two places to read the
+   same fact and a way for them to disagree. subject_token_type and
+   actor_token_type describe the credentials presented, not the token
+   requested, and remain advisory.
 
    An AS MUST NOT place raw token strings in context.  Only claims the
    AS has already validated are conveyed, and only those a deployment's
@@ -451,14 +461,15 @@ Table of Contents
 
 4.6.  Batch Composition
 
-   Except where a request reduces to a single tuple, the AS uses the
-   Access Evaluations API of [AUTHZEN] as [ISSUANCE] specifies.
+   Except where a request names no scopes and the two gate tuples
+   coincide (Section 4.3.2), the AS uses the Access Evaluations API of
+   [AUTHZEN] as [ISSUANCE] specifies.
 
-   Because this binding produces more than one gate tuple, it refines
-   [ISSUANCE]'s ordering rule: *gate tuples MUST occupy the leading
-   indices of the evaluations array*, beginning at index 0, and the AS
-   MUST fail the request without issuing a token if any of them is
-   denied.  Scope tuples follow.
+   [ISSUANCE] requires gate tuples to occupy the leading indices of the
+   evaluations array.  Here that ordinarily means indices 0 and 1, in
+   the order given in Section 4.3: the subject gate first, then the
+   requesting party gate.  Scope tuples follow.  The AS MUST fail the
+   request without issuing a token if either gate is denied.
 
    The evaluations semantic depends on what the deployment intends a
    denial to mean:
@@ -519,11 +530,12 @@ Table of Contents
    and redeemed at an application's authorization server.
 
    *Issuance.* The requested_token_type is urn:ietf:params:oauth:token-
-   type:id-jag, so the gate tuples carry action.name of issue:id-jag.
-   The issued grant's audience is the resource authorization server,
-   while [I-D.ietf-oauth-identity-assertion-authz-grant] makes the
-   [RFC8707] resource subset a policy decision in its own right.  The AS
-   MUST therefore perform a two-level evaluation under Section 4.4.1.
+   type:id-jag, so the gate tuples carry action.name of
+   issue:id_jag:token_exchange.  The issued grant's audience is the
+   resource authorization server, while
+   [I-D.ietf-oauth-identity-assertion-authz-grant] makes the [RFC8707]
+   resource subset a policy decision in its own right.  The AS MUST
+   therefore perform a two-level evaluation under Section 4.4.1.
 
    scope is OPTIONAL in an ID-JAG request.  Where it is absent, the
    request produces gate tuples and no scope tuples, and a PDP that
@@ -712,9 +724,6 @@ Table of Contents
        "id": "https://api.partner.example"
      },
      "context": {
-       "grant_type": "urn:ietf:params:oauth:grant-type:token-exchange",
-       "requested_token_type":
-           "urn:ietf:params:oauth:token-type:access_token",
        "client_id": "gateway-client",
        "may_act": { "sub": "spiffe://cluster/ns/prod/sa/gateway" },
        "issuance": {
@@ -726,14 +735,18 @@ Table of Contents
      "evaluations": [
        {
          "subject": { "type": "user", "id": "alice@example.com" },
-         "action":  { "name": "issue:access_token" }
+         "action":  {
+           "name": "issue:access_token:token_exchange"
+         }
        },
        {
          "subject": {
            "type": "workload",
            "id": "spiffe://cluster/ns/prod/sa/gateway"
          },
-         "action":  { "name": "issue:access_token" }
+         "action":  {
+           "name": "issue:access_token:token_exchange"
+         }
        },
        {
          "subject": { "type": "user", "id": "alice@example.com" },
@@ -746,7 +759,9 @@ Table of Contents
    A relationship-based PDP reads the second tuple as an edge between
    workload:spiffe://cluster/ns/prod/sa/gateway and
    audience:https://api.partner.example under the relation
-   issue:access_token.  No property bag is consulted.
+   issue_access_token_token_exchange.  No property bag is consulted, and
+   the relation is distinct from the one that would govern the gateway
+   obtaining a token for itself under the client credentials grant.
 
    {
      "evaluations": [
@@ -776,9 +791,6 @@ Table of Contents
 
    {
      "context": {
-       "grant_type": "urn:ietf:params:oauth:grant-type:token-exchange",
-       "requested_token_type":
-           "urn:ietf:params:oauth:token-type:id-jag",
        "client_id": "chatterbox-idp-7f3a",
        "issuance": {
          "supported_capabilities": [
@@ -789,7 +801,7 @@ Table of Contents
      "evaluations": [
        {
          "subject":  { "type": "user", "id": "U0405936" },
-         "action":   { "name": "issue:id-jag" },
+         "action":   { "name": "issue:id_jag:token_exchange" },
          "resource": {
            "type": "audience",
            "id": "https://as.app.example"
@@ -797,7 +809,7 @@ Table of Contents
        },
        {
          "subject":  { "type": "client", "id": "chatterbox-idp-7f3a" },
-         "action":   { "name": "issue:id-jag" },
+         "action":   { "name": "issue:id_jag:token_exchange" },
          "resource": {
            "type": "audience",
            "id": "https://as.app.example"
@@ -888,29 +900,33 @@ Table of Contents
 
 10.1.  Issuance Authorization Action Names
 
-   IANA is requested to register the following in the "OAuth Token
-   Issuance Authorization Action Names" registry established by
-   [ISSUANCE], whose registration policy is Specification Required
-   [RFC8126]:
+   IANA is requested to register the following token type short names in
+   the "OAuth Token Issuance Authorization Action Names" registry
+   established by [ISSUANCE], whose registration policy is Specification
+   Required [RFC8126]:
 
-     +=================+============================================+
-     | Action name     | Token type                                 |
-     +=================+============================================+
-     | issue:id-jag    | urn:ietf:params:oauth:token-type:id-jag    |
-     +-----------------+--------------------------------------------+
-     | issue:txn_token | urn:ietf:params:oauth:token-type:txn_token |
-     +-----------------+--------------------------------------------+
-     | issue:jwt       | urn:ietf:params:oauth:token-type:jwt       |
-     +-----------------+--------------------------------------------+
-     | issue:saml1     | urn:ietf:params:oauth:token-type:saml1     |
-     +-----------------+--------------------------------------------+
-     | issue:saml2     | urn:ietf:params:oauth:token-type:saml2     |
-     +-----------------+--------------------------------------------+
+        +============+============================================+
+        | Short name | Token type                                 |
+        +============+============================================+
+        | id_jag     | urn:ietf:params:oauth:token-type:id-jag    |
+        +------------+--------------------------------------------+
+        | txn_token  | urn:ietf:params:oauth:token-type:txn_token |
+        +------------+--------------------------------------------+
+        | jwt        | urn:ietf:params:oauth:token-type:jwt       |
+        +------------+--------------------------------------------+
+        | saml1      | urn:ietf:params:oauth:token-type:saml1     |
+        +------------+--------------------------------------------+
+        | saml2      | urn:ietf:params:oauth:token-type:saml2     |
+        +------------+--------------------------------------------+
 
-                                 Table 4
+                                  Table 4
 
-   The short names for access_token, refresh_token, and id_token are
-   registered by [ISSUANCE].
+   The short names for access_token, refresh_token, and id_token, and
+   the token_exchange grant type short name that pairs with all of the
+   above, are registered by [ISSUANCE].
+
+   id_jag uses an underscore where the token type URI uses a hyphen, as
+   [ISSUANCE] requires of every registered short name.
 
       *Editor's note.* These registrations depend on the corresponding
       token types being registered in the "OAuth URI" registry by their

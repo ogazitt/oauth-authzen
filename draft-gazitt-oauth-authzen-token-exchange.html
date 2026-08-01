@@ -1538,20 +1538,23 @@ recover it.<a href="#section-4.2-4" class="pilcrow">¶</a></p>
 <a href="#section-4.3" class="section-number selfRef">4.3. </a><a href="#name-actions" class="section-name selfRef">Actions</a>
         </h3>
 <p id="section-4.3-1">A token exchange request produces gate tuples and scope tuples as defined in
-<span>[<a href="#ISSUANCE" class="cite xref">ISSUANCE</a>]</span>. Because <code>requested_token_type</code> makes the token type a variable
-of the request, the condition in <span>[<a href="#ISSUANCE" class="cite xref">ISSUANCE</a>]</span> for requiring a gate tuple is
-always met: <strong>every request within the scope of this document produces at
-least one gate tuple.</strong><a href="#section-4.3-1" class="pilcrow">¶</a></p>
+<span>[<a href="#ISSUANCE" class="cite xref">ISSUANCE</a>]</span>, which requires a gate tuple on every request. This binding
+produces <strong>two</strong>, because a token exchange has two parties whose authority
+is in question.<a href="#section-4.3-1" class="pilcrow">¶</a></p>
+<p id="section-4.3-2">Both carry the same <code>action.name</code>, of the form
+<code>issue:&lt;token-type&gt;:token_exchange</code>, where the token type short name is the
+one registered for the value of <code>requested_token_type</code> (<a href="#iana-actions" class="auto internal xref">Section 10.1</a>).
+The grant segment is <code>token_exchange</code> throughout, since that is the grant
+this binding applies to; it is what distinguishes these tuples from those a
+direct request by the same party for the same target would produce.<a href="#section-4.3-2" class="pilcrow">¶</a></p>
+<p id="section-4.3-3">Where <code>requested_token_type</code> is absent, <span>[<a href="#RFC8693" class="cite xref">RFC8693</a>]</span> directs the AS to its
+default, and the short name for that default type is used.<a href="#section-4.3-3" class="pilcrow">¶</a></p>
 <div id="subject-gate-tuple">
 <section id="section-4.3.1">
           <h4 id="name-subject-gate-tuple">
 <a href="#section-4.3.1" class="section-number selfRef">4.3.1. </a><a href="#name-subject-gate-tuple" class="section-name selfRef">Subject Gate Tuple</a>
           </h4>
-<p id="section-4.3.1-1">The AS <span class="bcp14">MUST</span> include a gate tuple whose subject is the exchange subject and
-whose <code>action.name</code> is <code>issue:</code> followed by the short name registered for
-the value of <code>requested_token_type</code> (<a href="#iana-actions" class="auto internal xref">Section 10.1</a>).<a href="#section-4.3.1-1" class="pilcrow">¶</a></p>
-<p id="section-4.3.1-2">Where <code>requested_token_type</code> is absent, <span>[<a href="#RFC8693" class="cite xref">RFC8693</a>]</span> directs the AS to its
-default, and the short name for that default type is used.<a href="#section-4.3.1-2" class="pilcrow">¶</a></p>
+<p id="section-4.3.1-1">The AS <span class="bcp14">MUST</span> include a gate tuple whose subject is the exchange subject.<a href="#section-4.3.1-1" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="actor-gate">
@@ -1583,7 +1586,8 @@ it.<a href="#section-4.3.2-4.2.1" class="pilcrow">¶</a></p>
           </ul>
 <p id="section-4.3.2-5">A deployment in which every requesting party is permitted still evaluates
 the tuple. Per <span>[<a href="#ISSUANCE" class="cite xref">ISSUANCE</a>]</span>, an AS <span class="bcp14">MUST NOT</span> omit a gate tuple on the grounds
-that it believes the corresponding policy is permissive.<a href="#section-4.3.2-5" class="pilcrow">¶</a></p>
+that it believes the corresponding policy is permissive; whether a gate is
+permissive is internal to the PDP.<a href="#section-4.3.2-5" class="pilcrow">¶</a></p>
 <p id="section-4.3.2-6">Where the requesting party and the exchange subject are the same entity -
 a client exchanging a token it obtained for itself - the two gate tuples are
 identical, and the AS <span class="bcp14">MAY</span> include only one.<a href="#section-4.3.2-6" class="pilcrow">¶</a></p>
@@ -1695,13 +1699,6 @@ advisory: a PDP <span class="bcp14">MUST</span> be able to render a decision fro
           <tbody>
             <tr>
               <td class="text-left" rowspan="1" colspan="1">
-                <code>requested_token_type</code>
-</td>
-              <td class="text-left" rowspan="1" colspan="1">string</td>
-              <td class="text-left" rowspan="1" colspan="1">The <code>requested_token_type</code> parameter, verbatim</td>
-            </tr>
-            <tr>
-              <td class="text-left" rowspan="1" colspan="1">
                 <code>subject_token_type</code>
 </td>
               <td class="text-left" rowspan="1" colspan="1">string</td>
@@ -1748,10 +1745,16 @@ advisory: a PDP <span class="bcp14">MUST</span> be able to render a decision fro
         </table>
 <p id="section-4.5-3">Each key has one JSON type, as <span>[<a href="#ISSUANCE" class="cite xref">ISSUANCE</a>]</span> requires of context keys defined
 by a binding.<a href="#section-4.5-3" class="pilcrow">¶</a></p>
-<p id="section-4.5-4">An AS <span class="bcp14">MUST NOT</span> place raw token strings in <code>context</code>. Only claims the AS has
+<p id="section-4.5-4"><code>requested_token_type</code> is not among them. It determines the token type
+segment of the gate action name, so it is already in the five-tuple, and
+repeating it in <code>context</code> would give a PDP two places to read the same fact
+and a way for them to disagree. <code>subject_token_type</code> and <code>actor_token_type</code>
+describe the credentials presented, not the token requested, and remain
+advisory.<a href="#section-4.5-4" class="pilcrow">¶</a></p>
+<p id="section-4.5-5">An AS <span class="bcp14">MUST NOT</span> place raw token strings in <code>context</code>. Only claims the AS has
 already validated are conveyed, and only those a deployment's policies
 consume. The subject token may carry claims about a party that has not
-authorized their disclosure to the PDP.<a href="#section-4.5-4" class="pilcrow">¶</a></p>
+authorized their disclosure to the PDP.<a href="#section-4.5-5" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="composition">
@@ -1759,13 +1762,14 @@ authorized their disclosure to the PDP.<a href="#section-4.5-4" class="pilcrow">
         <h3 id="name-batch-composition">
 <a href="#section-4.6" class="section-number selfRef">4.6. </a><a href="#name-batch-composition" class="section-name selfRef">Batch Composition</a>
         </h3>
-<p id="section-4.6-1">Except where a request reduces to a single tuple, the AS uses the Access
-Evaluations API of <span>[<a href="#AUTHZEN" class="cite xref">AUTHZEN</a>]</span> as <span>[<a href="#ISSUANCE" class="cite xref">ISSUANCE</a>]</span> specifies.<a href="#section-4.6-1" class="pilcrow">¶</a></p>
-<p id="section-4.6-2">Because this binding produces more than one gate tuple, it refines
-<span>[<a href="#ISSUANCE" class="cite xref">ISSUANCE</a>]</span>'s ordering rule: <strong>gate tuples <span class="bcp14">MUST</span> occupy the leading indices
-of the <code>evaluations</code> array</strong>, beginning at index 0, and the AS <span class="bcp14">MUST</span> fail the
-request without issuing a token if any of them is denied. Scope tuples
-follow.<a href="#section-4.6-2" class="pilcrow">¶</a></p>
+<p id="section-4.6-1">Except where a request names no scopes and the two gate tuples coincide
+(<a href="#actor-gate" class="auto internal xref">Section 4.3.2</a>), the AS uses the Access Evaluations API of <span>[<a href="#AUTHZEN" class="cite xref">AUTHZEN</a>]</span> as
+<span>[<a href="#ISSUANCE" class="cite xref">ISSUANCE</a>]</span> specifies.<a href="#section-4.6-1" class="pilcrow">¶</a></p>
+<p id="section-4.6-2"><span>[<a href="#ISSUANCE" class="cite xref">ISSUANCE</a>]</span> requires gate tuples to occupy the leading indices of the
+<code>evaluations</code> array. Here that ordinarily means indices 0 and 1, in the order
+given in <a href="#actions" class="auto internal xref">Section 4.3</a>: the subject gate first, then the requesting party gate.
+Scope tuples follow. The AS <span class="bcp14">MUST</span> fail the request without issuing a token if
+either gate is denied.<a href="#section-4.6-2" class="pilcrow">¶</a></p>
 <p id="section-4.6-3">The evaluations semantic depends on what the deployment intends a denial to
 mean:<a href="#section-4.6-3" class="pilcrow">¶</a></p>
 <ul class="normal">
@@ -1840,7 +1844,8 @@ relationship that already exists.<a href="#section-5.2-4" class="pilcrow">¶</a>
 redeemed at an application's authorization server.<a href="#section-5.3-1" class="pilcrow">¶</a></p>
 <p id="section-5.3-2"><strong>Issuance.</strong> The <code>requested_token_type</code> is
 <code>urn:ietf:params:oauth:token-type:id-jag</code>, so the gate tuples carry
-<code>action.name</code> of <code>issue:id-jag</code>. The issued grant's audience is the
+<code>action.name</code> of <code>issue:id_jag:token_exchange</code>. The issued grant's audience
+is the
 resource authorization server, while
 <span>[<a href="#I-D.ietf-oauth-identity-assertion-authz-grant" class="cite xref">I-D.ietf-oauth-identity-assertion-authz-grant</a>]</span> makes the <span>[<a href="#RFC8707" class="cite xref">RFC8707</a>]</span>
           <code>resource</code> subset a policy decision in its own right. The AS <span class="bcp14">MUST</span> therefore
@@ -2054,9 +2059,6 @@ grant_type=urn:ietf:params:oauth:grant-type:token-exchange
     "id": "https://api.partner.example"
   },
   "context": {
-    "grant_type": "urn:ietf:params:oauth:grant-type:token-exchange",
-    "requested_token_type":
-        "urn:ietf:params:oauth:token-type:access_token",
     "client_id": "gateway-client",
     "may_act": { "sub": "spiffe://cluster/ns/prod/sa/gateway" },
     "issuance": {
@@ -2068,14 +2070,18 @@ grant_type=urn:ietf:params:oauth:grant-type:token-exchange
   "evaluations": [
     {
       "subject": { "type": "user", "id": "alice@example.com" },
-      "action":  { "name": "issue:access_token" }
+      "action":  {
+        "name": "issue:access_token:token_exchange"
+      }
     },
     {
       "subject": {
         "type": "workload",
         "id": "spiffe://cluster/ns/prod/sa/gateway"
       },
-      "action":  { "name": "issue:access_token" }
+      "action":  {
+        "name": "issue:access_token:token_exchange"
+      }
     },
     {
       "subject": { "type": "user", "id": "alice@example.com" },
@@ -2089,7 +2095,9 @@ grant_type=urn:ietf:params:oauth:grant-type:token-exchange
 <p id="section-8.1-4">A relationship-based PDP reads the second tuple as an edge between
 <code>workload:spiffe://cluster/ns/prod/sa/gateway</code> and
 <code>audience:https://api.partner.example</code> under the relation
-<code>issue:access_token</code>. No property bag is consulted.<a href="#section-8.1-4" class="pilcrow">¶</a></p>
+<code>issue_access_token_token_exchange</code>. No property bag is consulted, and the
+relation is distinct from the one that would govern the gateway obtaining a
+token for itself under the client credentials grant.<a href="#section-8.1-4" class="pilcrow">¶</a></p>
 <div class="lang-json sourcecode" id="section-8.1-5">
 <pre>
 {
@@ -2125,9 +2133,6 @@ and a lifetime no greater than 300 seconds.<a href="#section-8.1-6" class="pilcr
 <pre>
 {
   "context": {
-    "grant_type": "urn:ietf:params:oauth:grant-type:token-exchange",
-    "requested_token_type":
-        "urn:ietf:params:oauth:token-type:id-jag",
     "client_id": "chatterbox-idp-7f3a",
     "issuance": {
       "supported_capabilities": [
@@ -2138,7 +2143,7 @@ and a lifetime no greater than 300 seconds.<a href="#section-8.1-6" class="pilcr
   "evaluations": [
     {
       "subject":  { "type": "user", "id": "U0405936" },
-      "action":   { "name": "issue:id-jag" },
+      "action":   { "name": "issue:id_jag:token_exchange" },
       "resource": {
         "type": "audience",
         "id": "https://as.app.example"
@@ -2146,7 +2151,7 @@ and a lifetime no greater than 300 seconds.<a href="#section-8.1-6" class="pilcr
     },
     {
       "subject":  { "type": "client", "id": "chatterbox-idp-7f3a" },
-      "action":   { "name": "issue:id-jag" },
+      "action":   { "name": "issue:id_jag:token_exchange" },
       "resource": {
         "type": "audience",
         "id": "https://as.app.example"
@@ -2265,21 +2270,22 @@ diagnostics to token endpoint error responses should preserve this.<a href="#sec
         <h3 id="name-issuance-authorization-acti">
 <a href="#section-10.1" class="section-number selfRef">10.1. </a><a href="#name-issuance-authorization-acti" class="section-name selfRef">Issuance Authorization Action Names</a>
         </h3>
-<p id="section-10.1-1">IANA is requested to register the following in the "OAuth Token Issuance
-Authorization Action Names" registry established by <span>[<a href="#ISSUANCE" class="cite xref">ISSUANCE</a>]</span>, whose
-registration policy is Specification Required <span>[<a href="#RFC8126" class="cite xref">RFC8126</a>]</span>:<a href="#section-10.1-1" class="pilcrow">¶</a></p>
+<p id="section-10.1-1">IANA is requested to register the following token type short names in the
+"OAuth Token Issuance Authorization Action Names" registry established by
+<span>[<a href="#ISSUANCE" class="cite xref">ISSUANCE</a>]</span>, whose registration policy is Specification Required
+<span>[<a href="#RFC8126" class="cite xref">RFC8126</a>]</span>:<a href="#section-10.1-1" class="pilcrow">¶</a></p>
 <table class="center" id="table-4">
           <caption><a href="#table-4" class="selfRef">Table 4</a></caption>
 <thead>
             <tr>
-              <th class="text-left" rowspan="1" colspan="1">Action name</th>
+              <th class="text-left" rowspan="1" colspan="1">Short name</th>
               <th class="text-left" rowspan="1" colspan="1">Token type</th>
             </tr>
           </thead>
           <tbody>
             <tr>
               <td class="text-left" rowspan="1" colspan="1">
-                <code>issue:id-jag</code>
+                <code>id_jag</code>
 </td>
               <td class="text-left" rowspan="1" colspan="1">
                 <code>urn:ietf:params:oauth:token-type:id-jag</code>
@@ -2287,7 +2293,7 @@ registration policy is Specification Required <span>[<a href="#RFC8126" class="c
             </tr>
             <tr>
               <td class="text-left" rowspan="1" colspan="1">
-                <code>issue:txn_token</code>
+                <code>txn_token</code>
 </td>
               <td class="text-left" rowspan="1" colspan="1">
                 <code>urn:ietf:params:oauth:token-type:txn_token</code>
@@ -2295,7 +2301,7 @@ registration policy is Specification Required <span>[<a href="#RFC8126" class="c
             </tr>
             <tr>
               <td class="text-left" rowspan="1" colspan="1">
-                <code>issue:jwt</code>
+                <code>jwt</code>
 </td>
               <td class="text-left" rowspan="1" colspan="1">
                 <code>urn:ietf:params:oauth:token-type:jwt</code>
@@ -2303,7 +2309,7 @@ registration policy is Specification Required <span>[<a href="#RFC8126" class="c
             </tr>
             <tr>
               <td class="text-left" rowspan="1" colspan="1">
-                <code>issue:saml1</code>
+                <code>saml1</code>
 </td>
               <td class="text-left" rowspan="1" colspan="1">
                 <code>urn:ietf:params:oauth:token-type:saml1</code>
@@ -2311,7 +2317,7 @@ registration policy is Specification Required <span>[<a href="#RFC8126" class="c
             </tr>
             <tr>
               <td class="text-left" rowspan="1" colspan="1">
-                <code>issue:saml2</code>
+                <code>saml2</code>
 </td>
               <td class="text-left" rowspan="1" colspan="1">
                 <code>urn:ietf:params:oauth:token-type:saml2</code>
@@ -2319,15 +2325,18 @@ registration policy is Specification Required <span>[<a href="#RFC8126" class="c
             </tr>
           </tbody>
         </table>
-<p id="section-10.1-3">The short names for <code>access_token</code>, <code>refresh_token</code>, and <code>id_token</code> are
+<p id="section-10.1-3">The short names for <code>access_token</code>, <code>refresh_token</code>, and <code>id_token</code>, and the
+<code>token_exchange</code> grant type short name that pairs with all of the above, are
 registered by <span>[<a href="#ISSUANCE" class="cite xref">ISSUANCE</a>]</span>.<a href="#section-10.1-3" class="pilcrow">¶</a></p>
+<p id="section-10.1-4"><code>id_jag</code> uses an underscore where the token type URI uses a hyphen, as
+<span>[<a href="#ISSUANCE" class="cite xref">ISSUANCE</a>]</span> requires of every registered short name.<a href="#section-10.1-4" class="pilcrow">¶</a></p>
 <ul class="normal ulEmpty">
-<li class="normal ulEmpty" id="section-10.1-4.1">
-            <p id="section-10.1-4.1.1"><strong>Editor's note.</strong> These registrations depend on the corresponding token
+<li class="normal ulEmpty" id="section-10.1-5.1">
+            <p id="section-10.1-5.1.1"><strong>Editor's note.</strong> These registrations depend on the corresponding token
 types being registered in the "OAuth URI" registry by their own
 specifications. <code>id-jag</code> and <code>txn_token</code> are requested by documents still
 in progress, and the short names above should be confirmed against the
-values those documents ultimately register.<a href="#section-10.1-4.1.1" class="pilcrow">¶</a></p>
+values those documents ultimately register.<a href="#section-10.1-5.1.1" class="pilcrow">¶</a></p>
 </li>
         </ul>
 </section>
