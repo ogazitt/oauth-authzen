@@ -2187,7 +2187,11 @@ retrievable at <code>/.well-known/authzen-configuration</code>:<a href="#section
 this document. It is not a statement about the content of the PDP's policy,
 and a PDP <span class="bcp14">MUST NOT</span> be read as claiming to hold rules for any particular
 issuance. What a deployment's policy permits is disclosed only through
-decisions.<a href="#section-6.1-3" class="pilcrow">¶</a></p>
+decisions. This is the same line
+<span>[<a href="#I-D.ietf-oauth-identity-assertion-authz-grant" class="cite xref">I-D.ietf-oauth-identity-assertion-authz-grant</a>]</span> draws for
+<code>authorization_grant_profiles_supported</code>, which indicates that a server
+implements a profile's processing rules and not that any particular issuer,
+client, subject, or audience will be accepted.<a href="#section-6.1-3" class="pilcrow">¶</a></p>
 <p id="section-6.1-4">Advertising the capability is accordingly a commitment to the request shapes
 this profile can produce. A PDP that advertises it <span class="bcp14">MUST</span> render a decision for
 a gate tuple naming any action name composable from the short names
@@ -2207,6 +2211,17 @@ and would publish the shape of a deployment's issuance policy in an
 unauthenticated metadata document. Capability granularity in this profile
 tracks vocabulary, not policy: an extension that adds keys registers its own
 URN.<a href="#section-6.1-6" class="pilcrow">¶</a></p>
+<p id="section-6.1-7">An operator enabling a new grant or token type nonetheless has a real
+question to answer: whether the deployment's policy anticipates the gate
+actions the AS is about to start sending, or whether every such request will
+be denied. That question is about policy content, so its answer belongs on
+the authenticated evaluation surface rather than in metadata; <span>[<a href="#AUTHZEN" class="cite xref">AUTHZEN</a>]</span>
+notes that an unauthenticated PDP can be probed for the shape of its policy.
+The Action Search API of <span>[<a href="#AUTHZEN" class="cite xref">AUTHZEN</a>]</span> answers it directly: a search for a
+representative subject and an <code>audience</code> resource returns the action names
+policy would permit, and gate actions among them indicate the issuances the
+deployment is prepared for. This is a deployment-time check, not a
+per-request one, and nothing in this profile requires it.<a href="#section-6.1-7" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="policy-enforcement-point-capabilities">
