@@ -101,19 +101,20 @@ Table of Contents
      5.4.  Transaction Tokens
    6.  Processing the Response
    7.  Error Mapping
-   8.  Examples
-     8.1.  Delegation With an Actor Token
-     8.2.  Scopeless ID-JAG, Two Levels
-   9.  Security Considerations
-     9.1.  Impersonation Is the Dangerous Case
-     9.2.  Chain Depth and Repeated Exchange
-     9.3.  Trust in the Subject Token Issuer
-     9.4.  Denial Information Disclosure
-   10. IANA Considerations
-     10.1.  Issuance Authorization Action Names
-   11. References
-     11.1.  Normative References
-     11.2.  Informative References
+   8.  Discovery
+   9.  Examples
+     9.1.  Delegation With an Actor Token
+     9.2.  Scopeless ID-JAG, Two Levels
+   10. Security Considerations
+     10.1.  Impersonation Is the Dangerous Case
+     10.2.  Chain Depth and Repeated Exchange
+     10.3.  Trust in the Subject Token Issuer
+     10.4.  Denial Information Disclosure
+   11. IANA Considerations
+     11.1.  Issuance Authorization Action Names
+   12. References
+     12.1.  Normative References
+     12.2.  Informative References
    Acknowledgments
    Author's Address
 
@@ -288,7 +289,7 @@ Table of Contents
 
    Both carry the same action.name, of the form issue:<token-
    type>:token_exchange, where the token type short name is the one
-   registered for the value of requested_token_type (Section 10.1).  The
+   registered for the value of requested_token_type (Section 11.1).  The
    grant segment is token_exchange throughout, since that is the grant
    this binding applies to; it is what distinguishes these tuples from
    those a direct request by the same party for the same target would
@@ -695,7 +696,29 @@ Table of Contents
    distinction is recorded where [ISSUANCE] directs PDP reason
    information: in the AS's own logs.
 
-8.  Examples
+8.  Discovery
+
+   This binding registers no capability URN of its own.  A PDP
+   advertises support for the URN of [ISSUANCE], and nothing further is
+   negotiated.
+
+   Nothing further is needed.  A capability URN identifies response
+   vocabulary, because an AS must understand what it is asked to
+   enforce, and this binding adds none: it uses the shaping keys of
+   [ISSUANCE] unchanged.  The context keys of Section 4.5 are advisory,
+   and a PDP that does not recognize one ignores it.  The gate action
+   names registered in Section 11.1 are covered by [ISSUANCE]'s rule
+   that a PDP advertising the issuance capability renders a decision on
+   any registered gate action, so an AS never has to discover which
+   members of this family a deployment's policy anticipates.
+
+   An operator enabling one of these grants for the first time - ID-JAG
+   on an AS that previously performed only ordinary exchanges, say - can
+   check whether policy anticipates the new gate action before turning
+   it on, using the Action Search API of [AUTHZEN] as [ISSUANCE]
+   describes.
+
+9.  Examples
 
    The first example below is shown in full, framed against the HTTPS
    JSON binding of [AUTHZEN]; the second shows only the JSON payload.
@@ -705,7 +728,7 @@ Table of Contents
    Both requests here carry two gate tuples, so neither reduces to a
    single evaluation.
 
-8.1.  Delegation With an Actor Token
+9.1.  Delegation With an Actor Token
 
    A gateway workload exchanges a user's access token for a token aimed
    at a partner API, acting on the user's behalf.  Two gate tuples and
@@ -797,7 +820,7 @@ Table of Contents
    scope of read:docs, an act claim naming the gateway, a groups claim,
    and a lifetime no greater than 300 seconds.
 
-8.2.  Scopeless ID-JAG, Two Levels
+9.2.  Scopeless ID-JAG, Two Levels
 
    An ID-JAG request naming a resource but no scopes.  Two gate tuples
    at level 1, no scope tuples anywhere, and the PDP supplies the
@@ -854,13 +877,13 @@ Table of Contents
    degradation: a PDP unable to enumerate a grantable set is not thereby
    able to broaden one.
 
-9.  Security Considerations
+10.  Security Considerations
 
    The considerations of [ISSUANCE] apply in full, including fail-closed
    behavior, the treatment of the PDP as a trust dependency, and the
    privacy consequences of consulting a PDP on every issuance.
 
-9.1.  Impersonation Is the Dangerous Case
+10.1.  Impersonation Is the Dangerous Case
 
    An impersonation exchange produces a token indistinguishable from one
    issued to the subject directly.  Nothing downstream can determine
@@ -875,7 +898,7 @@ Table of Contents
    Client authentication establishes who is asking; it does not
    establish that they may ask for this.
 
-9.2.  Chain Depth and Repeated Exchange
+10.2.  Chain Depth and Repeated Exchange
 
    A token obtained by exchange may itself be exchanged.  Each exchange
    is an independent decision under this binding, so authority cannot be
@@ -892,7 +915,7 @@ Table of Contents
    shaping value is a ceiling and never a floor, so a PDP cannot repair
    an AS that fails to apply it.
 
-9.3.  Trust in the Subject Token Issuer
+10.3.  Trust in the Subject Token Issuer
 
    In cross-domain flows the subject token is issued by a party in
    another trust domain, and the claims conveyed to the PDP as context
@@ -902,7 +925,7 @@ Table of Contents
    subject identifier, the requesting party, the action, and the target
    depends on values the local AS established itself.
 
-9.4.  Denial Information Disclosure
+10.4.  Denial Information Disclosure
 
    Both the error mapping above and [ISSUANCE]'s prohibition on relaying
    PDP reason strings exist to keep the requesting party from learning
@@ -910,9 +933,9 @@ Table of Contents
    Deployments adding diagnostics to token endpoint error responses
    should preserve this.
 
-10.  IANA Considerations
+11.  IANA Considerations
 
-10.1.  Issuance Authorization Action Names
+11.1.  Issuance Authorization Action Names
 
    IANA is requested to register the following token type short names in
    the "OAuth Token Issuance Authorization Action Names" registry
@@ -948,9 +971,9 @@ Table of Contents
       documents still in progress, and the short names above should be
       confirmed against the values those documents ultimately register.
 
-11.  References
+12.  References
 
-11.1.  Normative References
+12.1.  Normative References
 
    [AUTHZEN]  OpenID Foundation AuthZEN Working Group, "Authorization
               API 1.0", 11 January 2026, <https://openid.net/specs/
@@ -982,7 +1005,7 @@ Table of Contents
               Indicators for OAuth 2.0", RFC 8707, DOI 10.17487/RFC8707,
               February 2020, <https://www.rfc-editor.org/rfc/rfc8707>.
 
-11.2.  Informative References
+12.2.  Informative References
 
    [I-D.ietf-oauth-identity-assertion-authz-grant]
               Parecki, A., McGuinness, K., and B. Campbell, "Identity
