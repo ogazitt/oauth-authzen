@@ -2303,15 +2303,29 @@ equivalent signal exists there. This is an open item.<a href="#section-7-3" clas
       <h2 id="name-examples">
 <a href="#section-8" class="section-number selfRef">8. </a><a href="#name-examples" class="section-name selfRef">Examples</a>
       </h2>
+<p id="section-8-1">The first example below is shown in full, framed against the HTTPS JSON
+binding of <span>[<a href="#AUTHZEN" class="cite xref">AUTHZEN</a>]</span>. The remaining examples show only the JSON payload.<a href="#section-8-1" class="pilcrow">¶</a></p>
+<p id="section-8-2">The transport is a property of the deployment, not of this profile: an
+evaluation carrying the mapping defined here is the same evaluation whatever
+binding conveys it. Where the HTTPS JSON binding is in use, the request URL
+is the PDP's <code>access_evaluations_endpoint</code>, or <code>access_evaluation_endpoint</code>
+for a request that reduces to a single evaluation, as published in the PDP's
+metadata; the paths shown below are the defaults that apply when metadata
+provides no value.<a href="#section-8-2" class="pilcrow">¶</a></p>
 <div id="client-credentials-one-scope">
 <section id="section-8.1">
         <h3 id="name-client-credentials-one-scop">
 <a href="#section-8.1" class="section-number selfRef">8.1. </a><a href="#name-client-credentials-one-scop" class="section-name selfRef">Client Credentials, One Scope</a>
         </h3>
 <p id="section-8.1-1">One scope is requested, so the request is the gate tuple and one scope
-tuple. This is the floor: two evaluations.<a href="#section-8.1-1" class="pilcrow">¶</a></p>
-<div class="lang-json sourcecode" id="section-8.1-2">
+tuple. This is the floor: two evaluations, so the Access Evaluations API.<a href="#section-8.1-1" class="pilcrow">¶</a></p>
+<div class="lang-http-message sourcecode" id="section-8.1-2">
 <pre>
+POST /access/v1/evaluations HTTP/1.1
+Host: pdp.example.com
+Content-Type: application/json
+Authorization: Bearer &lt;token&gt;
+
 {
   "subject":  { "type": "client", "id": "svc-reporting" },
   "resource": {
@@ -2338,8 +2352,11 @@ tuple. This is the floor: two evaluations.<a href="#section-8.1-1" class="pilcro
 }
 </pre><a href="#section-8.1-2" class="pilcrow">¶</a>
 </div>
-<div class="lang-json sourcecode" id="section-8.1-3">
+<div class="lang-http-message sourcecode" id="section-8.1-3">
 <pre>
+HTTP/1.1 200 OK
+Content-Type: application/json
+
 {
   "evaluations": [
     {
@@ -2424,8 +2441,12 @@ authorization here could deny it while leaving the scope tuples untouched.<a hre
         <h3 id="name-no-scopes-requested">
 <a href="#section-8.3" class="section-number selfRef">8.3. </a><a href="#name-no-scopes-requested" class="section-name selfRef">No Scopes Requested</a>
         </h3>
-<p id="section-8.3-1">No scopes and no default set, so the gate tuple stands alone and the request
-is a single evaluation.<a href="#section-8.3-1" class="pilcrow">¶</a></p>
+<p id="section-8.3-1">No scopes and no default set, so the gate tuple stands alone. This is the
+only shape this document produces that is a single evaluation, and it is
+therefore the only one sent to the Access Evaluation API rather than the
+Access Evaluations API: the payload is a bare evaluation with no
+<code>evaluations</code> array, and under the HTTPS JSON binding it is a <code>POST</code> to
+<code>/access/v1/evaluation</code>.<a href="#section-8.3-1" class="pilcrow">¶</a></p>
 <div class="lang-json sourcecode" id="section-8.3-2">
 <pre>
 {
