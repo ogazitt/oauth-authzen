@@ -328,18 +328,17 @@ Short names registered under {{iana-actions}} MUST match
 `[a-z][a-z0-9_]{0,30}`, and a composed gate action name MUST NOT exceed 50
 characters.
 
-These bounds are not aesthetic. Relationship-based engines validate relation
-identifiers against a restricted grammar: at the time of writing, OpenFGA
-requires `^[^:#@\s]{1,50}$`, SpiceDB permits lowercase letters, digits, and
-underscores within 64 characters, and Topaz permits lowercase letters,
-digits, dots, underscores, and dashes within 64. None admits a colon. With
-the bounds above, replacing each `:` with `_` turns any action name this
-document defines into an identifier all three accept, so the transformation
-is mechanical and a policy written against these names ports unchanged.
+The bounds exist for portability. Relationship-based engines commonly
+validate relation identifiers against a restricted grammar, admitting a small
+character set within a modest length limit. A PDP built on such an engine can
+canonicalize an action name defined by this document by replacing each `:`
+with a character the grammar admits, conventionally `_`. The bounds above are
+what make that transformation total: any registered name survives it, so a
+policy written against these names ports without being rewritten.
 
-Carrying a grant type URI verbatim would not survive this. The action name
-would reach 66 characters for the token exchange grant, which exceeds the
-shortest of these limits before any question of characters arises.
+Carrying a grant type URI verbatim would not survive it. The composed action
+name would exceed the length limits such grammars impose before any question
+of characters arose.
 
 The guarantee covers only the vocabulary this document defines. Scope values
 are carried verbatim ({{scope-tuple}}) and routinely contain characters no
@@ -1084,9 +1083,9 @@ a matter of policy, not of registration.
 Every short name MUST match `[a-z][a-z0-9_]{0,30}`, and a composed action
 name MUST NOT exceed 50 characters. {{action-portability}} gives the reason:
 these bounds are what let the name be transformed mechanically into a
-relation identifier that widely deployed relationship-based engines accept.
-Registrants should note that hyphens are excluded deliberately, being
-rejected by at least one such engine.
+relation identifier that relationship-based engines accept. Registrants
+should note that the hyphen is excluded deliberately, and that a short name
+therefore differs from the corresponding URI wherever that URI contains one.
 
 Token type short names, initially:
 
