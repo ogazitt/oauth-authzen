@@ -1334,9 +1334,11 @@ successful response on the request meeting "all policy and other criteria of
 the authorization server", and defines neither the policy nor the criteria.<a href="#section-1-2" class="pilcrow">¶</a></p>
 <p id="section-1-3"><span>[<a href="#ISSUANCE" class="cite xref">ISSUANCE</a>]</span> defines a framework for externalizing that class of decision to
 a Policy Decision Point (PDP) using <span>[<a href="#AUTHZEN" class="cite xref">AUTHZEN</a>]</span>, casting the authorization
-server (AS) as a Policy Enforcement Point. The framework is deliberately not
-implementable on its own. This document is the binding for the token
-exchange family, and covers:<a href="#section-1-3" class="pilcrow">¶</a></p>
+server (AS) as a Policy Enforcement Point. That document is directly
+implementable for grants whose request names a single party and a single
+target. Token exchange names two parties, and several of its members name two
+levels of target; supplying that structure is what this document does. It
+covers:<a href="#section-1-3" class="pilcrow">¶</a></p>
 <ul class="normal">
 <li class="normal" id="section-1-4.1">
           <p id="section-1-4.1.1">token exchange as defined in <span>[<a href="#RFC8693" class="cite xref">RFC8693</a>]</span>;<a href="#section-1-4.1.1" class="pilcrow">¶</a></p>

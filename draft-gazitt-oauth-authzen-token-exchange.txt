@@ -135,9 +135,11 @@ Table of Contents
 
    [ISSUANCE] defines a framework for externalizing that class of
    decision to a Policy Decision Point (PDP) using [AUTHZEN], casting
-   the authorization server (AS) as a Policy Enforcement Point.  The
-   framework is deliberately not implementable on its own.  This
-   document is the binding for the token exchange family, and covers:
+   the authorization server (AS) as a Policy Enforcement Point.  That
+   document is directly implementable for grants whose request names a
+   single party and a single target.  Token exchange names two parties,
+   and several of its members name two levels of target; supplying that
+   structure is what this document does.  It covers:
 
    *  token exchange as defined in [RFC8693];
 
