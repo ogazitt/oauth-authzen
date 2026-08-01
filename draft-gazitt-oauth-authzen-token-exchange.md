@@ -227,22 +227,26 @@ and the requesting party is therefore invisible in the result - that
 evaluating its authority matters most, because nothing downstream can
 recover it.
 
-## Actions
+## Actions {#actions}
 
 A token exchange request produces gate tuples and scope tuples as defined in
-{{ISSUANCE}}. Because `requested_token_type` makes the token type a variable
-of the request, the condition in {{ISSUANCE}} for requiring a gate tuple is
-always met: **every request within the scope of this document produces at
-least one gate tuple.**
+{{ISSUANCE}}, which requires a gate tuple on every request. This binding
+produces **two**, because a token exchange has two parties whose authority
+is in question.
 
-### Subject Gate Tuple
-
-The AS MUST include a gate tuple whose subject is the exchange subject and
-whose `action.name` is `issue:` followed by the short name registered for
-the value of `requested_token_type` ({{iana-actions}}).
+Both carry the same `action.name`, of the form
+`issue:<token-type>:token_exchange`, where the token type short name is the
+one registered for the value of `requested_token_type` ({{iana-actions}}).
+The grant segment is `token_exchange` throughout, since that is the grant
+this binding applies to; it is what distinguishes these tuples from those a
+direct request by the same party for the same target would produce.
 
 Where `requested_token_type` is absent, {{RFC8693}} directs the AS to its
 default, and the short name for that default type is used.
+
+### Subject Gate Tuple
+
+The AS MUST include a gate tuple whose subject is the exchange subject.
 
 ### Requesting Party Gate Tuple {#actor-gate}
 
@@ -268,7 +272,8 @@ The two gate tuples ask different questions and both MUST be permitted:
 
 A deployment in which every requesting party is permitted still evaluates
 the tuple. Per {{ISSUANCE}}, an AS MUST NOT omit a gate tuple on the grounds
-that it believes the corresponding policy is permissive.
+that it believes the corresponding policy is permissive; whether a gate is
+permissive is internal to the PDP.
 
 Where the requesting party and the exchange subject are the same entity -
 a client exchanging a token it obtained for itself - the two gate tuples are
@@ -348,7 +353,6 @@ advisory: a PDP MUST be able to render a decision from the five-tuple alone.
 
 | Key | Type | Value |
 |---|---|---|
-| `requested_token_type` | string | The `requested_token_type` parameter, verbatim |
 | `subject_token_type` | string | The `subject_token_type` parameter, verbatim |
 | `actor_token_type` | string | The `actor_token_type` parameter, if present |
 | `subject_token` | object | Selected validated claims of the subject token, such as `iss`, `acr`, `amr`, and `auth_time` |
@@ -359,6 +363,13 @@ advisory: a PDP MUST be able to render a decision from the five-tuple alone.
 Each key has one JSON type, as {{ISSUANCE}} requires of context keys defined
 by a binding.
 
+`requested_token_type` is not among them. It determines the token type
+segment of the gate action name, so it is already in the five-tuple, and
+repeating it in `context` would give a PDP two places to read the same fact
+and a way for them to disagree. `subject_token_type` and `actor_token_type`
+describe the credentials presented, not the token requested, and remain
+advisory.
+
 An AS MUST NOT place raw token strings in `context`. Only claims the AS has
 already validated are conveyed, and only those a deployment's policies
 consume. The subject token may carry claims about a party that has not
@@ -366,14 +377,15 @@ authorized their disclosure to the PDP.
 
 ## Batch Composition {#composition}
 
-Except where a request reduces to a single tuple, the AS uses the Access
-Evaluations API of {{AUTHZEN}} as {{ISSUANCE}} specifies.
+Except where a request names no scopes and the two gate tuples coincide
+({{actor-gate}}), the AS uses the Access Evaluations API of {{AUTHZEN}} as
+{{ISSUANCE}} specifies.
 
-Because this binding produces more than one gate tuple, it refines
-{{ISSUANCE}}'s ordering rule: **gate tuples MUST occupy the leading indices
-of the `evaluations` array**, beginning at index 0, and the AS MUST fail the
-request without issuing a token if any of them is denied. Scope tuples
-follow.
+{{ISSUANCE}} requires gate tuples to occupy the leading indices of the
+`evaluations` array. Here that ordinarily means indices 0 and 1, in the order
+given in {{actions}}: the subject gate first, then the requesting party gate.
+Scope tuples follow. The AS MUST fail the request without issuing a token if
+either gate is denied.
 
 The evaluations semantic depends on what the deployment intends a denial to
 mean:
@@ -432,7 +444,8 @@ redeemed at an application's authorization server.
 
 **Issuance.** The `requested_token_type` is
 `urn:ietf:params:oauth:token-type:id-jag`, so the gate tuples carry
-`action.name` of `issue:id-jag`. The issued grant's audience is the
+`action.name` of `issue:id_jag:token_exchange`. The issued grant's audience
+is the
 resource authorization server, while
 {{I-D.ietf-oauth-identity-assertion-authz-grant}} makes the {{RFC8707}}
 `resource` subset a policy decision in its own right. The AS MUST therefore
@@ -601,9 +614,6 @@ grant_type=urn:ietf:params:oauth:grant-type:token-exchange
     "id": "https://api.partner.example"
   },
   "context": {
-    "grant_type": "urn:ietf:params:oauth:grant-type:token-exchange",
-    "requested_token_type":
-        "urn:ietf:params:oauth:token-type:access_token",
     "client_id": "gateway-client",
     "may_act": { "sub": "spiffe://cluster/ns/prod/sa/gateway" },
     "issuance": {
@@ -615,14 +625,18 @@ grant_type=urn:ietf:params:oauth:grant-type:token-exchange
   "evaluations": [
     {
       "subject": { "type": "user", "id": "alice@example.com" },
-      "action":  { "name": "issue:access_token" }
+      "action":  {
+        "name": "issue:access_token:token_exchange"
+      }
     },
     {
       "subject": {
         "type": "workload",
         "id": "spiffe://cluster/ns/prod/sa/gateway"
       },
-      "action":  { "name": "issue:access_token" }
+      "action":  {
+        "name": "issue:access_token:token_exchange"
+      }
     },
     {
       "subject": { "type": "user", "id": "alice@example.com" },
@@ -636,7 +650,9 @@ grant_type=urn:ietf:params:oauth:grant-type:token-exchange
 A relationship-based PDP reads the second tuple as an edge between
 `workload:spiffe://cluster/ns/prod/sa/gateway` and
 `audience:https://api.partner.example` under the relation
-`issue:access_token`. No property bag is consulted.
+`issue_access_token_token_exchange`. No property bag is consulted, and the
+relation is distinct from the one that would govern the gateway obtaining a
+token for itself under the client credentials grant.
 
 ~~~ json
 {
@@ -668,9 +684,6 @@ An ID-JAG request naming a resource but no scopes. Two gate tuples at level
 ~~~ json
 {
   "context": {
-    "grant_type": "urn:ietf:params:oauth:grant-type:token-exchange",
-    "requested_token_type":
-        "urn:ietf:params:oauth:token-type:id-jag",
     "client_id": "chatterbox-idp-7f3a",
     "issuance": {
       "supported_capabilities": [
@@ -681,7 +694,7 @@ An ID-JAG request naming a resource but no scopes. Two gate tuples at level
   "evaluations": [
     {
       "subject":  { "type": "user", "id": "U0405936" },
-      "action":   { "name": "issue:id-jag" },
+      "action":   { "name": "issue:id_jag:token_exchange" },
       "resource": {
         "type": "audience",
         "id": "https://as.app.example"
@@ -689,7 +702,7 @@ An ID-JAG request naming a resource but no scopes. Two gate tuples at level
     },
     {
       "subject":  { "type": "client", "id": "chatterbox-idp-7f3a" },
-      "action":   { "name": "issue:id-jag" },
+      "action":   { "name": "issue:id_jag:token_exchange" },
       "resource": {
         "type": "audience",
         "id": "https://as.app.example"
@@ -780,20 +793,25 @@ diagnostics to token endpoint error responses should preserve this.
 
 ## Issuance Authorization Action Names {#iana-actions}
 
-IANA is requested to register the following in the "OAuth Token Issuance
-Authorization Action Names" registry established by {{ISSUANCE}}, whose
-registration policy is Specification Required {{RFC8126}}:
+IANA is requested to register the following token type short names in the
+"OAuth Token Issuance Authorization Action Names" registry established by
+{{ISSUANCE}}, whose registration policy is Specification Required
+{{RFC8126}}:
 
-| Action name | Token type |
+| Short name | Token type |
 |---|---|
-| `issue:id-jag` | `urn:ietf:params:oauth:token-type:id-jag` |
-| `issue:txn_token` | `urn:ietf:params:oauth:token-type:txn_token` |
-| `issue:jwt` | `urn:ietf:params:oauth:token-type:jwt` |
-| `issue:saml1` | `urn:ietf:params:oauth:token-type:saml1` |
-| `issue:saml2` | `urn:ietf:params:oauth:token-type:saml2` |
+| `id_jag` | `urn:ietf:params:oauth:token-type:id-jag` |
+| `txn_token` | `urn:ietf:params:oauth:token-type:txn_token` |
+| `jwt` | `urn:ietf:params:oauth:token-type:jwt` |
+| `saml1` | `urn:ietf:params:oauth:token-type:saml1` |
+| `saml2` | `urn:ietf:params:oauth:token-type:saml2` |
 
-The short names for `access_token`, `refresh_token`, and `id_token` are
+The short names for `access_token`, `refresh_token`, and `id_token`, and the
+`token_exchange` grant type short name that pairs with all of the above, are
 registered by {{ISSUANCE}}.
+
+`id_jag` uses an underscore where the token type URI uses a hyphen, as
+{{ISSUANCE}} requires of every registered short name.
 
 > **Editor's note.** These registrations depend on the corresponding token
 > types being registered in the "OAuth URI" registry by their own
