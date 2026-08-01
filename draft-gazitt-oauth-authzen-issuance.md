@@ -637,33 +637,36 @@ token-level shaping on a single item to avoid the situation.
 
 # Discovery {#discovery}
 
-Capability discovery in this profile is bidirectional, using the two
-mechanisms {{AUTHZEN}} already provides.
-
 ## Policy Decision Point Capabilities {#pdp-capabilities}
 
 A PDP supporting this profile MUST advertise the capability URN registered
-in {{iana-capability}} in the `supported_capabilities` member of its
-metadata document, retrievable at `/.well-known/authzen-configuration`:
+in {{iana-capability}} in the `capabilities` member of its metadata document,
+retrievable at `/.well-known/authzen-configuration`:
 
 ~~~ json
 {
   "policy_decision_point": "https://pdp.example.com",
   "access_evaluation_endpoint":
       "https://pdp.example.com/access/v1/evaluation",
-  "supported_capabilities": [
+  "capabilities": [
     "urn:ietf:params:authzen:token-issuance"
   ]
 }
 ~~~
 
-Advertising the capability is a commitment to the request shapes this
-profile can produce. A PDP that advertises it MUST render a decision for a
-gate tuple naming any action name composable from the short names registered
-in {{iana-actions}}, and MUST NOT reject the evaluation on the grounds that
-it holds no policy for that action. Denying is a decision; a protocol error
-is not. The same applies to a batch that mixes a gate tuple with scope
-tuples, which is the ordinary shape of a request naming scopes
+The URN asserts support for the request mapping and response vocabulary of
+this document. It is not a statement about the content of the PDP's policy,
+and a PDP MUST NOT be read as claiming to hold rules for any particular
+issuance. What a deployment's policy permits is disclosed only through
+decisions.
+
+Advertising the capability is accordingly a commitment to the request shapes
+this profile can produce. A PDP that advertises it MUST render a decision for
+a gate tuple naming any action name composable from the short names
+registered in {{iana-actions}}, and MUST NOT reject the evaluation on the
+grounds that it holds no policy for that action. Denying is a decision; a
+protocol error is not. The same applies to a batch that mixes a gate tuple
+with scope tuples, which is the ordinary shape of a request naming scopes
 ({{composition}}).
 
 The obligation matters because the gate vocabulary is a product of two
@@ -671,10 +674,18 @@ registries and grows as bindings register short names. An AS pairs the token
 type it is about to mint with the grant it received; it cannot know which
 pairings a given deployment's policy anticipated, and must not have to.
 
+For the same reason, this profile defines one capability URN rather than one
+per token type and grant combination. Finer granularity would oblige the AS
+to predict what the PDP has policy for, which the rule above exists to avoid,
+and would publish the shape of a deployment's issuance policy in an
+unauthenticated metadata document. Capability granularity in this profile
+tracks vocabulary, not policy: an extension that adds keys registers its own
+URN.
+
 ## Policy Enforcement Point Capabilities
 
-An AS implementing this profile MUST declare the capabilities it understands
-in the request context, using the same URNs:
+An AS MAY declare the capabilities it understands in the request context,
+using the same URNs:
 
 ~~~ json
 {
@@ -686,7 +697,7 @@ in the request context, using the same URNs:
   },
   "context": {
     "issuance": {
-      "supported_capabilities": [
+      "capabilities": [
         "urn:ietf:params:authzen:token-issuance"
       ]
     }
@@ -698,9 +709,22 @@ Capability URNs are reused on both legs rather than introducing a list of
 key names, so that extensions obtain granularity from the registry rather
 than from a second, parallel mechanism.
 
-A PDP that receives no such declaration MUST assume the AS does not
-implement this profile and MUST NOT emit `crit`. It MAY still emit
-decorating keys, which are safe to ignore by construction.
+The declaration is an optimization, not a safety mechanism, and this is why
+it is OPTIONAL. Safety is already unilateral: a PDP that marks a key `crit`
+obliges any AS implementing this profile to fail closed if it does not
+understand it ({{mtu}}), and an AS that does not implement this profile
+ignores the `issuance` envelope entirely, `crit` included. Withholding `crit`
+from an undeclared AS therefore protects nothing. What the declaration buys a
+PDP is the ability to choose a decision the AS can actually enforce -
+denying, say, rather than permitting subject to a constraint it knows will be
+discarded. That is worth having as extensions add vocabulary, and worth
+nothing in a deployment using only the keys defined here.
+
+An AS is not otherwise required to announce itself. The behaviors this
+profile depends on - treating a gate denial as fatal, narrowing to the
+permitted scope subset - are constitutive of implementing it rather than
+features an AS might separately lack, and {{AUTHZEN}} already assumes a PDP
+trusts its PEP to enforce what it decides.
 
 The declaration describes the AS's implementation and MUST NOT be treated as
 an authorization input. A PDP that varied its decision based on it would be
@@ -763,7 +787,7 @@ Authorization: Bearer <token>
   "context": {
     "client_id": "svc-reporting",
     "issuance": {
-      "supported_capabilities": [
+      "capabilities": [
         "urn:ietf:params:authzen:token-issuance"
       ]
     }
@@ -811,7 +835,7 @@ allows the AS to issue the permitted subset of the rest.
     "client_id": "chatterbox",
     "acr": "urn:example:loa:2",
     "issuance": {
-      "supported_capabilities": [
+      "capabilities": [
         "urn:ietf:params:authzen:token-issuance"
       ]
     }
@@ -878,7 +902,7 @@ Access Evaluations API: the payload is a bare evaluation with no
   },
   "context": {
     "issuance": {
-      "supported_capabilities": [
+      "capabilities": [
         "urn:ietf:params:authzen:token-issuance"
       ]
     }

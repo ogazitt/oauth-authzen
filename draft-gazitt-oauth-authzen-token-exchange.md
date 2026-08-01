@@ -627,7 +627,7 @@ Authorization: Bearer <token>
     "client_id": "gateway-client",
     "may_act": { "sub": "spiffe://cluster/ns/prod/sa/gateway" },
     "issuance": {
-      "supported_capabilities": [
+      "capabilities": [
         "urn:ietf:params:authzen:token-issuance"
       ]
     }
@@ -699,7 +699,7 @@ An ID-JAG request naming a resource but no scopes. Two gate tuples at level
   "context": {
     "client_id": "chatterbox-idp-7f3a",
     "issuance": {
-      "supported_capabilities": [
+      "capabilities": [
         "urn:ietf:params:authzen:token-issuance"
       ]
     }
