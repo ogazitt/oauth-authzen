@@ -346,15 +346,18 @@ In addition to the keys defined by {{ISSUANCE}}, an AS implementing this
 binding SHOULD convey the following in the request `context`. All are
 advisory: a PDP MUST be able to render a decision from the five-tuple alone.
 
-| Key | Value |
-|---|---|
-| `requested_token_type` | The `requested_token_type` parameter, verbatim |
-| `subject_token_type` | The `subject_token_type` parameter, verbatim |
-| `actor_token_type` | The `actor_token_type` parameter, if present |
-| `subject_token` | An object carrying selected validated claims of the subject token, such as `iss`, `acr`, `amr`, and `auth_time` |
-| `act` | The `act` claim of the subject token, if present, conveying an existing delegation chain |
-| `may_act` | The `may_act` claim of the subject token, if present |
-| `cnf` | The confirmation method of the presented credential, where the exchange is sender-constrained under {{RFC8705}} or {{RFC9449}} |
+| Key | Type | Value |
+|---|---|---|
+| `requested_token_type` | string | The `requested_token_type` parameter, verbatim |
+| `subject_token_type` | string | The `subject_token_type` parameter, verbatim |
+| `actor_token_type` | string | The `actor_token_type` parameter, if present |
+| `subject_token` | object | Selected validated claims of the subject token, such as `iss`, `acr`, `amr`, and `auth_time` |
+| `act` | object | The `act` claim of the subject token, if present, conveying an existing delegation chain |
+| `may_act` | object | The `may_act` claim of the subject token, if present |
+| `cnf` | object | The confirmation method of the presented credential, where the exchange is sender-constrained under {{RFC8705}} or {{RFC9449}} |
+
+Each key has one JSON type, as {{ISSUANCE}} requires of context keys defined
+by a binding.
 
 An AS MUST NOT place raw token strings in `context`. Only claims the AS has
 already validated are conveyed, and only those a deployment's policies

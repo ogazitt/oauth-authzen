@@ -44,6 +44,7 @@ normative:
 informative:
   RFC7515:
   RFC7643:
+  RFC8176:
   RFC8707:
   RFC9068:
   RFC9470:
@@ -358,12 +359,18 @@ to render a decision without it.
 
 The following keys are defined by this document; bindings may define more:
 
-| Key | Value |
-|---|---|
-| `grant_type` | The grant type URI of the request |
-| `client_id` | The authenticated client identifier |
-| `acr`, `amr`, `auth_time` | Authentication context of the subject |
-| `cnf` | Confirmation method of the presented credential |
+| Key | Type | Value |
+|---|---|---|
+| `grant_type` | string | The grant type URI of the request |
+| `client_id` | string | The authenticated client identifier |
+| `acr` | string | Authentication context class of the subject |
+| `amr` | array of strings | Authentication methods, per {{RFC8176}} |
+| `auth_time` | integer | Time of authentication, as in {{RFC7519}} |
+| `cnf` | object | Confirmation method of the presented credential |
+
+The single-type rule of {{envelope}} applies here as well: each key above has
+one JSON type, and bindings defining further context keys MUST state a type
+for each.
 
 Per {{design-goals}}, any input on which the decision genuinely depends
 belongs in the five-tuple, not here.
@@ -401,7 +408,7 @@ fail the request rather than issue a token with an empty scope set.
 A PDP MAY return, in the response `context`, information that shapes the
 token the AS issues.
 
-## The `issuance` Envelope
+## The `issuance` Envelope {#envelope}
 
 All keys defined by this profile appear within a single `issuance` member of
 the response `context`:
@@ -422,6 +429,14 @@ the response `context`:
 An AS implementing this profile MUST process `context.issuance` and MUST
 ignore unrecognized members outside it, preserving the advisory character
 that {{AUTHZEN}} gives response context generally.
+
+Every key defined below has exactly one JSON type, and bindings that define
+further keys MUST do the same. Where the corresponding OAuth or JWT
+construct admits more than one - `aud` is the notable case, per Section
+4.1.3 of {{RFC7519}} - this profile picks one rather than carrying the
+polymorphism forward. An AS validates the response context before acting on
+it, and a union type costs more to validate, to schematize, and to project
+into a typed representation than the shorthand saves.
 
 ## Mandatory-to-Understand {#mtu}
 
@@ -489,9 +504,15 @@ mint an already-expired token.
 
 ### `audience`
 
-A string or array of strings, narrowing the set of targets for which the
-token may be issued. Each value MUST appear among the `resource.id` values
-of the permitted evaluations.
+An array of strings, narrowing the set of targets for which the token may be
+issued. Each value MUST appear among the `resource.id` values of the
+permitted evaluations.
+
+The value is an array even when it names a single target. This is the key
+where the single-type rule above is most visible, and where it also makes
+the aggregation rule of {{aggregation}} state plainly: intersection is an
+operation over sets. An AS remains free to render a single-element set as a
+bare string in the token's own `aud` claim, where {{RFC7519}} permits it.
 
 Where the resulting set is empty, the AS MUST fail the request; for token
 exchange requests the appropriate error is `invalid_target` ({{RFC8693}}).
