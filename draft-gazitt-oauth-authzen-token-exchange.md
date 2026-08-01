@@ -584,14 +584,24 @@ reported as `invalid_request`, and the distinction is recorded where
 
 # Examples
 
+The first example below is shown in full, framed against the HTTPS JSON
+binding of {{AUTHZEN}}; the second shows only the JSON payload. As
+{{ISSUANCE}} notes, the transport is a property of the deployment, and where
+the HTTPS JSON binding is in use the request URL is the PDP's
+`access_evaluations_endpoint` where its metadata publishes one. Both requests
+here carry two gate tuples, so neither reduces to a single evaluation.
+
 ## Delegation With an Actor Token
 
 A gateway workload exchanges a user's access token for a token aimed at a
 partner API, acting on the user's behalf. Two gate tuples and one scope
 tuple result.
 
-~~~
-POST /token
+~~~ http-message
+POST /token HTTP/1.1
+Host: as.example
+Content-Type: application/x-www-form-urlencoded
+
 grant_type=urn:ietf:params:oauth:grant-type:token-exchange
 &subject_token=eyJ...
 &subject_token_type=urn:ietf:params:oauth:token-type:access_token
@@ -602,7 +612,12 @@ grant_type=urn:ietf:params:oauth:grant-type:token-exchange
 &scope=read%3Adocs
 ~~~
 
-~~~ json
+~~~ http-message
+POST /access/v1/evaluations HTTP/1.1
+Host: pdp.example.com
+Content-Type: application/json
+Authorization: Bearer <token>
+
 {
   "resource": {
     "type": "audience",
@@ -649,7 +664,10 @@ A relationship-based PDP reads the second tuple as an edge between
 relation is distinct from the one that would govern the gateway obtaining a
 token for itself under the client credentials grant.
 
-~~~ json
+~~~ http-message
+HTTP/1.1 200 OK
+Content-Type: application/json
+
 {
   "evaluations": [
     { "decision": true },

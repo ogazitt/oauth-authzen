@@ -732,12 +732,28 @@ equivalent signal exists there. This is an open item.
 
 # Examples
 
+The first example below is shown in full, framed against the HTTPS JSON
+binding of {{AUTHZEN}}. The remaining examples show only the JSON payload.
+
+The transport is a property of the deployment, not of this profile: an
+evaluation carrying the mapping defined here is the same evaluation whatever
+binding conveys it. Where the HTTPS JSON binding is in use, the request URL
+is the PDP's `access_evaluations_endpoint`, or `access_evaluation_endpoint`
+for a request that reduces to a single evaluation, as published in the PDP's
+metadata; the paths shown below are the defaults that apply when metadata
+provides no value.
+
 ## Client Credentials, One Scope
 
 One scope is requested, so the request is the gate tuple and one scope
-tuple. This is the floor: two evaluations.
+tuple. This is the floor: two evaluations, so the Access Evaluations API.
 
-~~~ json
+~~~ http-message
+POST /access/v1/evaluations HTTP/1.1
+Host: pdp.example.com
+Content-Type: application/json
+Authorization: Bearer <token>
+
 {
   "subject":  { "type": "client", "id": "svc-reporting" },
   "resource": {
@@ -764,7 +780,10 @@ tuple. This is the floor: two evaluations.
 }
 ~~~
 
-~~~ json
+~~~ http-message
+HTTP/1.1 200 OK
+Content-Type: application/json
+
 {
   "evaluations": [
     {
@@ -840,8 +859,12 @@ authorization here could deny it while leaving the scope tuples untouched.
 
 ## No Scopes Requested
 
-No scopes and no default set, so the gate tuple stands alone and the request
-is a single evaluation.
+No scopes and no default set, so the gate tuple stands alone. This is the
+only shape this document produces that is a single evaluation, and it is
+therefore the only one sent to the Access Evaluation API rather than the
+Access Evaluations API: the payload is a bare evaluation with no
+`evaluations` array, and under the HTTPS JSON binding it is a `POST` to
+`/access/v1/evaluation`.
 
 ~~~ json
 {
