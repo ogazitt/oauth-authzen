@@ -1066,11 +1066,11 @@ svg {
 <thead><tr>
 <td class="left">Internet-Draft</td>
 <td class="center">AuthZEN Token Exchange Binding</td>
-<td class="right">July 2026</td>
+<td class="right">August 2026</td>
 </tr></thead>
 <tfoot><tr>
 <td class="left">Gazitt</td>
-<td class="center">Expires 1 February 2027</td>
+<td class="center">Expires 2 February 2027</td>
 <td class="right">[Page]</td>
 </tr></tfoot>
 </table>
@@ -1083,12 +1083,12 @@ svg {
 <dd class="internet-draft">draft-gazitt-oauth-authzen-token-exchange-latest</dd>
 <dt class="label-published">Published:</dt>
 <dd class="published">
-<time datetime="2026-07-31" class="published">31 July 2026</time>
+<time datetime="2026-08-01" class="published">1 August 2026</time>
     </dd>
 <dt class="label-intended-status">Intended Status:</dt>
 <dd class="intended-status">Standards Track</dd>
 <dt class="label-expires">Expires:</dt>
-<dd class="expires"><time datetime="2027-02-01">1 February 2027</time></dd>
+<dd class="expires"><time datetime="2027-02-02">2 February 2027</time></dd>
 <dt class="label-authors">Author:</dt>
 <dd class="authors">
 <div class="author">
@@ -1147,7 +1147,7 @@ the token types layered on token exchange contributes to that mapping.<a href="#
         time. It is inappropriate to use Internet-Drafts as reference
         material or to cite them other than as "work in progress."<a href="#section-boilerplate.1-3" class="pilcrow">¶</a></p>
 <p id="section-boilerplate.1-4">
-        This Internet-Draft will expire on 1 February 2027.<a href="#section-boilerplate.1-4" class="pilcrow">¶</a></p>
+        This Internet-Draft will expire on 2 February 2027.<a href="#section-boilerplate.1-4" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="copyright">
@@ -1370,8 +1370,10 @@ precisely because the authority to become another party's actor is a
 distinct privilege, and Section 4.4 identifies the party whose authority is
 in question as "the client (or party identified in the <code>actor_token</code>)".
 This document's central normative content is that this second privilege is
-evaluated as its own tuple, so that a PDP in the style of <span>[<a href="#ZANZIBAR" class="cite xref">ZANZIBAR</a>]</span> - one
-that reads only the five-tuple - can adjudicate it (<a href="#actor-gate" class="auto internal xref">Section 4.3.2</a>).<a href="#section-1.1-2" class="pilcrow">¶</a></p>
+evaluated as its own tuple, so that any conforming PDP - including a
+relationship-based engine in the style of <span>[<a href="#ZANZIBAR" class="cite xref">ZANZIBAR</a>]</span>, which reads it
+directly as an edge between two named entities - can adjudicate it
+(<a href="#actor-gate" class="auto internal xref">Section 4.3.2</a>).<a href="#section-1.1-2" class="pilcrow">¶</a></p>
 <p id="section-1.1-3">The remainder is the derivation of the framework's inputs from each
 specification's parameters, and the small number of invariants that each
 specification places beyond a PDP's reach.<a href="#section-1.1-3" class="pilcrow">¶</a></p>
@@ -1564,9 +1566,10 @@ resource as the subject gate tuple.<a href="#section-4.3.2-1" class="pilcrow">¶
 Section 4.4 poses: whether the client, or the party named in the
 <code>actor_token</code>, is authorized to engage in the requested delegation or
 impersonation. Expressing it as a five-tuple rather than as a property of
-the subject's tuple is what allows a relationship-based PDP to adjudicate
-it, since such an engine reasons over the relation between a named subject
-and a named object and cannot read a property bag.<a href="#section-4.3.2-2" class="pilcrow">¶</a></p>
+the subject's tuple is what puts it within reach of any conforming PDP: a
+relationship-based engine adjudicates it directly, as the relation between a
+named subject and a named object, without having to be told how to project a
+property bag into one.<a href="#section-4.3.2-2" class="pilcrow">¶</a></p>
 <p id="section-4.3.2-3">The two gate tuples ask different questions and both <span class="bcp14">MUST</span> be permitted:<a href="#section-4.3.2-3" class="pilcrow">¶</a></p>
 <ul class="normal">
 <li class="normal" id="section-4.3.2-4.1">

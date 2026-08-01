@@ -1067,11 +1067,11 @@ svg {
 <thead><tr>
 <td class="left">Internet-Draft</td>
 <td class="center">AuthZEN Token Issuance</td>
-<td class="right">July 2026</td>
+<td class="right">August 2026</td>
 </tr></thead>
 <tfoot><tr>
 <td class="left">Gazitt</td>
-<td class="center">Expires 1 February 2027</td>
+<td class="center">Expires 2 February 2027</td>
 <td class="right">[Page]</td>
 </tr></tfoot>
 </table>
@@ -1084,12 +1084,12 @@ svg {
 <dd class="internet-draft">draft-gazitt-oauth-authzen-issuance-latest</dd>
 <dt class="label-published">Published:</dt>
 <dd class="published">
-<time datetime="2026-07-31" class="published">31 July 2026</time>
+<time datetime="2026-08-01" class="published">1 August 2026</time>
     </dd>
 <dt class="label-intended-status">Intended Status:</dt>
 <dd class="intended-status">Standards Track</dd>
 <dt class="label-expires">Expires:</dt>
-<dd class="expires"><time datetime="2027-02-01">1 February 2027</time></dd>
+<dd class="expires"><time datetime="2027-02-02">2 February 2027</time></dd>
 <dt class="label-authors">Author:</dt>
 <dd class="authors">
 <div class="author">
@@ -1150,7 +1150,7 @@ documents.<a href="#section-abstract-3" class="pilcrow">¶</a></p>
         time. It is inappropriate to use Internet-Drafts as reference
         material or to cite them other than as "work in progress."<a href="#section-boilerplate.1-3" class="pilcrow">¶</a></p>
 <p id="section-boilerplate.1-4">
-        This Internet-Draft will expire on 1 February 2027.<a href="#section-boilerplate.1-4" class="pilcrow">¶</a></p>
+        This Internet-Draft will expire on 2 February 2027.<a href="#section-boilerplate.1-4" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="copyright">
@@ -1404,26 +1404,36 @@ naming a target and some set of privileges. This document defines that
 mapping once. Bindings (<a href="#companions" class="auto internal xref">Section 9</a>) supply what is specific to a given
 grant or token type, and are expected to be short.<a href="#section-1.1-1" class="pilcrow">¶</a></p>
 <p id="section-1.1-2"><strong>Interoperability at the level of policy, not just wire format.</strong>
-          <span>[<a href="#AUTHZEN" class="cite xref">AUTHZEN</a>]</span> requires five fields in every evaluation request: <code>subject.type</code>,
-<code>subject.id</code>, <code>action.name</code>, <code>resource.type</code>, and <code>resource.id</code>. That
-requirement exists so that relationship-based PDPs in the style of
-<span>[<a href="#ZANZIBAR" class="cite xref">ZANZIBAR</a>]</span> - which reason over a typed graph of subjects, relations, and
-objects - can participate in the same ecosystem as attribute-based engines.
-A profile that carried its decision-critical inputs in free-form property
-bags would nominally use AuthZEN while excluding an entire class of PDP from
-implementing it.<a href="#section-1.1-2" class="pilcrow">¶</a></p>
-<p id="section-1.1-3">This document therefore adopts a design rule, applied throughout:<a href="#section-1.1-3" class="pilcrow">¶</a></p>
+          <span>[<a href="#AUTHZEN" class="cite xref">AUTHZEN</a>]</span> makes exactly five fields mandatory in an evaluation request:
+<code>subject.type</code>, <code>subject.id</code>, <code>action.name</code>, <code>resource.type</code>, and
+<code>resource.id</code>. Everything else - the <code>properties</code> bag on each entity, and the
+<code>context</code> object - is optional. That asymmetry is deliberate. It is what
+allows one request shape to be understood by policy engines with very
+different internal models: attribute- and policy-based engines that evaluate
+expressions over arbitrary input, and relationship-based engines in the style
+of <span>[<a href="#ZANZIBAR" class="cite xref">ZANZIBAR</a>]</span> that reason over a typed graph of subjects, relations, and
+objects.<a href="#section-1.1-2" class="pilcrow">¶</a></p>
+<p id="section-1.1-3">This is not a claim that a relationship-based engine can consume nothing
+beyond the five-tuple. Such engines commonly accept contextual tuples
+supplied at query time, and a PDP may project <code>properties</code> or <code>context</code> into
+them. It is a claim about where a profile should put the load. The five-tuple
+has a shape every conforming PDP can be expected to read the same way; a
+free-form bag does not, and a profile that carried its decision-critical
+inputs there would nominally use AuthZEN while leaving each PDP to infer the
+semantics on its own.<a href="#section-1.1-3" class="pilcrow">¶</a></p>
+<p id="section-1.1-4">This document therefore adopts a design rule:<a href="#section-1.1-4" class="pilcrow">¶</a></p>
 <ul class="normal ulEmpty">
-<li class="normal ulEmpty" id="section-1.1-4.1">
-            <p id="section-1.1-4.1.1">Every input on which the decision depends <span class="bcp14">MUST</span> be expressed in the
-five-tuple. Property bags (<code>properties</code>, <code>context</code>) carry advisory input
-only. A conforming mapping <span class="bcp14">MUST</span> be implementable by a PDP that reads only
-the five-tuple.<a href="#section-1.1-4.1.1" class="pilcrow">¶</a></p>
+<li class="normal ulEmpty" id="section-1.1-5.1">
+            <p id="section-1.1-5.1.1">The five-tuple is the primary information model target. Every input on
+which the decision depends <span class="bcp14">MUST</span> be expressed in it. <code>properties</code> and
+<code>context</code> carry advisory input only, and a conforming mapping <span class="bcp14">MUST</span> be
+implementable by a PDP that reads only the five-tuple.<a href="#section-1.1-5.1.1" class="pilcrow">¶</a></p>
 </li>
         </ul>
-<p id="section-1.1-5"><strong>Least surprise for the AS.</strong> The profile does not ask the AS to surrender
+<p id="section-1.1-6">The rule is applied throughout and is not re-argued at each mapping.<a href="#section-1.1-6" class="pilcrow">¶</a></p>
+<p id="section-1.1-7"><strong>Least surprise for the AS.</strong> The profile does not ask the AS to surrender
 decisions it is authoritative for. A PDP may narrow what is issued; it may
-not broaden it, re-subject it, or re-target it (<a href="#no-broadening" class="auto internal xref">Section 5.3</a>).<a href="#section-1.1-5" class="pilcrow">¶</a></p>
+not broaden it, re-subject it, or re-target it (<a href="#no-broadening" class="auto internal xref">Section 5.3</a>).<a href="#section-1.1-7" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="scope">
@@ -1438,10 +1448,12 @@ case AuthZEN already serves and requires no profile.<a href="#section-1.2-1" cla
 <p id="section-1.2-2">The framework decides an <strong>issuance gate</strong>. Where a deployment's policy
 depends on quantitative or transactional constraints - a payment amount, a
 rate limit - those flow in as advisory context and out as token shaping
-(<a href="#shaping" class="auto internal xref">Section 5</a>), to be enforced by downstream policy enforcement points. A
-relationship-based PDP adjudicates the gate; an attribute-based PDP may
-additionally adjudicate the context. Stating this boundary is what keeps the
-five-tuple rule from overpromising.<a href="#section-1.2-2" class="pilcrow">¶</a></p>
+(<a href="#shaping" class="auto internal xref">Section 5</a>), to be enforced by downstream policy enforcement points. Any
+conforming PDP can adjudicate the gate, because the gate is expressed
+entirely in the five-tuple. Whether a given PDP also adjudicates the context
+is a property of that deployment and is not something this profile
+guarantees. Stating that boundary is what keeps the design rule above from
+overpromising.<a href="#section-1.2-2" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="requirements-language">
@@ -1716,11 +1728,8 @@ to render a decision without it.<a href="#section-4.4-1" class="pilcrow">¶</a><
             </tr>
           </tbody>
         </table>
-<p id="section-4.4-4">Any input on which the decision genuinely depends belongs in the five-tuple,
-not here. Deployments that place decision-critical data in <code>context</code> remain
-functional but forfeit the interoperability property this profile is
-designed around, since a PDP that reads only the five-tuple will decide
-without it.<a href="#section-4.4-4" class="pilcrow">¶</a></p>
+<p id="section-4.4-4">Per <a href="#design-goals" class="auto internal xref">Section 1.1</a>, any input on which the decision genuinely depends
+belongs in the five-tuple, not here.<a href="#section-4.4-4" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="composition">
@@ -2501,9 +2510,8 @@ receiving pairwise or pseudonymous identifiers sees only the identifier the
 token itself will carry, rather than a durable global identifier. Deployments
 sensitive to this should prefer such identifiers.<a href="#section-10.4-2" class="pilcrow">¶</a></p>
 <p id="section-10.4-3">Where <code>context</code> conveys authentication context or device posture, deployments
-should include only what their policies actually consume. The five-tuple rule
-helps here: a profile whose decisions depend only on the five-tuple has
-little reason to send more.<a href="#section-10.4-3" class="pilcrow">¶</a></p>
+should include only what their policies actually consume. The design rule of
+<a href="#design-goals" class="auto internal xref">Section 1.1</a> already bounds how much that ought to be.<a href="#section-10.4-3" class="pilcrow">¶</a></p>
 </section>
 </div>
 </section>
