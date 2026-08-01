@@ -270,11 +270,6 @@ The two gate tuples ask different questions and both MUST be permitted:
 * the requesting party gate asks whether this party may be the one to obtain
   it.
 
-A deployment in which every requesting party is permitted still evaluates
-the tuple. Per {{ISSUANCE}}, an AS MUST NOT omit a gate tuple on the grounds
-that it believes the corresponding policy is permissive; whether a gate is
-permissive is internal to the PDP.
-
 Where the requesting party and the exchange subject are the same entity -
 a client exchanging a token it obtained for itself - the two gate tuples are
 identical, and the AS MAY include only one.

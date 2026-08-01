@@ -359,16 +359,6 @@ decides what that means in its own policy vocabulary.
 An AS MUST include a gate tuple in every evaluation request it forms under
 this profile. A binding MAY require more than one ({{composition}}).
 
-There is no condition under which the gate may be omitted, because the gate
-is the only tuple that carries the grant. A request naming a single scope
-would otherwise reduce to one scope tuple, and an authorization code
-issuance and a refresh of it would reach the PDP as the same evaluation.
-
-An AS MUST NOT omit a gate tuple on the grounds that it believes the
-corresponding policy is permissive. Whether a gate is permissive is internal
-to the PDP; an AS that acted on such a belief would be making the policy
-decision this profile exists to externalize.
-
 The floor is therefore two evaluations for a request naming scopes, and one
 for a request naming none. Deployments are expected to write issuance policy
 for every token type and grant combination their AS can produce; a PDP that
