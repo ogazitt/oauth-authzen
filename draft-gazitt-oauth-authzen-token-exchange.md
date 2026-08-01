@@ -582,6 +582,25 @@ that the requesting party has not been authorized to learn. Both are
 reported as `invalid_request`, and the distinction is recorded where
 {{ISSUANCE}} directs PDP reason information: in the AS's own logs.
 
+# Discovery
+
+This binding registers no capability URN of its own. A PDP advertises support
+for the URN of {{ISSUANCE}}, and nothing further is negotiated.
+
+Nothing further is needed. A capability URN identifies response vocabulary,
+because an AS must understand what it is asked to enforce, and this binding
+adds none: it uses the shaping keys of {{ISSUANCE}} unchanged. The context
+keys of {{context}} are advisory, and a PDP that does not recognize one
+ignores it. The gate action names registered in {{iana-actions}} are covered
+by {{ISSUANCE}}'s rule that a PDP advertising the issuance capability renders
+a decision on any registered gate action, so an AS never has to discover
+which members of this family a deployment's policy anticipates.
+
+An operator enabling one of these grants for the first time - ID-JAG on an AS
+that previously performed only ordinary exchanges, say - can check whether
+policy anticipates the new gate action before turning it on, using the Action
+Search API of {{AUTHZEN}} as {{ISSUANCE}} describes.
+
 # Examples
 
 The first example below is shown in full, framed against the HTTPS JSON

@@ -683,8 +683,11 @@ per token type and grant combination. Finer granularity would oblige the AS
 to predict what the PDP has policy for, which the rule above exists to avoid,
 and would publish the shape of a deployment's issuance policy in an
 unauthenticated metadata document. Capability granularity in this profile
-tracks vocabulary, not policy: an extension that adds keys registers its own
-URN.
+tracks vocabulary, not policy. An extension that adds response vocabulary
+registers its own URN, since an AS must understand what it is asked to
+enforce; one that adds only advisory context keys or new registered action
+names does not, since a PDP ignores a context key it does not recognize and
+the rule above already obliges it to decide any registered gate action.
 
 An operator enabling a new grant or token type nonetheless has a real
 question to answer: whether the deployment's policy anticipates the gate
