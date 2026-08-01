@@ -129,8 +129,10 @@ precisely because the authority to become another party's actor is a
 distinct privilege, and Section 4.4 identifies the party whose authority is
 in question as "the client (or party identified in the `actor_token`)".
 This document's central normative content is that this second privilege is
-evaluated as its own tuple, so that a PDP in the style of {{ZANZIBAR}} - one
-that reads only the five-tuple - can adjudicate it ({{actor-gate}}).
+evaluated as its own tuple, so that any conforming PDP - including a
+relationship-based engine in the style of {{ZANZIBAR}}, which reads it
+directly as an edge between two named entities - can adjudicate it
+({{actor-gate}}).
 
 The remainder is the derivation of the framework's inputs from each
 specification's parameters, and the small number of invariants that each
@@ -252,9 +254,10 @@ This tuple is the interoperable expression of the question {{RFC8693}}
 Section 4.4 poses: whether the client, or the party named in the
 `actor_token`, is authorized to engage in the requested delegation or
 impersonation. Expressing it as a five-tuple rather than as a property of
-the subject's tuple is what allows a relationship-based PDP to adjudicate
-it, since such an engine reasons over the relation between a named subject
-and a named object and cannot read a property bag.
+the subject's tuple is what puts it within reach of any conforming PDP: a
+relationship-based engine adjudicates it directly, as the relation between a
+named subject and a named object, without having to be told how to project a
+property bag into one.
 
 The two gate tuples ask different questions and both MUST be permitted:
 

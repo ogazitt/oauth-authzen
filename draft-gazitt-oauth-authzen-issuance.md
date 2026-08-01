@@ -120,7 +120,7 @@ outside the AS.
 (PEP) and a Policy Decision Point (PDP). This document profiles that API for
 the token issuance moment, casting the **authorization server as a PEP**.
 
-## Design Goals
+## Design Goals {#design-goals}
 
 **One mechanism, many issuance moments.** The decision point is
 structurally identical across grant types: a party is asking for a token,
@@ -129,21 +129,33 @@ mapping once. Bindings ({{companions}}) supply what is specific to a given
 grant or token type, and are expected to be short.
 
 **Interoperability at the level of policy, not just wire format.**
-{{AUTHZEN}} requires five fields in every evaluation request: `subject.type`,
-`subject.id`, `action.name`, `resource.type`, and `resource.id`. That
-requirement exists so that relationship-based PDPs in the style of
-{{ZANZIBAR}} - which reason over a typed graph of subjects, relations, and
-objects - can participate in the same ecosystem as attribute-based engines.
-A profile that carried its decision-critical inputs in free-form property
-bags would nominally use AuthZEN while excluding an entire class of PDP from
-implementing it.
+{{AUTHZEN}} makes exactly five fields mandatory in an evaluation request:
+`subject.type`, `subject.id`, `action.name`, `resource.type`, and
+`resource.id`. Everything else - the `properties` bag on each entity, and the
+`context` object - is optional. That asymmetry is deliberate. It is what
+allows one request shape to be understood by policy engines with very
+different internal models: attribute- and policy-based engines that evaluate
+expressions over arbitrary input, and relationship-based engines in the style
+of {{ZANZIBAR}} that reason over a typed graph of subjects, relations, and
+objects.
 
-This document therefore adopts a design rule, applied throughout:
+This is not a claim that a relationship-based engine can consume nothing
+beyond the five-tuple. Such engines commonly accept contextual tuples
+supplied at query time, and a PDP may project `properties` or `context` into
+them. It is a claim about where a profile should put the load. The five-tuple
+has a shape every conforming PDP can be expected to read the same way; a
+free-form bag does not, and a profile that carried its decision-critical
+inputs there would nominally use AuthZEN while leaving each PDP to infer the
+semantics on its own.
 
-> Every input on which the decision depends MUST be expressed in the
-> five-tuple. Property bags (`properties`, `context`) carry advisory input
-> only. A conforming mapping MUST be implementable by a PDP that reads only
-> the five-tuple.
+This document therefore adopts a design rule:
+
+> The five-tuple is the primary information model target. Every input on
+> which the decision depends MUST be expressed in it. `properties` and
+> `context` carry advisory input only, and a conforming mapping MUST be
+> implementable by a PDP that reads only the five-tuple.
+
+The rule is applied throughout and is not re-argued at each mapping.
 
 **Least surprise for the AS.** The profile does not ask the AS to surrender
 decisions it is authoritative for. A PDP may narrow what is issued; it may
@@ -159,10 +171,12 @@ case AuthZEN already serves and requires no profile.
 The framework decides an **issuance gate**. Where a deployment's policy
 depends on quantitative or transactional constraints - a payment amount, a
 rate limit - those flow in as advisory context and out as token shaping
-({{shaping}}), to be enforced by downstream policy enforcement points. A
-relationship-based PDP adjudicates the gate; an attribute-based PDP may
-additionally adjudicate the context. Stating this boundary is what keeps the
-five-tuple rule from overpromising.
+({{shaping}}), to be enforced by downstream policy enforcement points. Any
+conforming PDP can adjudicate the gate, because the gate is expressed
+entirely in the five-tuple. Whether a given PDP also adjudicates the context
+is a property of that deployment and is not something this profile
+guarantees. Stating that boundary is what keeps the design rule above from
+overpromising.
 
 ## Requirements Language
 
@@ -351,11 +365,8 @@ The following keys are defined by this document; bindings may define more:
 | `acr`, `amr`, `auth_time` | Authentication context of the subject |
 | `cnf` | Confirmation method of the presented credential |
 
-Any input on which the decision genuinely depends belongs in the five-tuple,
-not here. Deployments that place decision-critical data in `context` remain
-functional but forfeit the interoperability property this profile is
-designed around, since a PDP that reads only the five-tuple will decide
-without it.
+Per {{design-goals}}, any input on which the decision genuinely depends
+belongs in the five-tuple, not here.
 
 ## Batching and Result Composition {#composition}
 
@@ -902,9 +913,8 @@ token itself will carry, rather than a durable global identifier. Deployments
 sensitive to this should prefer such identifiers.
 
 Where `context` conveys authentication context or device posture, deployments
-should include only what their policies actually consume. The five-tuple rule
-helps here: a profile whose decisions depend only on the five-tuple has
-little reason to send more.
+should include only what their policies actually consume. The design rule of
+{{design-goals}} already bounds how much that ought to be.
 
 # IANA Considerations
 
