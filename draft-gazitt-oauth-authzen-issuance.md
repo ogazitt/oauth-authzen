@@ -87,9 +87,10 @@ how the inputs to a token issuance request map onto AuthZEN's mandatory
 five-tuple, how a Policy Decision Point response may shape the issued token,
 and how the two parties discover each other's capabilities.
 
-This document is a framework. It is not implementable on its own: bindings
-for individual grant types and token types are defined in companion
-documents.
+The mapping is complete for grants whose request names a single party and a
+single target, including the authorization code and client credentials
+grants. Companion documents bind the grant families that add structure this
+document does not model, the token exchange family first among them.
 
 --- middle
 
@@ -943,12 +944,20 @@ Access Evaluations API: the payload is a bare evaluation with no
 
 # Relationship to Companion Documents {#companions}
 
-This document defines the mapping and the shaping vocabulary. It does not
-define how any particular grant type supplies them, and is not implementable
-on its own. Bindings are expected for the token exchange family - including
-identity chaining, identity assertion authorization grants, and transaction
-tokens - and a profile describing the use of AuthZEN search operations to
-populate the authorization claims of {{RFC9068}}.
+This document defines the mapping and the shaping vocabulary, and registers
+short names for the grant types listed in {{iana-actions}}. For a grant whose
+request names a single party and a single target, that is everything an AS
+needs; the client credentials and authorization code examples above are
+complete, and no companion document is required to implement them.
+
+A binding is required where a grant family adds structure this document does
+not model. The token exchange family adds two such things: a request names a
+second party, the requesting party, whose authority is separately at stake;
+and several of its members issue an artifact whose own audience differs from
+the audience of the access it describes. Bindings are therefore expected for
+that family - including identity chaining, identity assertion authorization
+grants, and transaction tokens - and a profile describing the use of AuthZEN
+search operations to populate the authorization claims of {{RFC9068}}.
 
 Bindings specify the subject derivation for their grant, any additional
 context keys, the token type short names they register, and any invariants
