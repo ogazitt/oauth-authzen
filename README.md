@@ -1,13 +1,22 @@
 <!-- regenerate: on (set to off if you edit this file) -->
 
-# AuthZEN Profile for OAuth 2.0 Token Issuance
+# OAUTH Drafts
 
-This is the working area for the individual Internet-Draft, "AuthZEN Profile for OAuth 2.0 Token Issuance".
+This is the working area for individual Internet-Drafts.
+
+## AuthZEN Profile for OAuth 2.0 Token Issuance
 
 * [Editor's Copy](https://ogazitt.github.io/oauth-authzen/#go.draft-gazitt-oauth-authzen-issuance.html)
 * [Datatracker Page](https://datatracker.ietf.org/doc/draft-gazitt-oauth-authzen-issuance)
 * [Individual Draft](https://datatracker.ietf.org/doc/html/draft-gazitt-oauth-authzen-issuance)
 * [Compare Editor's Copy to Individual Draft](https://ogazitt.github.io/oauth-authzen/#go.draft-gazitt-oauth-authzen-issuance.diff)
+
+## AuthZEN Binding for OAuth 2.0 Token Exchange
+
+* [Editor's Copy](https://ogazitt.github.io/oauth-authzen/#go.draft-gazitt-oauth-authzen-token-exchange.html)
+* [Datatracker Page](https://datatracker.ietf.org/doc/draft-gazitt-oauth-authzen-token-exchange)
+* [Individual Draft](https://datatracker.ietf.org/doc/html/draft-gazitt-oauth-authzen-token-exchange)
+* [Compare Editor's Copy to Individual Draft](https://ogazitt.github.io/oauth-authzen/#go.draft-gazitt-oauth-authzen-token-exchange.diff)
 
 
 ## Contributing

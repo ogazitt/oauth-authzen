@@ -1,3 +1,4 @@
 # Automatically generated CODEOWNERS
 # Regenerate with `make update-codeowners`
 draft-gazitt-oauth-authzen-issuance.md ogazitt@gmail.com
+draft-gazitt-oauth-authzen-token-exchange.md ogazitt@gmail.com
