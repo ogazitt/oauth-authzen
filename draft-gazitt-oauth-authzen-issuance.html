@@ -1656,17 +1656,16 @@ what means.<a href="#section-4.3.1-6" class="pilcrow">¶</a></p>
 <p id="section-4.3.2-1">Short names registered under <a href="#iana-actions" class="auto internal xref">Section 11.4</a> <span class="bcp14">MUST</span> match
 <code>[a-z][a-z0-9_]{0,30}</code>, and a composed gate action name <span class="bcp14">MUST NOT</span> exceed 50
 characters.<a href="#section-4.3.2-1" class="pilcrow">¶</a></p>
-<p id="section-4.3.2-2">These bounds are not aesthetic. Relationship-based engines validate relation
-identifiers against a restricted grammar: at the time of writing, OpenFGA
-requires <code>^[^:#@\s]{1,50}$</code>, SpiceDB permits lowercase letters, digits, and
-underscores within 64 characters, and Topaz permits lowercase letters,
-digits, dots, underscores, and dashes within 64. None admits a colon. With
-the bounds above, replacing each <code>:</code> with <code>_</code> turns any action name this
-document defines into an identifier all three accept, so the transformation
-is mechanical and a policy written against these names ports unchanged.<a href="#section-4.3.2-2" class="pilcrow">¶</a></p>
-<p id="section-4.3.2-3">Carrying a grant type URI verbatim would not survive this. The action name
-would reach 66 characters for the token exchange grant, which exceeds the
-shortest of these limits before any question of characters arises.<a href="#section-4.3.2-3" class="pilcrow">¶</a></p>
+<p id="section-4.3.2-2">The bounds exist for portability. Relationship-based engines commonly
+validate relation identifiers against a restricted grammar, admitting a small
+character set within a modest length limit. A PDP built on such an engine can
+canonicalize an action name defined by this document by replacing each <code>:</code>
+with a character the grammar admits, conventionally <code>_</code>. The bounds above are
+what make that transformation total: any registered name survives it, so a
+policy written against these names ports without being rewritten.<a href="#section-4.3.2-2" class="pilcrow">¶</a></p>
+<p id="section-4.3.2-3">Carrying a grant type URI verbatim would not survive it. The composed action
+name would exceed the length limits such grammars impose before any question
+of characters arose.<a href="#section-4.3.2-3" class="pilcrow">¶</a></p>
 <p id="section-4.3.2-4">The guarantee covers only the vocabulary this document defines. Scope values
 are carried verbatim (<a href="#scope-tuple" class="auto internal xref">Section 4.3.3</a>) and routinely contain characters no
 such grammar admits; mapping them remains internal to the PDP.<a href="#section-4.3.2-4" class="pilcrow">¶</a></p>
@@ -2755,9 +2754,9 @@ a matter of policy, not of registration.<a href="#section-11.4-2" class="pilcrow
 <p id="section-11.4-3">Every short name <span class="bcp14">MUST</span> match <code>[a-z][a-z0-9_]{0,30}</code>, and a composed action
 name <span class="bcp14">MUST NOT</span> exceed 50 characters. <a href="#action-portability" class="auto internal xref">Section 4.3.2</a> gives the reason:
 these bounds are what let the name be transformed mechanically into a
-relation identifier that widely deployed relationship-based engines accept.
-Registrants should note that hyphens are excluded deliberately, being
-rejected by at least one such engine.<a href="#section-11.4-3" class="pilcrow">¶</a></p>
+relation identifier that relationship-based engines accept. Registrants
+should note that the hyphen is excluded deliberately, and that a short name
+therefore differs from the corresponding URI wherever that URI contains one.<a href="#section-11.4-3" class="pilcrow">¶</a></p>
 <p id="section-11.4-4">Token type short names, initially:<a href="#section-11.4-4" class="pilcrow">¶</a></p>
 <table class="center" id="table-6">
           <caption><a href="#table-6" class="selfRef">Table 6</a></caption>
