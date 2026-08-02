@@ -1075,23 +1075,34 @@ The `urn:ietf:params` sub-namespace registry has a registration policy of IETF
 Review {{RFC6924}}, which a specification published outside the IETF stream
 cannot satisfy on its own.
 
-This document is on the IETF stream, and therefore can. Two resolutions are
+This document is on the IETF stream, and therefore can. Three resolutions are
 available, and the choice is for the working group:
 
 1. This document, or a companion document, performs the {{RFC3553}}
    registration of the `authzen` sub-namespace, satisfying IETF Review. The
    capability name then takes the form given in {{iana-capability}}.
 
-2. This document declines the dependency and registers its capability under
+2. The capability is named in the `urn:openid:authzen` namespace rather than
+   under `urn:ietf:params`, and no IANA action is requested for it. {{ARAP}}
+   takes this route, naming its capability
+   `urn:openid:authzen:capability:access-request` and its error conditions
+   under `urn:openid:authzen:access-request:error`, so this is the scheme
+   AuthZEN profiles use in practice. The capability name would be
+   `urn:openid:authzen:capability:token-issuance`.
+
+3. This document declines the dependency and registers its capability under
    `urn:ietf:params:oauth`, the sub-namespace established by {{RFC6755}},
    whose registration policy is Specification Required and is therefore not
    blocked. The capability name would be
    `urn:ietf:params:oauth:authzen-capability:token-issuance`.
 
-Option 1 is preferable. A capability identifier is only useful if both parties
-compute the same string, and one naming scheme for all AuthZEN capabilities is
-worth more than this document's independence from it. Option 2 is the fallback
-if the sub-namespace registration does not proceed.
+A capability identifier is only useful if both parties compute the same
+string, so one naming scheme for all AuthZEN capabilities is worth more than
+this document's independence from any particular one. Options 1 and 2 both
+achieve that, and differ in which body assigns the name; option 2 has the
+advantage of matching what AuthZEN profiles already do, at the cost of leaving
+the registry {{AUTHZEN}} asks for without entries. Option 3 is the fallback if
+neither is available.
 
 ## AuthZEN Policy Decision Point Capability {#iana-capability}
 
