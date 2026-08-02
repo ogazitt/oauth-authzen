@@ -1072,7 +1072,7 @@ svg {
 </tr></thead>
 <tfoot><tr>
 <td class="left">Gazitt</td>
-<td class="center">Expires 2 February 2027</td>
+<td class="center">Expires 3 February 2027</td>
 <td class="right">[Page]</td>
 </tr></tfoot>
 </table>
@@ -1085,12 +1085,12 @@ svg {
 <dd class="internet-draft">draft-gazitt-oauth-authzen-issuance-latest</dd>
 <dt class="label-published">Published:</dt>
 <dd class="published">
-<time datetime="2026-08-01" class="published">1 August 2026</time>
+<time datetime="2026-08-02" class="published">2 August 2026</time>
     </dd>
 <dt class="label-intended-status">Intended Status:</dt>
 <dd class="intended-status">Standards Track</dd>
 <dt class="label-expires">Expires:</dt>
-<dd class="expires"><time datetime="2027-02-02">2 February 2027</time></dd>
+<dd class="expires"><time datetime="2027-02-03">3 February 2027</time></dd>
 <dt class="label-authors">Author:</dt>
 <dd class="authors">
 <div class="author">
@@ -1152,7 +1152,7 @@ document does not model, the token exchange family first among them.<a href="#se
         time. It is inappropriate to use Internet-Drafts as reference
         material or to cite them other than as "work in progress."<a href="#section-boilerplate.1-3" class="pilcrow">¶</a></p>
 <p id="section-boilerplate.1-4">
-        This Internet-Draft will expire on 2 February 2027.<a href="#section-boilerplate.1-4" class="pilcrow">¶</a></p>
+        This Internet-Draft will expire on 3 February 2027.<a href="#section-boilerplate.1-4" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="copyright">
@@ -2682,7 +2682,7 @@ sub-namespace. At the time of writing, neither appears in the IANA registries.
 The <code>urn:ietf:params</code> sub-namespace registry has a registration policy of IETF
 Review <span>[<a href="#RFC6924" class="cite xref">RFC6924</a>]</span>, which a specification published outside the IETF stream
 cannot satisfy on its own.<a href="#section-11.1-2" class="pilcrow">¶</a></p>
-<p id="section-11.1-3">This document is on the IETF stream, and therefore can. Two resolutions are
+<p id="section-11.1-3">This document is on the IETF stream, and therefore can. Three resolutions are
 available, and the choice is for the working group:<a href="#section-11.1-3" class="pilcrow">¶</a></p>
 <ol start="1" type="1" class="normal type-1" id="section-11.1-4">
 <li id="section-11.1-4.1">
@@ -2691,17 +2691,29 @@ registration of the <code>authzen</code> sub-namespace, satisfying IETF Review. 
 capability name then takes the form given in <a href="#iana-capability" class="auto internal xref">Section 11.2</a>.<a href="#section-11.1-4.1.1" class="pilcrow">¶</a></p>
 </li>
           <li id="section-11.1-4.2">
-            <p id="section-11.1-4.2.1">This document declines the dependency and registers its capability under
+            <p id="section-11.1-4.2.1">The capability is named in the <code>urn:openid:authzen</code> namespace rather than
+under <code>urn:ietf:params</code>, and no IANA action is requested for it. <span>[<a href="#ARAP" class="cite xref">ARAP</a>]</span>
+takes this route, naming its capability
+<code>urn:openid:authzen:capability:access-request</code> and its error conditions
+under <code>urn:openid:authzen:access-request:error</code>, so this is the scheme
+AuthZEN profiles use in practice. The capability name would be
+<code>urn:openid:authzen:capability:token-issuance</code>.<a href="#section-11.1-4.2.1" class="pilcrow">¶</a></p>
+</li>
+          <li id="section-11.1-4.3">
+            <p id="section-11.1-4.3.1">This document declines the dependency and registers its capability under
 <code>urn:ietf:params:oauth</code>, the sub-namespace established by <span>[<a href="#RFC6755" class="cite xref">RFC6755</a>]</span>,
 whose registration policy is Specification Required and is therefore not
 blocked. The capability name would be
-<code>urn:ietf:params:oauth:authzen-capability:token-issuance</code>.<a href="#section-11.1-4.2.1" class="pilcrow">¶</a></p>
+<code>urn:ietf:params:oauth:authzen-capability:token-issuance</code>.<a href="#section-11.1-4.3.1" class="pilcrow">¶</a></p>
 </li>
         </ol>
-<p id="section-11.1-5">Option 1 is preferable. A capability identifier is only useful if both parties
-compute the same string, and one naming scheme for all AuthZEN capabilities is
-worth more than this document's independence from it. Option 2 is the fallback
-if the sub-namespace registration does not proceed.<a href="#section-11.1-5" class="pilcrow">¶</a></p>
+<p id="section-11.1-5">A capability identifier is only useful if both parties compute the same
+string, so one naming scheme for all AuthZEN capabilities is worth more than
+this document's independence from any particular one. Options 1 and 2 both
+achieve that, and differ in which body assigns the name; option 2 has the
+advantage of matching what AuthZEN profiles already do, at the cost of leaving
+the registry <span>[<a href="#AUTHZEN" class="cite xref">AUTHZEN</a>]</span> asks for without entries. Option 3 is the fallback if
+neither is available.<a href="#section-11.1-5" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="iana-capability">
