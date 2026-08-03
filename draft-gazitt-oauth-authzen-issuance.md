@@ -53,6 +53,7 @@ informative:
   RFC6755:
   RFC6924:
   I-D.brossard-oauth-rar-authzen:
+  I-D.gerber-oauth-deferred-token-response:
   I-D.ietf-oauth-identity-chaining:
   I-D.ietf-oauth-identity-assertion-authz-grant:
   I-D.ietf-oauth-transaction-tokens:
@@ -205,7 +206,7 @@ Scope tuple:
 : An evaluation request whose action is a requested scope, expressing
   *access authority*. See {{gate-and-scope}}.
 
-# Architecture
+# Architecture {#architecture}
 
 ~~~ ascii-art
 +--------+           +----------------------+        +-------+
@@ -235,7 +236,77 @@ token, and verifying any proof of possession. The PDP is consulted only
 after those checks succeed. A PDP permit does not substitute for any of
 them.
 
-# Forming the Evaluation Request
+# Deployment Considerations {#deployment}
+
+## Colocation and Latency {#colocation}
+
+A token endpoint can be a very high volume path. Multi-tenant authorization
+servers operate at request rates that leave a per-request budget in the low
+milliseconds, and an issuance decision that added a round trip to a remote
+service would not be deployable at that scale.
+
+This profile does not add one. {{AUTHZEN}} specifies a request and response
+contract between a Policy Enforcement Point and a Policy Decision Point; it
+does not specify where the Policy Decision Point runs. The PDP of
+{{architecture}} may be embedded in the authorization server's own process,
+loaded as a module or as a WebAssembly component, resident on the same host,
+or reached over a network. Conformance to this profile is a property of the
+messages exchanged and not of the topology that carries them, and
+deployments with the strictest budgets are expected to evaluate in process
+or on the same host. Step 3 of {{architecture}} is drawn as an arrow because
+it is a request, not because it is a hop.
+
+Two properties of the issuance moment make the budget more forgiving than
+the volume alone suggests.
+
+The decision is made once per token rather than once per request. An access
+token is presented many times, over a lifetime usually measured in minutes
+or hours, so the cost of deciding at issuance is amortized across every
+later presentation. This is the reverse of the resource server deployments
+{{AUTHZEN}} was first written for, where the decision recurs on every call
+and the budget is correspondingly tighter.
+
+The inputs are already in hand. By the time an AS reaches this decision it
+has authenticated the client, validated the grant, and resolved the subject.
+The evaluation request of {{request}} is assembled from values the AS
+already holds, and this profile implies no additional lookup to construct
+it.
+
+## Decisions That Cannot Be Made Synchronously {#deferred}
+
+Some issuance decisions cannot complete within the time a token request will
+wait, at any topology. A policy may call for human review, for an
+out-of-band approval, or for a check against a system whose own latency is
+unbounded.
+
+This document defines no mechanism for those, and does not need to.
+{{I-D.gerber-oauth-deferred-token-response}} defines a deferred token
+response, in which an authorization server that cannot answer immediately
+returns a deferral code and the client retrieves the outcome later. An AS
+implementing both may treat a decision it cannot obtain synchronously as a
+deferral rather than as a denial, evaluate it out of band, and apply the
+response of {{shaping}} to the token it eventually issues. Delay does not
+relax {{no-broadening}}: a decision that arrives late constrains the issued
+token exactly as one that arrives promptly would.
+
+## The Seam Inside the Authorization Server {#as-seam}
+
+{{architecture}} separates validating a grant from deciding whether to honor
+it, and asks a PDP only the second question. In a deployed authorization
+server that separation is often less clean than the figure. Credential
+handling, grant validation, session and consent state, and token minting are
+commonly one subsystem, with the inputs this profile needs distributed across
+it rather than exposed at any single point.
+
+The consequence is practical rather than normative. An authorization server
+that cannot assemble the fields of {{request}} at one point in its issuance
+path will have to introduce such a point, and for many implementations that
+will be the substantive work rather than the mapping or the response
+handling. This profile is defined in terms of the values an AS holds when it
+makes the decision, not in terms of where an implementation keeps them, so it
+constrains neither the internal structure nor the refactoring.
+
+# Forming the Evaluation Request {#request}
 
 ## Subject
 
@@ -311,10 +382,10 @@ The grant is part of the action because it is not recoverable from the rest
 of the tuple and it is not implied by the token type. The same subject,
 audience, and token type arise from an authorization code request and from
 its later refresh, and from a client requesting a token for itself and that
-same client exchanging for one. A policy that
-distinguishes those cases - requiring fresh authorization at a high-value
-audience, or permitting a client to hold a token but not to exchange for one
-- has nothing to attach to unless the grant is in the five-tuple.
+same client exchanging for one. A policy that distinguishes those cases -
+requiring fresh authorization at a high-value audience, or permitting a
+client to hold a token but not to exchange for one - has nothing to attach
+to unless the grant is in the five-tuple.
 
 Neither segment subsumes the other. A single authorization code request may
 mint an access token, a refresh token, and an ID token, which are separately
