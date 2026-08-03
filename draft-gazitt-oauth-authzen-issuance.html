@@ -38,7 +38,7 @@ document does not model, the token exchange family first among them.
     Jinja2 3.1.6
     lxml 6.1.1
     natsort 8.4.0
-    platformdirs 4.10.1
+    platformdirs 4.11.0
     pycountry 24.6.1
     PyYAML 6.0.3
     requests 2.33.1
@@ -1072,7 +1072,7 @@ svg {
 </tr></thead>
 <tfoot><tr>
 <td class="left">Gazitt</td>
-<td class="center">Expires 3 February 2027</td>
+<td class="center">Expires 4 February 2027</td>
 <td class="right">[Page]</td>
 </tr></tfoot>
 </table>
@@ -1085,12 +1085,12 @@ svg {
 <dd class="internet-draft">draft-gazitt-oauth-authzen-issuance-latest</dd>
 <dt class="label-published">Published:</dt>
 <dd class="published">
-<time datetime="2026-08-02" class="published">2 August 2026</time>
+<time datetime="2026-08-03" class="published">3 August 2026</time>
     </dd>
 <dt class="label-intended-status">Intended Status:</dt>
 <dd class="intended-status">Standards Track</dd>
 <dt class="label-expires">Expires:</dt>
-<dd class="expires"><time datetime="2027-02-03">3 February 2027</time></dd>
+<dd class="expires"><time datetime="2027-02-04">4 February 2027</time></dd>
 <dt class="label-authors">Author:</dt>
 <dd class="authors">
 <div class="author">
@@ -1152,7 +1152,7 @@ document does not model, the token exchange family first among them.<a href="#se
         time. It is inappropriate to use Internet-Drafts as reference
         material or to cite them other than as "work in progress."<a href="#section-boilerplate.1-3" class="pilcrow">¶</a></p>
 <p id="section-boilerplate.1-4">
-        This Internet-Draft will expire on 3 February 2027.<a href="#section-boilerplate.1-4" class="pilcrow">¶</a></p>
+        This Internet-Draft will expire on 4 February 2027.<a href="#section-boilerplate.1-4" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="copyright">
@@ -1202,170 +1202,184 @@ document does not model, the token exchange family first among them.<a href="#se
             <p id="section-toc.1-1.3.1"><a href="#section-3" class="auto internal xref">3</a>.  <a href="#name-architecture" class="internal xref">Architecture</a></p>
 </li>
           <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.4">
-            <p id="section-toc.1-1.4.1"><a href="#section-4" class="auto internal xref">4</a>.  <a href="#name-forming-the-evaluation-requ" class="internal xref">Forming the Evaluation Request</a></p>
+            <p id="section-toc.1-1.4.1"><a href="#section-4" class="auto internal xref">4</a>.  <a href="#name-deployment-considerations" class="internal xref">Deployment Considerations</a></p>
 <ul class="compact toc ulBare ulEmpty">
 <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.4.2.1">
-                <p id="section-toc.1-1.4.2.1.1"><a href="#section-4.1" class="auto internal xref">4.1</a>.  <a href="#name-subject" class="internal xref">Subject</a></p>
+                <p id="section-toc.1-1.4.2.1.1"><a href="#section-4.1" class="auto internal xref">4.1</a>.  <a href="#name-colocation-and-latency" class="internal xref">Colocation and Latency</a></p>
 </li>
               <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.4.2.2">
-                <p id="section-toc.1-1.4.2.2.1"><a href="#section-4.2" class="auto internal xref">4.2</a>.  <a href="#name-resource" class="internal xref">Resource</a></p>
+                <p id="section-toc.1-1.4.2.2.1"><a href="#section-4.2" class="auto internal xref">4.2</a>.  <a href="#name-decisions-that-cannot-be-ma" class="internal xref">Decisions That Cannot Be Made Synchronously</a></p>
 </li>
               <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.4.2.3">
-                <p id="section-toc.1-1.4.2.3.1"><a href="#section-4.3" class="auto internal xref">4.3</a>.  <a href="#name-actions-gate-tuples-and-sco" class="internal xref">Actions: Gate Tuples and Scope Tuples</a></p>
-<ul class="compact toc ulBare ulEmpty">
-<li class="compact toc ulBare ulEmpty" id="section-toc.1-1.4.2.3.2.1">
-                    <p id="section-toc.1-1.4.2.3.2.1.1"><a href="#section-4.3.1" class="auto internal xref">4.3.1</a>.  <a href="#name-gate-tuple" class="internal xref">Gate Tuple</a></p>
-</li>
-                  <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.4.2.3.2.2">
-                    <p id="section-toc.1-1.4.2.3.2.2.1"><a href="#section-4.3.2" class="auto internal xref">4.3.2</a>.  <a href="#name-action-name-portability" class="internal xref">Action Name Portability</a></p>
-</li>
-                  <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.4.2.3.2.3">
-                    <p id="section-toc.1-1.4.2.3.2.3.1"><a href="#section-4.3.3" class="auto internal xref">4.3.3</a>.  <a href="#name-scope-tuple" class="internal xref">Scope Tuple</a></p>
-</li>
-                  <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.4.2.3.2.4">
-                    <p id="section-toc.1-1.4.2.3.2.4.1"><a href="#section-4.3.4" class="auto internal xref">4.3.4</a>.  <a href="#name-gate-tuples-are-always-pres" class="internal xref">Gate Tuples Are Always Present</a></p>
-</li>
-                </ul>
-</li>
-              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.4.2.4">
-                <p id="section-toc.1-1.4.2.4.1"><a href="#section-4.4" class="auto internal xref">4.4</a>.  <a href="#name-context" class="internal xref">Context</a></p>
-</li>
-              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.4.2.5">
-                <p id="section-toc.1-1.4.2.5.1"><a href="#section-4.5" class="auto internal xref">4.5</a>.  <a href="#name-batching-and-result-composi" class="internal xref">Batching and Result Composition</a></p>
+                <p id="section-toc.1-1.4.2.3.1"><a href="#section-4.3" class="auto internal xref">4.3</a>.  <a href="#name-the-seam-inside-the-authori" class="internal xref">The Seam Inside the Authorization Server</a></p>
 </li>
             </ul>
 </li>
           <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.5">
-            <p id="section-toc.1-1.5.1"><a href="#section-5" class="auto internal xref">5</a>.  <a href="#name-processing-the-evaluation-r" class="internal xref">Processing the Evaluation Response</a></p>
+            <p id="section-toc.1-1.5.1"><a href="#section-5" class="auto internal xref">5</a>.  <a href="#name-forming-the-evaluation-requ" class="internal xref">Forming the Evaluation Request</a></p>
 <ul class="compact toc ulBare ulEmpty">
 <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.5.2.1">
-                <p id="section-toc.1-1.5.2.1.1"><a href="#section-5.1" class="auto internal xref">5.1</a>.  <a href="#name-the-issuance-envelope" class="internal xref">The <code>issuance</code> Envelope</a></p>
+                <p id="section-toc.1-1.5.2.1.1"><a href="#section-5.1" class="auto internal xref">5.1</a>.  <a href="#name-subject" class="internal xref">Subject</a></p>
 </li>
               <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.5.2.2">
-                <p id="section-toc.1-1.5.2.2.1"><a href="#section-5.2" class="auto internal xref">5.2</a>.  <a href="#name-mandatory-to-understand" class="internal xref">Mandatory-to-Understand</a></p>
+                <p id="section-toc.1-1.5.2.2.1"><a href="#section-5.2" class="auto internal xref">5.2</a>.  <a href="#name-resource" class="internal xref">Resource</a></p>
 </li>
               <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.5.2.3">
-                <p id="section-toc.1-1.5.2.3.1"><a href="#section-5.3" class="auto internal xref">5.3</a>.  <a href="#name-no-broadening" class="internal xref">No Broadening</a></p>
+                <p id="section-toc.1-1.5.2.3.1"><a href="#section-5.3" class="auto internal xref">5.3</a>.  <a href="#name-actions-gate-tuples-and-sco" class="internal xref">Actions: Gate Tuples and Scope Tuples</a></p>
+<ul class="compact toc ulBare ulEmpty">
+<li class="compact toc ulBare ulEmpty" id="section-toc.1-1.5.2.3.2.1">
+                    <p id="section-toc.1-1.5.2.3.2.1.1"><a href="#section-5.3.1" class="auto internal xref">5.3.1</a>.  <a href="#name-gate-tuple" class="internal xref">Gate Tuple</a></p>
+</li>
+                  <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.5.2.3.2.2">
+                    <p id="section-toc.1-1.5.2.3.2.2.1"><a href="#section-5.3.2" class="auto internal xref">5.3.2</a>.  <a href="#name-action-name-portability" class="internal xref">Action Name Portability</a></p>
+</li>
+                  <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.5.2.3.2.3">
+                    <p id="section-toc.1-1.5.2.3.2.3.1"><a href="#section-5.3.3" class="auto internal xref">5.3.3</a>.  <a href="#name-scope-tuple" class="internal xref">Scope Tuple</a></p>
+</li>
+                  <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.5.2.3.2.4">
+                    <p id="section-toc.1-1.5.2.3.2.4.1"><a href="#section-5.3.4" class="auto internal xref">5.3.4</a>.  <a href="#name-gate-tuples-are-always-pres" class="internal xref">Gate Tuples Are Always Present</a></p>
+</li>
+                </ul>
 </li>
               <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.5.2.4">
-                <p id="section-toc.1-1.5.2.4.1"><a href="#section-5.4" class="auto internal xref">5.4</a>.  <a href="#name-constraining-keys" class="internal xref">Constraining Keys</a></p>
-<ul class="compact toc ulBare ulEmpty">
-<li class="compact toc ulBare ulEmpty" id="section-toc.1-1.5.2.4.2.1">
-                    <p id="section-toc.1-1.5.2.4.2.1.1"><a href="#section-5.4.1" class="auto internal xref">5.4.1</a>.  <a href="#name-granted_scope" class="internal xref"><code>granted_scope</code></a></p>
-</li>
-                  <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.5.2.4.2.2">
-                    <p id="section-toc.1-1.5.2.4.2.2.1"><a href="#section-5.4.2" class="auto internal xref">5.4.2</a>.  <a href="#name-token_lifetime" class="internal xref"><code>token_lifetime</code></a></p>
-</li>
-                  <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.5.2.4.2.3">
-                    <p id="section-toc.1-1.5.2.4.2.3.1"><a href="#section-5.4.3" class="auto internal xref">5.4.3</a>.  <a href="#name-audience" class="internal xref"><code>audience</code></a></p>
-</li>
-                  <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.5.2.4.2.4">
-                    <p id="section-toc.1-1.5.2.4.2.4.1"><a href="#section-5.4.4" class="auto internal xref">5.4.4</a>.  <a href="#name-authorization_details" class="internal xref"><code>authorization_details</code></a></p>
-</li>
-                  <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.5.2.4.2.5">
-                    <p id="section-toc.1-1.5.2.4.2.5.1"><a href="#section-5.4.5" class="auto internal xref">5.4.5</a>.  <a href="#name-crit" class="internal xref"><code>crit</code></a></p>
-</li>
-                </ul>
+                <p id="section-toc.1-1.5.2.4.1"><a href="#section-5.4" class="auto internal xref">5.4</a>.  <a href="#name-context" class="internal xref">Context</a></p>
 </li>
               <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.5.2.5">
-                <p id="section-toc.1-1.5.2.5.1"><a href="#section-5.5" class="auto internal xref">5.5</a>.  <a href="#name-decorating-keys" class="internal xref">Decorating Keys</a></p>
-<ul class="compact toc ulBare ulEmpty">
-<li class="compact toc ulBare ulEmpty" id="section-toc.1-1.5.2.5.2.1">
-                    <p id="section-toc.1-1.5.2.5.2.1.1"><a href="#section-5.5.1" class="auto internal xref">5.5.1</a>.  <a href="#name-claims" class="internal xref"><code>claims</code></a></p>
-</li>
-                </ul>
-</li>
-              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.5.2.6">
-                <p id="section-toc.1-1.5.2.6.1"><a href="#section-5.6" class="auto internal xref">5.6</a>.  <a href="#name-aggregation-across-a-batch" class="internal xref">Aggregation Across a Batch</a></p>
+                <p id="section-toc.1-1.5.2.5.1"><a href="#section-5.5" class="auto internal xref">5.5</a>.  <a href="#name-batching-and-result-composi" class="internal xref">Batching and Result Composition</a></p>
 </li>
             </ul>
 </li>
           <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.6">
-            <p id="section-toc.1-1.6.1"><a href="#section-6" class="auto internal xref">6</a>.  <a href="#name-discovery" class="internal xref">Discovery</a></p>
+            <p id="section-toc.1-1.6.1"><a href="#section-6" class="auto internal xref">6</a>.  <a href="#name-processing-the-evaluation-r" class="internal xref">Processing the Evaluation Response</a></p>
 <ul class="compact toc ulBare ulEmpty">
 <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.6.2.1">
-                <p id="section-toc.1-1.6.2.1.1"><a href="#section-6.1" class="auto internal xref">6.1</a>.  <a href="#name-policy-decision-point-capab" class="internal xref">Policy Decision Point Capabilities</a></p>
+                <p id="section-toc.1-1.6.2.1.1"><a href="#section-6.1" class="auto internal xref">6.1</a>.  <a href="#name-the-issuance-envelope" class="internal xref">The <code>issuance</code> Envelope</a></p>
 </li>
               <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.6.2.2">
-                <p id="section-toc.1-1.6.2.2.1"><a href="#section-6.2" class="auto internal xref">6.2</a>.  <a href="#name-policy-enforcement-point-ca" class="internal xref">Policy Enforcement Point Capabilities</a></p>
+                <p id="section-toc.1-1.6.2.2.1"><a href="#section-6.2" class="auto internal xref">6.2</a>.  <a href="#name-mandatory-to-understand" class="internal xref">Mandatory-to-Understand</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.6.2.3">
+                <p id="section-toc.1-1.6.2.3.1"><a href="#section-6.3" class="auto internal xref">6.3</a>.  <a href="#name-no-broadening" class="internal xref">No Broadening</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.6.2.4">
+                <p id="section-toc.1-1.6.2.4.1"><a href="#section-6.4" class="auto internal xref">6.4</a>.  <a href="#name-constraining-keys" class="internal xref">Constraining Keys</a></p>
+<ul class="compact toc ulBare ulEmpty">
+<li class="compact toc ulBare ulEmpty" id="section-toc.1-1.6.2.4.2.1">
+                    <p id="section-toc.1-1.6.2.4.2.1.1"><a href="#section-6.4.1" class="auto internal xref">6.4.1</a>.  <a href="#name-granted_scope" class="internal xref"><code>granted_scope</code></a></p>
+</li>
+                  <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.6.2.4.2.2">
+                    <p id="section-toc.1-1.6.2.4.2.2.1"><a href="#section-6.4.2" class="auto internal xref">6.4.2</a>.  <a href="#name-token_lifetime" class="internal xref"><code>token_lifetime</code></a></p>
+</li>
+                  <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.6.2.4.2.3">
+                    <p id="section-toc.1-1.6.2.4.2.3.1"><a href="#section-6.4.3" class="auto internal xref">6.4.3</a>.  <a href="#name-audience" class="internal xref"><code>audience</code></a></p>
+</li>
+                  <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.6.2.4.2.4">
+                    <p id="section-toc.1-1.6.2.4.2.4.1"><a href="#section-6.4.4" class="auto internal xref">6.4.4</a>.  <a href="#name-authorization_details" class="internal xref"><code>authorization_details</code></a></p>
+</li>
+                  <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.6.2.4.2.5">
+                    <p id="section-toc.1-1.6.2.4.2.5.1"><a href="#section-6.4.5" class="auto internal xref">6.4.5</a>.  <a href="#name-crit" class="internal xref"><code>crit</code></a></p>
+</li>
+                </ul>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.6.2.5">
+                <p id="section-toc.1-1.6.2.5.1"><a href="#section-6.5" class="auto internal xref">6.5</a>.  <a href="#name-decorating-keys" class="internal xref">Decorating Keys</a></p>
+<ul class="compact toc ulBare ulEmpty">
+<li class="compact toc ulBare ulEmpty" id="section-toc.1-1.6.2.5.2.1">
+                    <p id="section-toc.1-1.6.2.5.2.1.1"><a href="#section-6.5.1" class="auto internal xref">6.5.1</a>.  <a href="#name-claims" class="internal xref"><code>claims</code></a></p>
+</li>
+                </ul>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.6.2.6">
+                <p id="section-toc.1-1.6.2.6.1"><a href="#section-6.6" class="auto internal xref">6.6</a>.  <a href="#name-aggregation-across-a-batch" class="internal xref">Aggregation Across a Batch</a></p>
 </li>
             </ul>
 </li>
           <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.7">
-            <p id="section-toc.1-1.7.1"><a href="#section-7" class="auto internal xref">7</a>.  <a href="#name-error-mapping" class="internal xref">Error Mapping</a></p>
-</li>
-          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.8">
-            <p id="section-toc.1-1.8.1"><a href="#section-8" class="auto internal xref">8</a>.  <a href="#name-examples" class="internal xref">Examples</a></p>
+            <p id="section-toc.1-1.7.1"><a href="#section-7" class="auto internal xref">7</a>.  <a href="#name-discovery" class="internal xref">Discovery</a></p>
 <ul class="compact toc ulBare ulEmpty">
-<li class="compact toc ulBare ulEmpty" id="section-toc.1-1.8.2.1">
-                <p id="section-toc.1-1.8.2.1.1"><a href="#section-8.1" class="auto internal xref">8.1</a>.  <a href="#name-client-credentials-one-scop" class="internal xref">Client Credentials, One Scope</a></p>
+<li class="compact toc ulBare ulEmpty" id="section-toc.1-1.7.2.1">
+                <p id="section-toc.1-1.7.2.1.1"><a href="#section-7.1" class="auto internal xref">7.1</a>.  <a href="#name-policy-decision-point-capab" class="internal xref">Policy Decision Point Capabilities</a></p>
 </li>
-              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.8.2.2">
-                <p id="section-toc.1-1.8.2.2.1"><a href="#section-8.2" class="auto internal xref">8.2</a>.  <a href="#name-authorization-code-downscop" class="internal xref">Authorization Code, Downscoping</a></p>
-</li>
-              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.8.2.3">
-                <p id="section-toc.1-1.8.2.3.1"><a href="#section-8.3" class="auto internal xref">8.3</a>.  <a href="#name-no-scopes-requested" class="internal xref">No Scopes Requested</a></p>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.7.2.2">
+                <p id="section-toc.1-1.7.2.2.1"><a href="#section-7.2" class="auto internal xref">7.2</a>.  <a href="#name-policy-enforcement-point-ca" class="internal xref">Policy Enforcement Point Capabilities</a></p>
 </li>
             </ul>
 </li>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.8">
+            <p id="section-toc.1-1.8.1"><a href="#section-8" class="auto internal xref">8</a>.  <a href="#name-error-mapping" class="internal xref">Error Mapping</a></p>
+</li>
           <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.9">
-            <p id="section-toc.1-1.9.1"><a href="#section-9" class="auto internal xref">9</a>.  <a href="#name-relationship-to-companion-d" class="internal xref">Relationship to Companion Documents</a></p>
+            <p id="section-toc.1-1.9.1"><a href="#section-9" class="auto internal xref">9</a>.  <a href="#name-examples" class="internal xref">Examples</a></p>
 <ul class="compact toc ulBare ulEmpty">
 <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.9.2.1">
-                <p id="section-toc.1-1.9.2.1.1"><a href="#section-9.1" class="auto internal xref">9.1</a>.  <a href="#name-related-work" class="internal xref">Related Work</a></p>
+                <p id="section-toc.1-1.9.2.1.1"><a href="#section-9.1" class="auto internal xref">9.1</a>.  <a href="#name-client-credentials-one-scop" class="internal xref">Client Credentials, One Scope</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.9.2.2">
+                <p id="section-toc.1-1.9.2.2.1"><a href="#section-9.2" class="auto internal xref">9.2</a>.  <a href="#name-authorization-code-downscop" class="internal xref">Authorization Code, Downscoping</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.9.2.3">
+                <p id="section-toc.1-1.9.2.3.1"><a href="#section-9.3" class="auto internal xref">9.3</a>.  <a href="#name-no-scopes-requested" class="internal xref">No Scopes Requested</a></p>
 </li>
             </ul>
 </li>
           <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.10">
-            <p id="section-toc.1-1.10.1"><a href="#section-10" class="auto internal xref">10</a>. <a href="#name-security-considerations" class="internal xref">Security Considerations</a></p>
+            <p id="section-toc.1-1.10.1"><a href="#section-10" class="auto internal xref">10</a>. <a href="#name-relationship-to-companion-d" class="internal xref">Relationship to Companion Documents</a></p>
 <ul class="compact toc ulBare ulEmpty">
 <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.10.2.1">
-                <p id="section-toc.1-1.10.2.1.1"><a href="#section-10.1" class="auto internal xref">10.1</a>.  <a href="#name-fail-closed" class="internal xref">Fail Closed</a></p>
-</li>
-              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.10.2.2">
-                <p id="section-toc.1-1.10.2.2.1"><a href="#section-10.2" class="auto internal xref">10.2</a>.  <a href="#name-the-policy-decision-point-a" class="internal xref">The Policy Decision Point as a Trust Dependency</a></p>
-</li>
-              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.10.2.3">
-                <p id="section-toc.1-1.10.2.3.1"><a href="#section-10.3" class="auto internal xref">10.3</a>.  <a href="#name-integrity-of-the-decision-r" class="internal xref">Integrity of the Decision Response</a></p>
-</li>
-              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.10.2.4">
-                <p id="section-toc.1-1.10.2.4.1"><a href="#section-10.4" class="auto internal xref">10.4</a>.  <a href="#name-privacy" class="internal xref">Privacy</a></p>
+                <p id="section-toc.1-1.10.2.1.1"><a href="#section-10.1" class="auto internal xref">10.1</a>.  <a href="#name-related-work" class="internal xref">Related Work</a></p>
 </li>
             </ul>
 </li>
           <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.11">
-            <p id="section-toc.1-1.11.1"><a href="#section-11" class="auto internal xref">11</a>. <a href="#name-iana-considerations" class="internal xref">IANA Considerations</a></p>
+            <p id="section-toc.1-1.11.1"><a href="#section-11" class="auto internal xref">11</a>. <a href="#name-security-considerations" class="internal xref">Security Considerations</a></p>
 <ul class="compact toc ulBare ulEmpty">
 <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.11.2.1">
-                <p id="section-toc.1-1.11.2.1.1"><a href="#section-11.1" class="auto internal xref">11.1</a>.  <a href="#name-registration-dependencies" class="internal xref">Registration Dependencies</a></p>
+                <p id="section-toc.1-1.11.2.1.1"><a href="#section-11.1" class="auto internal xref">11.1</a>.  <a href="#name-fail-closed" class="internal xref">Fail Closed</a></p>
 </li>
               <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.11.2.2">
-                <p id="section-toc.1-1.11.2.2.1"><a href="#section-11.2" class="auto internal xref">11.2</a>.  <a href="#name-authzen-policy-decision-poi" class="internal xref">AuthZEN Policy Decision Point Capability</a></p>
+                <p id="section-toc.1-1.11.2.2.1"><a href="#section-11.2" class="auto internal xref">11.2</a>.  <a href="#name-the-policy-decision-point-a" class="internal xref">The Policy Decision Point as a Trust Dependency</a></p>
 </li>
               <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.11.2.3">
-                <p id="section-toc.1-1.11.2.3.1"><a href="#section-11.3" class="auto internal xref">11.3</a>.  <a href="#name-issuance-authorization-enti" class="internal xref">Issuance Authorization Entity Types Registry</a></p>
+                <p id="section-toc.1-1.11.2.3.1"><a href="#section-11.3" class="auto internal xref">11.3</a>.  <a href="#name-integrity-of-the-decision-r" class="internal xref">Integrity of the Decision Response</a></p>
 </li>
               <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.11.2.4">
-                <p id="section-toc.1-1.11.2.4.1"><a href="#section-11.4" class="auto internal xref">11.4</a>.  <a href="#name-issuance-authorization-acti" class="internal xref">Issuance Authorization Action Names Registry</a></p>
+                <p id="section-toc.1-1.11.2.4.1"><a href="#section-11.4" class="auto internal xref">11.4</a>.  <a href="#name-privacy" class="internal xref">Privacy</a></p>
 </li>
             </ul>
 </li>
           <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.12">
-            <p id="section-toc.1-1.12.1"><a href="#section-12" class="auto internal xref">12</a>. <a href="#name-references" class="internal xref">References</a></p>
+            <p id="section-toc.1-1.12.1"><a href="#section-12" class="auto internal xref">12</a>. <a href="#name-iana-considerations" class="internal xref">IANA Considerations</a></p>
 <ul class="compact toc ulBare ulEmpty">
 <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.12.2.1">
-                <p id="section-toc.1-1.12.2.1.1"><a href="#section-12.1" class="auto internal xref">12.1</a>.  <a href="#name-normative-references" class="internal xref">Normative References</a></p>
+                <p id="section-toc.1-1.12.2.1.1"><a href="#section-12.1" class="auto internal xref">12.1</a>.  <a href="#name-registration-dependencies" class="internal xref">Registration Dependencies</a></p>
 </li>
               <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.12.2.2">
-                <p id="section-toc.1-1.12.2.2.1"><a href="#section-12.2" class="auto internal xref">12.2</a>.  <a href="#name-informative-references" class="internal xref">Informative References</a></p>
+                <p id="section-toc.1-1.12.2.2.1"><a href="#section-12.2" class="auto internal xref">12.2</a>.  <a href="#name-authzen-policy-decision-poi" class="internal xref">AuthZEN Policy Decision Point Capability</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.12.2.3">
+                <p id="section-toc.1-1.12.2.3.1"><a href="#section-12.3" class="auto internal xref">12.3</a>.  <a href="#name-issuance-authorization-enti" class="internal xref">Issuance Authorization Entity Types Registry</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.12.2.4">
+                <p id="section-toc.1-1.12.2.4.1"><a href="#section-12.4" class="auto internal xref">12.4</a>.  <a href="#name-issuance-authorization-acti" class="internal xref">Issuance Authorization Action Names Registry</a></p>
 </li>
             </ul>
 </li>
           <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.13">
-            <p id="section-toc.1-1.13.1"><a href="#appendix-A" class="auto internal xref"></a><a href="#name-acknowledgments" class="internal xref">Acknowledgments</a></p>
+            <p id="section-toc.1-1.13.1"><a href="#section-13" class="auto internal xref">13</a>. <a href="#name-references" class="internal xref">References</a></p>
+<ul class="compact toc ulBare ulEmpty">
+<li class="compact toc ulBare ulEmpty" id="section-toc.1-1.13.2.1">
+                <p id="section-toc.1-1.13.2.1.1"><a href="#section-13.1" class="auto internal xref">13.1</a>.  <a href="#name-normative-references" class="internal xref">Normative References</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.13.2.2">
+                <p id="section-toc.1-1.13.2.2.1"><a href="#section-13.2" class="auto internal xref">13.2</a>.  <a href="#name-informative-references" class="internal xref">Informative References</a></p>
+</li>
+            </ul>
 </li>
           <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.14">
-            <p id="section-toc.1-1.14.1"><a href="#appendix-B" class="auto internal xref"></a><a href="#name-authors-address" class="internal xref">Author's Address</a></p>
+            <p id="section-toc.1-1.14.1"><a href="#appendix-A" class="auto internal xref"></a><a href="#name-acknowledgments" class="internal xref">Acknowledgments</a></p>
+</li>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.15">
+            <p id="section-toc.1-1.15.1"><a href="#appendix-B" class="auto internal xref"></a><a href="#name-authors-address" class="internal xref">Author's Address</a></p>
 </li>
         </ul>
 </nav>
@@ -1406,7 +1420,7 @@ the token issuance moment, casting the <strong>authorization server as a PEP</st
 <p id="section-1.1-1"><strong>One mechanism, many issuance moments.</strong> The decision point is
 structurally identical across grant types: a party is asking for a token,
 naming a target and some set of privileges. This document defines that
-mapping once. Bindings (<a href="#companions" class="auto internal xref">Section 9</a>) supply what is specific to a given
+mapping once. Bindings (<a href="#companions" class="auto internal xref">Section 10</a>) supply what is specific to a given
 grant or token type, and are expected to be short.<a href="#section-1.1-1" class="pilcrow">¶</a></p>
 <p id="section-1.1-2"><strong>Interoperability at the level of policy, not just wire format.</strong>
           <span>[<a href="#AUTHZEN" class="cite xref">AUTHZEN</a>]</span> makes exactly five fields mandatory in an evaluation request:
@@ -1438,7 +1452,7 @@ implementable by a PDP that reads only the five-tuple.<a href="#section-1.1-5.1.
 <p id="section-1.1-6">The rule is applied throughout and is not re-argued at each mapping.<a href="#section-1.1-6" class="pilcrow">¶</a></p>
 <p id="section-1.1-7"><strong>Least surprise for the AS.</strong> The profile does not ask the AS to surrender
 decisions it is authoritative for. A PDP may narrow what is issued; it may
-not broaden it, re-subject it, or re-target it (<a href="#no-broadening" class="auto internal xref">Section 5.3</a>).<a href="#section-1.1-7" class="pilcrow">¶</a></p>
+not broaden it, re-subject it, or re-target it (<a href="#no-broadening" class="auto internal xref">Section 6.3</a>).<a href="#section-1.1-7" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="scope">
@@ -1453,7 +1467,7 @@ case AuthZEN already serves and requires no profile.<a href="#section-1.2-1" cla
 <p id="section-1.2-2">The framework decides an <strong>issuance gate</strong>. Where a deployment's policy
 depends on quantitative or transactional constraints - a payment amount, a
 rate limit - those flow in as advisory context and out as token shaping
-(<a href="#shaping" class="auto internal xref">Section 5</a>), to be enforced by downstream policy enforcement points. Any
+(<a href="#shaping" class="auto internal xref">Section 6</a>), to be enforced by downstream policy enforcement points. Any
 conforming PDP can adjudicate the gate, because the gate is expressed
 entirely in the five-tuple. Whether a given PDP also adjudicates the context
 is a property of that deployment and is not something this profile
@@ -1495,13 +1509,13 @@ the token's <code>aud</code> claim.<a href="#section-2-2.2.1" class="pilcrow">¶
         <dd style="margin-left: 1.5em" id="section-2-2.4">
           <p id="section-2-2.4.1">An evaluation request whose action expresses <em>issuance authority</em> - whether
 the subject may obtain a token of a given type for the issuance target.
-See <a href="#gate-and-scope" class="auto internal xref">Section 4.3</a>.<a href="#section-2-2.4.1" class="pilcrow">¶</a></p>
+See <a href="#gate-and-scope" class="auto internal xref">Section 5.3</a>.<a href="#section-2-2.4.1" class="pilcrow">¶</a></p>
 </dd>
         <dd class="break"></dd>
 <dt id="section-2-2.5">Scope tuple:</dt>
         <dd style="margin-left: 1.5em" id="section-2-2.6">
           <p id="section-2-2.6.1">An evaluation request whose action is a requested scope, expressing
-<em>access authority</em>. See <a href="#gate-and-scope" class="auto internal xref">Section 4.3</a>.<a href="#section-2-2.6.1" class="pilcrow">¶</a></p>
+<em>access authority</em>. See <a href="#gate-and-scope" class="auto internal xref">Section 5.3</a>.<a href="#section-2-2.6.1" class="pilcrow">¶</a></p>
 </dd>
       <dd class="break"></dd>
 </dl>
@@ -1542,175 +1556,256 @@ after those checks succeed. A PDP permit does not substitute for any of
 them.<a href="#section-3-2" class="pilcrow">¶</a></p>
 </section>
 </div>
-<div id="forming-the-evaluation-request">
+<div id="deployment">
 <section id="section-4">
+      <h2 id="name-deployment-considerations">
+<a href="#section-4" class="section-number selfRef">4. </a><a href="#name-deployment-considerations" class="section-name selfRef">Deployment Considerations</a>
+      </h2>
+<div id="colocation">
+<section id="section-4.1">
+        <h3 id="name-colocation-and-latency">
+<a href="#section-4.1" class="section-number selfRef">4.1. </a><a href="#name-colocation-and-latency" class="section-name selfRef">Colocation and Latency</a>
+        </h3>
+<p id="section-4.1-1">A token endpoint can be a very high volume path. Multi-tenant authorization
+servers operate at request rates that leave a per-request budget in the low
+milliseconds, and an issuance decision that added a round trip to a remote
+service would not be deployable at that scale.<a href="#section-4.1-1" class="pilcrow">¶</a></p>
+<p id="section-4.1-2">This profile does not add one. <span>[<a href="#AUTHZEN" class="cite xref">AUTHZEN</a>]</span> specifies a request and response
+contract between a Policy Enforcement Point and a Policy Decision Point; it
+does not specify where the Policy Decision Point runs. The PDP of
+<a href="#architecture" class="auto internal xref">Section 3</a> may be embedded in the authorization server's own process,
+loaded as a module or as a WebAssembly component, resident on the same host,
+or reached over a network. Conformance to this profile is a property of the
+messages exchanged and not of the topology that carries them, and
+deployments with the strictest budgets are expected to evaluate in process
+or on the same host. Step 3 of <a href="#architecture" class="auto internal xref">Section 3</a> is drawn as an arrow because
+it is a request, not because it is a hop.<a href="#section-4.1-2" class="pilcrow">¶</a></p>
+<p id="section-4.1-3">Two properties of the issuance moment make the budget more forgiving than
+the volume alone suggests.<a href="#section-4.1-3" class="pilcrow">¶</a></p>
+<p id="section-4.1-4">The decision is made once per token rather than once per request. An access
+token is presented many times, over a lifetime usually measured in minutes
+or hours, so the cost of deciding at issuance is amortized across every
+later presentation. This is the reverse of the resource server deployments
+<span>[<a href="#AUTHZEN" class="cite xref">AUTHZEN</a>]</span> was first written for, where the decision recurs on every call
+and the budget is correspondingly tighter.<a href="#section-4.1-4" class="pilcrow">¶</a></p>
+<p id="section-4.1-5">The inputs are already in hand. By the time an AS reaches this decision it
+has authenticated the client, validated the grant, and resolved the subject.
+The evaluation request of <a href="#request" class="auto internal xref">Section 5</a> is assembled from values the AS
+already holds, and this profile implies no additional lookup to construct
+it.<a href="#section-4.1-5" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="deferred">
+<section id="section-4.2">
+        <h3 id="name-decisions-that-cannot-be-ma">
+<a href="#section-4.2" class="section-number selfRef">4.2. </a><a href="#name-decisions-that-cannot-be-ma" class="section-name selfRef">Decisions That Cannot Be Made Synchronously</a>
+        </h3>
+<p id="section-4.2-1">Some issuance decisions cannot complete within the time a token request will
+wait, at any topology. A policy may call for human review, for an
+out-of-band approval, or for a check against a system whose own latency is
+unbounded.<a href="#section-4.2-1" class="pilcrow">¶</a></p>
+<p id="section-4.2-2">This document defines no mechanism for those, and does not need to.
+<span>[<a href="#I-D.gerber-oauth-deferred-token-response" class="cite xref">I-D.gerber-oauth-deferred-token-response</a>]</span> defines a deferred token
+response, in which an authorization server that cannot answer immediately
+returns a deferral code and the client retrieves the outcome later. An AS
+implementing both may treat a decision it cannot obtain synchronously as a
+deferral rather than as a denial, evaluate it out of band, and apply the
+response of <a href="#shaping" class="auto internal xref">Section 6</a> to the token it eventually issues. Delay does not
+relax <a href="#no-broadening" class="auto internal xref">Section 6.3</a>: a decision that arrives late constrains the issued
+token exactly as one that arrives promptly would.<a href="#section-4.2-2" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="as-seam">
+<section id="section-4.3">
+        <h3 id="name-the-seam-inside-the-authori">
+<a href="#section-4.3" class="section-number selfRef">4.3. </a><a href="#name-the-seam-inside-the-authori" class="section-name selfRef">The Seam Inside the Authorization Server</a>
+        </h3>
+<p id="section-4.3-1"><a href="#architecture" class="auto internal xref">Section 3</a> separates validating a grant from deciding whether to honor
+it, and asks a PDP only the second question. In a deployed authorization
+server that separation is often less clean than the figure. Credential
+handling, grant validation, session and consent state, and token minting are
+commonly one subsystem, with the inputs this profile needs distributed across
+it rather than exposed at any single point.<a href="#section-4.3-1" class="pilcrow">¶</a></p>
+<p id="section-4.3-2">The consequence is practical rather than normative. An authorization server
+that cannot assemble the fields of <a href="#request" class="auto internal xref">Section 5</a> at one point in its issuance
+path will have to introduce such a point, and for many implementations that
+will be the substantive work rather than the mapping or the response
+handling. This profile is defined in terms of the values an AS holds when it
+makes the decision, not in terms of where an implementation keeps them, so it
+constrains neither the internal structure nor the refactoring.<a href="#section-4.3-2" class="pilcrow">¶</a></p>
+</section>
+</div>
+</section>
+</div>
+<div id="request">
+<section id="section-5">
       <h2 id="name-forming-the-evaluation-requ">
-<a href="#section-4" class="section-number selfRef">4. </a><a href="#name-forming-the-evaluation-requ" class="section-name selfRef">Forming the Evaluation Request</a>
+<a href="#section-5" class="section-number selfRef">5. </a><a href="#name-forming-the-evaluation-requ" class="section-name selfRef">Forming the Evaluation Request</a>
       </h2>
 <div id="subject">
-<section id="section-4.1">
+<section id="section-5.1">
         <h3 id="name-subject">
-<a href="#section-4.1" class="section-number selfRef">4.1. </a><a href="#name-subject" class="section-name selfRef">Subject</a>
+<a href="#section-5.1" class="section-number selfRef">5.1. </a><a href="#name-subject" class="section-name selfRef">Subject</a>
         </h3>
-<p id="section-4.1-1"><code>subject</code> identifies the party the issued token will represent.<a href="#section-4.1-1" class="pilcrow">¶</a></p>
-<p id="section-4.1-2"><code>subject.type</code> <span class="bcp14">MUST</span> be one of the registered values in <a href="#iana-types" class="auto internal xref">Section 11.3</a>:<a href="#section-4.1-2" class="pilcrow">¶</a></p>
+<p id="section-5.1-1"><code>subject</code> identifies the party the issued token will represent.<a href="#section-5.1-1" class="pilcrow">¶</a></p>
+<p id="section-5.1-2"><code>subject.type</code> <span class="bcp14">MUST</span> be one of the registered values in <a href="#iana-types" class="auto internal xref">Section 12.3</a>:<a href="#section-5.1-2" class="pilcrow">¶</a></p>
 <ul class="normal">
-<li class="normal" id="section-4.1-3.1">
-            <p id="section-4.1-3.1.1"><code>user</code> - a natural person.<a href="#section-4.1-3.1.1" class="pilcrow">¶</a></p>
+<li class="normal" id="section-5.1-3.1">
+            <p id="section-5.1-3.1.1"><code>user</code> - a natural person.<a href="#section-5.1-3.1.1" class="pilcrow">¶</a></p>
 </li>
-          <li class="normal" id="section-4.1-3.2">
-            <p id="section-4.1-3.2.1"><code>client</code> - an OAuth client acting on its own behalf.<a href="#section-4.1-3.2.1" class="pilcrow">¶</a></p>
+          <li class="normal" id="section-5.1-3.2">
+            <p id="section-5.1-3.2.1"><code>client</code> - an OAuth client acting on its own behalf.<a href="#section-5.1-3.2.1" class="pilcrow">¶</a></p>
 </li>
-          <li class="normal" id="section-4.1-3.3">
-            <p id="section-4.1-3.3.1"><code>workload</code> - a non-human software identity, such as a workload with a
-cryptographic identity document.<a href="#section-4.1-3.3.1" class="pilcrow">¶</a></p>
+          <li class="normal" id="section-5.1-3.3">
+            <p id="section-5.1-3.3.1"><code>workload</code> - a non-human software identity, such as a workload with a
+cryptographic identity document.<a href="#section-5.1-3.3.1" class="pilcrow">¶</a></p>
 </li>
         </ul>
-<p id="section-4.1-4"><code>subject.id</code> <span class="bcp14">MUST</span> be the identifier the AS intends to place in the issued
+<p id="section-5.1-4"><code>subject.id</code> <span class="bcp14">MUST</span> be the identifier the AS intends to place in the issued
 token's subject claim. Where the AS applies a transformation to subject
 identifiers - pairwise or pseudonymous identifiers, or a mapping from an
 external identity to a local account - that transformation <span class="bcp14">MUST</span> be applied
 <em>before</em> the evaluation request is constructed, so that the identifier the
-PDP authorizes is the identifier the token carries.<a href="#section-4.1-4" class="pilcrow">¶</a></p>
+PDP authorizes is the identifier the token carries.<a href="#section-5.1-4" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="resource">
-<section id="section-4.2">
+<section id="section-5.2">
         <h3 id="name-resource">
-<a href="#section-4.2" class="section-number selfRef">4.2. </a><a href="#name-resource" class="section-name selfRef">Resource</a>
+<a href="#section-5.2" class="section-number selfRef">5.2. </a><a href="#name-resource" class="section-name selfRef">Resource</a>
         </h3>
-<p id="section-4.2-1"><code>resource.type</code> <span class="bcp14">MUST</span> be <code>audience</code>. <code>resource.id</code> <span class="bcp14">MUST</span> be the issuance
-target.<a href="#section-4.2-1" class="pilcrow">¶</a></p>
-<p id="section-4.2-2">A single registered type is used rather than a type per kind of target
+<p id="section-5.2-1"><code>resource.type</code> <span class="bcp14">MUST</span> be <code>audience</code>. <code>resource.id</code> <span class="bcp14">MUST</span> be the issuance
+target.<a href="#section-5.2-1" class="pilcrow">¶</a></p>
+<p id="section-5.2-2">A single registered type is used rather than a type per kind of target
 (service, trust domain, peer authorization server) because the type names
 the <em>protocol role</em> the target plays, not a guess at its nature. Policies
 written against <code>audience</code> port across deployments; policies written against
-locally invented type names do not.<a href="#section-4.2-2" class="pilcrow">¶</a></p>
-<p id="section-4.2-3">Where the request carries an explicit target - an <code>audience</code> parameter, or a
+locally invented type names do not.<a href="#section-5.2-2" class="pilcrow">¶</a></p>
+<p id="section-5.2-3">Where the request carries an explicit target - an <code>audience</code> parameter, or a
 <code>resource</code> parameter in the sense of <span>[<a href="#RFC8707" class="cite xref">RFC8707</a>]</span> - that value determines
 <code>resource.id</code>. Where it does not, the AS's default audience for the grant
-determines it.<a href="#section-4.2-3" class="pilcrow">¶</a></p>
+determines it.<a href="#section-5.2-3" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="gate-and-scope">
-<section id="section-4.3">
+<section id="section-5.3">
         <h3 id="name-actions-gate-tuples-and-sco">
-<a href="#section-4.3" class="section-number selfRef">4.3. </a><a href="#name-actions-gate-tuples-and-sco" class="section-name selfRef">Actions: Gate Tuples and Scope Tuples</a>
+<a href="#section-5.3" class="section-number selfRef">5.3. </a><a href="#name-actions-gate-tuples-and-sco" class="section-name selfRef">Actions: Gate Tuples and Scope Tuples</a>
         </h3>
-<p id="section-4.3-1">Token issuance asks two questions that are frequently conflated:<a href="#section-4.3-1" class="pilcrow">¶</a></p>
-<ol start="1" type="1" class="normal type-1" id="section-4.3-2">
-<li id="section-4.3-2.1">
-            <p id="section-4.3-2.1.1">May this subject obtain <em>a token of this kind</em> for this target? This is
+<p id="section-5.3-1">Token issuance asks two questions that are frequently conflated:<a href="#section-5.3-1" class="pilcrow">¶</a></p>
+<ol start="1" type="1" class="normal type-1" id="section-5.3-2">
+<li id="section-5.3-2.1">
+            <p id="section-5.3-2.1.1">May this subject obtain <em>a token of this kind</em> for this target? This is
 <strong>issuance authority</strong>, and in delegation scenarios, delegation
-authority.<a href="#section-4.3-2.1.1" class="pilcrow">¶</a></p>
+authority.<a href="#section-5.3-2.1.1" class="pilcrow">¶</a></p>
 </li>
-          <li id="section-4.3-2.2">
-            <p id="section-4.3-2.2.1">May this subject exercise <em>this scope</em> at this target? This is <strong>access
-authority</strong>.<a href="#section-4.3-2.2.1" class="pilcrow">¶</a></p>
+          <li id="section-5.3-2.2">
+            <p id="section-5.3-2.2.1">May this subject exercise <em>this scope</em> at this target? This is <strong>access
+authority</strong>.<a href="#section-5.3-2.2.1" class="pilcrow">¶</a></p>
 </li>
         </ol>
-<p id="section-4.3-3">These are distinct privileges. <span>[<a href="#RFC8693" class="cite xref">RFC8693</a>]</span> defines a <code>may_act</code> claim
+<p id="section-5.3-3">These are distinct privileges. <span>[<a href="#RFC8693" class="cite xref">RFC8693</a>]</span> defines a <code>may_act</code> claim
 precisely because the authority to act on another party's behalf is not the
 same as the authority to access a resource. A subject may legitimately be
 permitted to hold an access token for an API while being forbidden from
-minting a delegated grant aimed at that same API.<a href="#section-4.3-3" class="pilcrow">¶</a></p>
-<p id="section-4.3-4">Because AuthZEN's information model provides exactly one action per
+minting a delegated grant aimed at that same API.<a href="#section-5.3-3" class="pilcrow">¶</a></p>
+<p id="section-5.3-4">Because AuthZEN's information model provides exactly one action per
 evaluation, these two questions <span class="bcp14">MUST</span> be expressed as separate evaluations
-rather than as two interpretations of one <code>action.name</code>.<a href="#section-4.3-4" class="pilcrow">¶</a></p>
+rather than as two interpretations of one <code>action.name</code>.<a href="#section-5.3-4" class="pilcrow">¶</a></p>
 <div id="gate-tuple">
-<section id="section-4.3.1">
+<section id="section-5.3.1">
           <h4 id="name-gate-tuple">
-<a href="#section-4.3.1" class="section-number selfRef">4.3.1. </a><a href="#name-gate-tuple" class="section-name selfRef">Gate Tuple</a>
+<a href="#section-5.3.1" class="section-number selfRef">5.3.1. </a><a href="#name-gate-tuple" class="section-name selfRef">Gate Tuple</a>
           </h4>
-<p id="section-4.3.1-1">A gate tuple is an evaluation whose <code>action.name</code> has three colon-separated
-segments:<a href="#section-4.3.1-1" class="pilcrow">¶</a></p>
-<div class="alignLeft art-text artwork" id="section-4.3.1-2">
+<p id="section-5.3.1-1">A gate tuple is an evaluation whose <code>action.name</code> has three colon-separated
+segments:<a href="#section-5.3.1-1" class="pilcrow">¶</a></p>
+<div class="alignLeft art-text artwork" id="section-5.3.1-2">
 <pre>
 issue:&lt;token-type&gt;:&lt;grant-type&gt;
-</pre><a href="#section-4.3.1-2" class="pilcrow">¶</a>
+</pre><a href="#section-5.3.1-2" class="pilcrow">¶</a>
 </div>
-<p id="section-4.3.1-3">where <code>&lt;token-type&gt;</code> and <code>&lt;grant-type&gt;</code> are short names registered in
-<a href="#iana-actions" class="auto internal xref">Section 11.4</a> - for example <code>issue:access_token:authorization_code</code>,
-<code>issue:id_token:authorization_code</code>, <code>issue:refresh_token:token_exchange</code>.<a href="#section-4.3.1-3" class="pilcrow">¶</a></p>
-<p id="section-4.3.1-4">The <code>issue:</code> prefix is reserved. A deployment <span class="bcp14">MUST NOT</span> use a scope value
-beginning with <code>issue:</code> as a scope tuple action.<a href="#section-4.3.1-4" class="pilcrow">¶</a></p>
-<p id="section-4.3.1-5">The grant is part of the action because it is not recoverable from the rest
+<p id="section-5.3.1-3">where <code>&lt;token-type&gt;</code> and <code>&lt;grant-type&gt;</code> are short names registered in
+<a href="#iana-actions" class="auto internal xref">Section 12.4</a> - for example <code>issue:access_token:authorization_code</code>,
+<code>issue:id_token:authorization_code</code>, <code>issue:refresh_token:token_exchange</code>.<a href="#section-5.3.1-3" class="pilcrow">¶</a></p>
+<p id="section-5.3.1-4">The <code>issue:</code> prefix is reserved. A deployment <span class="bcp14">MUST NOT</span> use a scope value
+beginning with <code>issue:</code> as a scope tuple action.<a href="#section-5.3.1-4" class="pilcrow">¶</a></p>
+<p id="section-5.3.1-5">The grant is part of the action because it is not recoverable from the rest
 of the tuple and it is not implied by the token type. The same subject,
 audience, and token type arise from an authorization code request and from
 its later refresh, and from a client requesting a token for itself and that
-same client exchanging for one. A policy that
-distinguishes those cases - requiring fresh authorization at a high-value
-audience, or permitting a client to hold a token but not to exchange for one
-- has nothing to attach to unless the grant is in the five-tuple.<a href="#section-4.3.1-5" class="pilcrow">¶</a></p>
-<p id="section-4.3.1-6">Neither segment subsumes the other. A single authorization code request may
+same client exchanging for one. A policy that distinguishes those cases -
+requiring fresh authorization at a high-value audience, or permitting a
+client to hold a token but not to exchange for one - has nothing to attach
+to unless the grant is in the five-tuple.<a href="#section-5.3.1-5" class="pilcrow">¶</a></p>
+<p id="section-5.3.1-6">Neither segment subsumes the other. A single authorization code request may
 mint an access token, a refresh token, and an ID token, which are separately
 gateable; and a token exchange selects its output through
 <code>requested_token_type</code>, so its token type is a variable of the request.
 Together the two segments name one privilege: what may be minted, and by
-what means.<a href="#section-4.3.1-6" class="pilcrow">¶</a></p>
+what means.<a href="#section-5.3.1-6" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="action-portability">
-<section id="section-4.3.2">
+<section id="section-5.3.2">
           <h4 id="name-action-name-portability">
-<a href="#section-4.3.2" class="section-number selfRef">4.3.2. </a><a href="#name-action-name-portability" class="section-name selfRef">Action Name Portability</a>
+<a href="#section-5.3.2" class="section-number selfRef">5.3.2. </a><a href="#name-action-name-portability" class="section-name selfRef">Action Name Portability</a>
           </h4>
-<p id="section-4.3.2-1">Short names registered under <a href="#iana-actions" class="auto internal xref">Section 11.4</a> <span class="bcp14">MUST</span> match
+<p id="section-5.3.2-1">Short names registered under <a href="#iana-actions" class="auto internal xref">Section 12.4</a> <span class="bcp14">MUST</span> match
 <code>[a-z][a-z0-9_]{0,30}</code>, and a composed gate action name <span class="bcp14">MUST NOT</span> exceed 50
-characters.<a href="#section-4.3.2-1" class="pilcrow">¶</a></p>
-<p id="section-4.3.2-2">The bounds exist for portability. Relationship-based engines commonly
+characters.<a href="#section-5.3.2-1" class="pilcrow">¶</a></p>
+<p id="section-5.3.2-2">The bounds exist for portability. Relationship-based engines commonly
 validate relation identifiers against a restricted grammar, admitting a small
 character set within a modest length limit. A PDP built on such an engine can
 canonicalize an action name defined by this document by replacing each <code>:</code>
 with a character the grammar admits, conventionally <code>_</code>. The bounds above are
 what make that transformation total: any registered name survives it, so a
-policy written against these names ports without being rewritten.<a href="#section-4.3.2-2" class="pilcrow">¶</a></p>
-<p id="section-4.3.2-3">Carrying a grant type URI verbatim would not survive it. The composed action
+policy written against these names ports without being rewritten.<a href="#section-5.3.2-2" class="pilcrow">¶</a></p>
+<p id="section-5.3.2-3">Carrying a grant type URI verbatim would not survive it. The composed action
 name would exceed the length limits such grammars impose before any question
-of characters arose.<a href="#section-4.3.2-3" class="pilcrow">¶</a></p>
-<p id="section-4.3.2-4">The guarantee covers only the vocabulary this document defines. Scope values
-are carried verbatim (<a href="#scope-tuple" class="auto internal xref">Section 4.3.3</a>) and routinely contain characters no
-such grammar admits; mapping them remains internal to the PDP.<a href="#section-4.3.2-4" class="pilcrow">¶</a></p>
+of characters arose.<a href="#section-5.3.2-3" class="pilcrow">¶</a></p>
+<p id="section-5.3.2-4">The guarantee covers only the vocabulary this document defines. Scope values
+are carried verbatim (<a href="#scope-tuple" class="auto internal xref">Section 5.3.3</a>) and routinely contain characters no
+such grammar admits; mapping them remains internal to the PDP.<a href="#section-5.3.2-4" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="scope-tuple">
-<section id="section-4.3.3">
+<section id="section-5.3.3">
           <h4 id="name-scope-tuple">
-<a href="#section-4.3.3" class="section-number selfRef">4.3.3. </a><a href="#name-scope-tuple" class="section-name selfRef">Scope Tuple</a>
+<a href="#section-5.3.3" class="section-number selfRef">5.3.3. </a><a href="#name-scope-tuple" class="section-name selfRef">Scope Tuple</a>
           </h4>
-<p id="section-4.3.3-1">A scope tuple is an evaluation whose <code>action.name</code> is a single requested
-scope value, carried verbatim.<a href="#section-4.3.3-1" class="pilcrow">¶</a></p>
-<p id="section-4.3.3-2">Scope values are not transformed into policy-engine relation names by the
+<p id="section-5.3.3-1">A scope tuple is an evaluation whose <code>action.name</code> is a single requested
+scope value, carried verbatim.<a href="#section-5.3.3-1" class="pilcrow">¶</a></p>
+<p id="section-5.3.3-2">Scope values are not transformed into policy-engine relation names by the
 AS. Any such mapping is internal to the PDP. This keeps <code>action.name</code> a
 stable interface: the AS reports what the client asked for, and the PDP
-decides what that means in its own policy vocabulary.<a href="#section-4.3.3-2" class="pilcrow">¶</a></p>
+decides what that means in its own policy vocabulary.<a href="#section-5.3.3-2" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="gate-required">
-<section id="section-4.3.4">
+<section id="section-5.3.4">
           <h4 id="name-gate-tuples-are-always-pres">
-<a href="#section-4.3.4" class="section-number selfRef">4.3.4. </a><a href="#name-gate-tuples-are-always-pres" class="section-name selfRef">Gate Tuples Are Always Present</a>
+<a href="#section-5.3.4" class="section-number selfRef">5.3.4. </a><a href="#name-gate-tuples-are-always-pres" class="section-name selfRef">Gate Tuples Are Always Present</a>
           </h4>
-<p id="section-4.3.4-1">An AS <span class="bcp14">MUST</span> include a gate tuple in every evaluation request it forms under
-this profile. A binding <span class="bcp14">MAY</span> require more than one (<a href="#composition" class="auto internal xref">Section 4.5</a>).<a href="#section-4.3.4-1" class="pilcrow">¶</a></p>
-<p id="section-4.3.4-2">The floor is therefore two evaluations for a request naming scopes, and one
+<p id="section-5.3.4-1">An AS <span class="bcp14">MUST</span> include a gate tuple in every evaluation request it forms under
+this profile. A binding <span class="bcp14">MAY</span> require more than one (<a href="#composition" class="auto internal xref">Section 5.5</a>).<a href="#section-5.3.4-1" class="pilcrow">¶</a></p>
+<p id="section-5.3.4-2">The floor is therefore two evaluations for a request naming scopes, and one
 for a request naming none. Deployments are expected to write issuance policy
 for every token type and grant combination their AS can produce; a PDP that
 advertises support for this profile renders a decision on any registered gate
-action it is sent (<a href="#pdp-capabilities" class="auto internal xref">Section 6.1</a>), so an AS never has to predict which
-combinations a given PDP has policy for.<a href="#section-4.3.4-2" class="pilcrow">¶</a></p>
+action it is sent (<a href="#pdp-capabilities" class="auto internal xref">Section 7.1</a>), so an AS never has to predict which
+combinations a given PDP has policy for.<a href="#section-5.3.4-2" class="pilcrow">¶</a></p>
 </section>
 </div>
 </section>
 </div>
 <div id="context">
-<section id="section-4.4">
+<section id="section-5.4">
         <h3 id="name-context">
-<a href="#section-4.4" class="section-number selfRef">4.4. </a><a href="#name-context" class="section-name selfRef">Context</a>
+<a href="#section-5.4" class="section-number selfRef">5.4. </a><a href="#name-context" class="section-name selfRef">Context</a>
         </h3>
-<p id="section-4.4-1">The <code>context</code> object carries advisory input. A conforming PDP <span class="bcp14">MUST</span> be able
-to render a decision without it.<a href="#section-4.4-1" class="pilcrow">¶</a></p>
-<p id="section-4.4-2">The following keys are defined by this document; bindings may define more:<a href="#section-4.4-2" class="pilcrow">¶</a></p>
+<p id="section-5.4-1">The <code>context</code> object carries advisory input. A conforming PDP <span class="bcp14">MUST</span> be able
+to render a decision without it.<a href="#section-5.4-1" class="pilcrow">¶</a></p>
+<p id="section-5.4-2">The following keys are defined by this document; bindings may define more:<a href="#section-5.4-2" class="pilcrow">¶</a></p>
 <table class="center" id="table-1">
           <caption><a href="#table-1" class="selfRef">Table 1</a></caption>
 <thead>
@@ -1760,63 +1855,63 @@ to render a decision without it.<a href="#section-4.4-1" class="pilcrow">¶</a><
             </tr>
           </tbody>
         </table>
-<p id="section-4.4-4">The single-type rule of <a href="#envelope" class="auto internal xref">Section 5.1</a> applies here as well: each key above has
+<p id="section-5.4-4">The single-type rule of <a href="#envelope" class="auto internal xref">Section 6.1</a> applies here as well: each key above has
 one JSON type, and bindings defining further context keys <span class="bcp14">MUST</span> state a type
-for each.<a href="#section-4.4-4" class="pilcrow">¶</a></p>
-<p id="section-4.4-5">Per <a href="#design-goals" class="auto internal xref">Section 1.1</a>, any input on which the decision genuinely depends
+for each.<a href="#section-5.4-4" class="pilcrow">¶</a></p>
+<p id="section-5.4-5">Per <a href="#design-goals" class="auto internal xref">Section 1.1</a>, any input on which the decision genuinely depends
 belongs in the five-tuple, not here. The grant type is the worked example:
 it is decision-critical, so it is a segment of the gate action name
-(<a href="#gate-tuple" class="auto internal xref">Section 4.3.1</a>) and does not appear in <code>context</code> at all.<a href="#section-4.4-5" class="pilcrow">¶</a></p>
+(<a href="#gate-tuple" class="auto internal xref">Section 5.3.1</a>) and does not appear in <code>context</code> at all.<a href="#section-5.4-5" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="composition">
-<section id="section-4.5">
+<section id="section-5.5">
         <h3 id="name-batching-and-result-composi">
-<a href="#section-4.5" class="section-number selfRef">4.5. </a><a href="#name-batching-and-result-composi" class="section-name selfRef">Batching and Result Composition</a>
+<a href="#section-5.5" class="section-number selfRef">5.5. </a><a href="#name-batching-and-result-composi" class="section-name selfRef">Batching and Result Composition</a>
         </h3>
-<p id="section-4.5-1">Where a request yields more than one tuple, the AS <span class="bcp14">MUST</span> use the Access
+<p id="section-5.5-1">Where a request yields more than one tuple, the AS <span class="bcp14">MUST</span> use the Access
 Evaluations API of <span>[<a href="#AUTHZEN" class="cite xref">AUTHZEN</a>]</span> with <code>options.evaluations_semantic</code> set to
 <code>execute_all</code>, and <span class="bcp14">MUST</span> place gate tuples at the leading indices of the
-<code>evaluations</code> array, beginning at index 0.<a href="#section-4.5-1" class="pilcrow">¶</a></p>
-<p id="section-4.5-2">A request reduces to a single evaluation only when it names no scopes, in
-which case the gate tuple stands alone.<a href="#section-4.5-2" class="pilcrow">¶</a></p>
-<p id="section-4.5-3">This document produces exactly one gate tuple. Bindings may produce more:
+<code>evaluations</code> array, beginning at index 0.<a href="#section-5.5-1" class="pilcrow">¶</a></p>
+<p id="section-5.5-2">A request reduces to a single evaluation only when it names no scopes, in
+which case the gate tuple stands alone.<a href="#section-5.5-2" class="pilcrow">¶</a></p>
+<p id="section-5.5-3">This document produces exactly one gate tuple. Bindings may produce more:
 the token exchange family evaluates the authority of the requesting party
-separately from that of the subject, and so produces two.<a href="#section-4.5-3" class="pilcrow">¶</a></p>
-<p id="section-4.5-4"><code>execute_all</code> is required because scope denials must be able to narrow the
+separately from that of the subject, and so produces two.<a href="#section-5.5-3" class="pilcrow">¶</a></p>
+<p id="section-5.5-4"><code>execute_all</code> is required because scope denials must be able to narrow the
 grant rather than fail it: an AS that requested three scopes and received
 two permits issues a token bearing two scopes, and reports the reduced set
-in the <code>scope</code> response parameter as <span>[<a href="#RFC6749" class="cite xref">RFC6749</a>]</span> already requires.<a href="#section-4.5-4" class="pilcrow">¶</a></p>
-<p id="section-4.5-5">A gate denial, by contrast, is fatal. If any leading gate tuple has a
+in the <code>scope</code> response parameter as <span>[<a href="#RFC6749" class="cite xref">RFC6749</a>]</span> already requires.<a href="#section-5.5-4" class="pilcrow">¶</a></p>
+<p id="section-5.5-5">A gate denial, by contrast, is fatal. If any leading gate tuple has a
 decision of <code>false</code>, the AS <span class="bcp14">MUST</span> fail the request and <span class="bcp14">MUST NOT</span> issue a
-token, irrespective of the other results.<a href="#section-4.5-5" class="pilcrow">¶</a></p>
-<p id="section-4.5-6"><span>[<a href="#AUTHZEN" class="cite xref">AUTHZEN</a>]</span> evaluation semantics are selected per request and cannot mark an
+token, irrespective of the other results.<a href="#section-5.5-5" class="pilcrow">¶</a></p>
+<p id="section-5.5-6"><span>[<a href="#AUTHZEN" class="cite xref">AUTHZEN</a>]</span> evaluation semantics are selected per request and cannot mark an
 individual batch item as a precondition, so this composition rule is
 enforced by the AS. This is well within the PEP's role - the AS is already
-interpreting per-item results in order to downscope.<a href="#section-4.5-6" class="pilcrow">¶</a></p>
-<p id="section-4.5-7">Where the request named scopes and every scope tuple is denied, the AS <span class="bcp14">MUST</span>
+interpreting per-item results in order to downscope.<a href="#section-5.5-6" class="pilcrow">¶</a></p>
+<p id="section-5.5-7">Where the request named scopes and every scope tuple is denied, the AS <span class="bcp14">MUST</span>
 fail the request rather than issue a token with an empty scope set, even
 though the gate permitted it. A permitted gate authorizes a token of that
-kind to exist; it does not authorize an empty one.<a href="#section-4.5-7" class="pilcrow">¶</a></p>
+kind to exist; it does not authorize an empty one.<a href="#section-5.5-7" class="pilcrow">¶</a></p>
 </section>
 </div>
 </section>
 </div>
 <div id="shaping">
-<section id="section-5">
+<section id="section-6">
       <h2 id="name-processing-the-evaluation-r">
-<a href="#section-5" class="section-number selfRef">5. </a><a href="#name-processing-the-evaluation-r" class="section-name selfRef">Processing the Evaluation Response</a>
+<a href="#section-6" class="section-number selfRef">6. </a><a href="#name-processing-the-evaluation-r" class="section-name selfRef">Processing the Evaluation Response</a>
       </h2>
-<p id="section-5-1">A PDP <span class="bcp14">MAY</span> return, in the response <code>context</code>, information that shapes the
-token the AS issues.<a href="#section-5-1" class="pilcrow">¶</a></p>
+<p id="section-6-1">A PDP <span class="bcp14">MAY</span> return, in the response <code>context</code>, information that shapes the
+token the AS issues.<a href="#section-6-1" class="pilcrow">¶</a></p>
 <div id="envelope">
-<section id="section-5.1">
+<section id="section-6.1">
         <h3 id="name-the-issuance-envelope">
-<a href="#section-5.1" class="section-number selfRef">5.1. </a><a href="#name-the-issuance-envelope" class="section-name selfRef">The <code>issuance</code> Envelope</a>
+<a href="#section-6.1" class="section-number selfRef">6.1. </a><a href="#name-the-issuance-envelope" class="section-name selfRef">The <code>issuance</code> Envelope</a>
         </h3>
-<p id="section-5.1-1">All keys defined by this profile appear within a single <code>issuance</code> member of
-the response <code>context</code>:<a href="#section-5.1-1" class="pilcrow">¶</a></p>
-<div class="lang-json sourcecode" id="section-5.1-2">
+<p id="section-6.1-1">All keys defined by this profile appear within a single <code>issuance</code> member of
+the response <code>context</code>:<a href="#section-6.1-1" class="pilcrow">¶</a></p>
+<div class="lang-json sourcecode" id="section-6.1-2">
 <pre>
 {
   "decision": true,
@@ -1828,187 +1923,187 @@ the response <code>context</code>:<a href="#section-5.1-1" class="pilcrow">¶</a
     }
   }
 }
-</pre><a href="#section-5.1-2" class="pilcrow">¶</a>
+</pre><a href="#section-6.1-2" class="pilcrow">¶</a>
 </div>
-<p id="section-5.1-3">An AS implementing this profile <span class="bcp14">MUST</span> process <code>context.issuance</code> and <span class="bcp14">MUST</span>
+<p id="section-6.1-3">An AS implementing this profile <span class="bcp14">MUST</span> process <code>context.issuance</code> and <span class="bcp14">MUST</span>
 ignore unrecognized members outside it, preserving the advisory character
-that <span>[<a href="#AUTHZEN" class="cite xref">AUTHZEN</a>]</span> gives response context generally.<a href="#section-5.1-3" class="pilcrow">¶</a></p>
-<p id="section-5.1-4">Every key defined below has exactly one JSON type, and bindings that define
+that <span>[<a href="#AUTHZEN" class="cite xref">AUTHZEN</a>]</span> gives response context generally.<a href="#section-6.1-3" class="pilcrow">¶</a></p>
+<p id="section-6.1-4">Every key defined below has exactly one JSON type, and bindings that define
 further keys <span class="bcp14">MUST</span> do the same. Where the corresponding OAuth or JWT
 construct admits more than one - <code>aud</code> is the notable case, per Section
 4.1.3 of <span>[<a href="#RFC7519" class="cite xref">RFC7519</a>]</span> - this profile picks one rather than carrying the
 polymorphism forward. An AS validates the response context before acting on
 it, and a union type costs more to validate, to schematize, and to project
-into a typed representation than the shorthand saves.<a href="#section-5.1-4" class="pilcrow">¶</a></p>
+into a typed representation than the shorthand saves.<a href="#section-6.1-4" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="mtu">
-<section id="section-5.2">
+<section id="section-6.2">
         <h3 id="name-mandatory-to-understand">
-<a href="#section-5.2" class="section-number selfRef">5.2. </a><a href="#name-mandatory-to-understand" class="section-name selfRef">Mandatory-to-Understand</a>
+<a href="#section-6.2" class="section-number selfRef">6.2. </a><a href="#name-mandatory-to-understand" class="section-name selfRef">Mandatory-to-Understand</a>
         </h3>
-<p id="section-5.2-1"><span>[<a href="#AUTHZEN" class="cite xref">AUTHZEN</a>]</span>, in the definitions of the <code>decision</code> values in its Decision
+<p id="section-6.2-1"><span>[<a href="#AUTHZEN" class="cite xref">AUTHZEN</a>]</span>, in the definitions of the <code>decision</code> values in its Decision
 section, states that where a PEP does not understand information in the
 response context, the PEP <span class="bcp14">MAY</span> reject the decision. That permission is
 appropriate for a general-purpose API in which response context is advisory.
-It is not sufficient here, because the consequences are asymmetric:<a href="#section-5.2-1" class="pilcrow">¶</a></p>
+It is not sufficient here, because the consequences are asymmetric:<a href="#section-6.2-1" class="pilcrow">¶</a></p>
 <ul class="normal">
-<li class="normal" id="section-5.2-2.1">
-            <p id="section-5.2-2.1.1">Ignoring a key that <strong>narrows</strong> the grant yields a token <strong>broader than
-the PDP authorized</strong> - a silent privilege escalation.<a href="#section-5.2-2.1.1" class="pilcrow">¶</a></p>
+<li class="normal" id="section-6.2-2.1">
+            <p id="section-6.2-2.1.1">Ignoring a key that <strong>narrows</strong> the grant yields a token <strong>broader than
+the PDP authorized</strong> - a silent privilege escalation.<a href="#section-6.2-2.1.1" class="pilcrow">¶</a></p>
 </li>
-          <li class="normal" id="section-5.2-2.2">
-            <p id="section-5.2-2.2.1">Ignoring a key that <strong>adds</strong> information yields a token narrower than
-intended - a functional shortfall, not a security failure.<a href="#section-5.2-2.2.1" class="pilcrow">¶</a></p>
+          <li class="normal" id="section-6.2-2.2">
+            <p id="section-6.2-2.2.1">Ignoring a key that <strong>adds</strong> information yields a token narrower than
+intended - a functional shortfall, not a security failure.<a href="#section-6.2-2.2.1" class="pilcrow">¶</a></p>
 </li>
         </ul>
-<p id="section-5.2-3">This profile therefore adopts the following rule, from which the treatment
-of every key below is derived:<a href="#section-5.2-3" class="pilcrow">¶</a></p>
+<p id="section-6.2-3">This profile therefore adopts the following rule, from which the treatment
+of every key below is derived:<a href="#section-6.2-3" class="pilcrow">¶</a></p>
 <ul class="normal ulEmpty">
-<li class="normal ulEmpty" id="section-5.2-4.1">
-            <p id="section-5.2-4.1.1">A response-context key is mandatory-to-understand if and only if ignoring
+<li class="normal ulEmpty" id="section-6.2-4.1">
+            <p id="section-6.2-4.1.1">A response-context key is mandatory-to-understand if and only if ignoring
 it would produce a token broader than the PDP authorized. For such keys,
 an AS that does not understand and apply the key <span class="bcp14">MUST</span> treat the permit as
-a denial.<a href="#section-5.2-4.1.1" class="pilcrow">¶</a></p>
+a denial.<a href="#section-6.2-4.1.1" class="pilcrow">¶</a></p>
 </li>
         </ul>
 </section>
 </div>
 <div id="no-broadening">
-<section id="section-5.3">
+<section id="section-6.3">
         <h3 id="name-no-broadening">
-<a href="#section-5.3" class="section-number selfRef">5.3. </a><a href="#name-no-broadening" class="section-name selfRef">No Broadening</a>
+<a href="#section-6.3" class="section-number selfRef">6.3. </a><a href="#name-no-broadening" class="section-name selfRef">No Broadening</a>
         </h3>
-<p id="section-5.3-1">A PDP <span class="bcp14">MUST NOT</span> return a shaping value that grants access the AS would not
-otherwise have granted, and an AS <span class="bcp14">MUST</span> reject a decision that attempts it.<a href="#section-5.3-1" class="pilcrow">¶</a></p>
-<p id="section-5.3-2">The PDP decides whether and how much; it does not decide what else. Without
+<p id="section-6.3-1">A PDP <span class="bcp14">MUST NOT</span> return a shaping value that grants access the AS would not
+otherwise have granted, and an AS <span class="bcp14">MUST</span> reject a decision that attempts it.<a href="#section-6.3-1" class="pilcrow">¶</a></p>
+<p id="section-6.3-2">The PDP decides whether and how much; it does not decide what else. Without
 this rule, an evaluation of <code>files.read</code> could return a token bearing
 <code>admin</code>, and the token would assert a privilege no evaluation ever
-considered.<a href="#section-5.3-2" class="pilcrow">¶</a></p>
+considered.<a href="#section-6.3-2" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="constraining-keys">
-<section id="section-5.4">
+<section id="section-6.4">
         <h3 id="name-constraining-keys">
-<a href="#section-5.4" class="section-number selfRef">5.4. </a><a href="#name-constraining-keys" class="section-name selfRef">Constraining Keys</a>
+<a href="#section-6.4" class="section-number selfRef">6.4. </a><a href="#name-constraining-keys" class="section-name selfRef">Constraining Keys</a>
         </h3>
-<p id="section-5.4-1">The keys in this section are mandatory-to-understand under <a href="#mtu" class="auto internal xref">Section 5.2</a>.<a href="#section-5.4-1" class="pilcrow">¶</a></p>
+<p id="section-6.4-1">The keys in this section are mandatory-to-understand under <a href="#mtu" class="auto internal xref">Section 6.2</a>.<a href="#section-6.4-1" class="pilcrow">¶</a></p>
 <div id="grantedscope">
-<section id="section-5.4.1">
+<section id="section-6.4.1">
           <h4 id="name-granted_scope">
-<a href="#section-5.4.1" class="section-number selfRef">5.4.1. </a><a href="#name-granted_scope" class="section-name selfRef"><code>granted_scope</code></a>
+<a href="#section-6.4.1" class="section-number selfRef">6.4.1. </a><a href="#name-granted_scope" class="section-name selfRef"><code>granted_scope</code></a>
           </h4>
-<p id="section-5.4.1-1">A space-delimited string in the syntax of the <code>scope</code> parameter of
-<span>[<a href="#RFC6749" class="cite xref">RFC6749</a>]</span>, giving the scope set the AS is authorized to grant.<a href="#section-5.4.1-1" class="pilcrow">¶</a></p>
-<p id="section-5.4.1-2"><code>granted_scope</code> <span class="bcp14">MUST</span> be a subset of the scopes the AS would otherwise have
+<p id="section-6.4.1-1">A space-delimited string in the syntax of the <code>scope</code> parameter of
+<span>[<a href="#RFC6749" class="cite xref">RFC6749</a>]</span>, giving the scope set the AS is authorized to grant.<a href="#section-6.4.1-1" class="pilcrow">¶</a></p>
+<p id="section-6.4.1-2"><code>granted_scope</code> <span class="bcp14">MUST</span> be a subset of the scopes the AS would otherwise have
 granted - the requested scopes, or for a request naming none, the AS's
 default set for that client and target. The AS <span class="bcp14">MUST</span> reject the decision
-otherwise.<a href="#section-5.4.1-2" class="pilcrow">¶</a></p>
-<p id="section-5.4.1-3">Its principal use is the gate-only evaluation, where there are no scope
+otherwise.<a href="#section-6.4.1-2" class="pilcrow">¶</a></p>
+<p id="section-6.4.1-3">Its principal use is the gate-only evaluation, where there are no scope
 tuples and this key is how a PDP answers "permit, and grant this set."
 Enumerating a grantable set is a search operation rather than a check; a PDP
 unable to perform it returns a bare permit and the AS falls back to its own
-defaults, which is a safe degradation.<a href="#section-5.4.1-3" class="pilcrow">¶</a></p>
-<p id="section-5.4.1-4">Where scope tuples are present, the per-item decisions already express
-downscoping, and a PDP <span class="bcp14">SHOULD NOT</span> also return <code>granted_scope</code>.<a href="#section-5.4.1-4" class="pilcrow">¶</a></p>
+defaults, which is a safe degradation.<a href="#section-6.4.1-3" class="pilcrow">¶</a></p>
+<p id="section-6.4.1-4">Where scope tuples are present, the per-item decisions already express
+downscoping, and a PDP <span class="bcp14">SHOULD NOT</span> also return <code>granted_scope</code>.<a href="#section-6.4.1-4" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="tokenlifetime">
-<section id="section-5.4.2">
+<section id="section-6.4.2">
           <h4 id="name-token_lifetime">
-<a href="#section-5.4.2" class="section-number selfRef">5.4.2. </a><a href="#name-token_lifetime" class="section-name selfRef"><code>token_lifetime</code></a>
+<a href="#section-6.4.2" class="section-number selfRef">6.4.2. </a><a href="#name-token_lifetime" class="section-name selfRef"><code>token_lifetime</code></a>
           </h4>
-<p id="section-5.4.2-1">A non-negative integer number of seconds, interpreted as a <strong>ceiling</strong>. The
+<p id="section-6.4.2-1">A non-negative integer number of seconds, interpreted as a <strong>ceiling</strong>. The
 AS <span class="bcp14">MUST</span> issue a token whose lifetime is the lesser of this value and the
 lifetime it would otherwise have used. It is never a floor: a PDP cannot
-extend a token's life beyond the AS's own policy.<a href="#section-5.4.2-1" class="pilcrow">¶</a></p>
-<p id="section-5.4.2-2">A value of <code>0</code> <span class="bcp14">MUST</span> be treated as a denial rather than as an instruction to
-mint an already-expired token.<a href="#section-5.4.2-2" class="pilcrow">¶</a></p>
+extend a token's life beyond the AS's own policy.<a href="#section-6.4.2-1" class="pilcrow">¶</a></p>
+<p id="section-6.4.2-2">A value of <code>0</code> <span class="bcp14">MUST</span> be treated as a denial rather than as an instruction to
+mint an already-expired token.<a href="#section-6.4.2-2" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="audience">
-<section id="section-5.4.3">
+<section id="section-6.4.3">
           <h4 id="name-audience">
-<a href="#section-5.4.3" class="section-number selfRef">5.4.3. </a><a href="#name-audience" class="section-name selfRef"><code>audience</code></a>
+<a href="#section-6.4.3" class="section-number selfRef">6.4.3. </a><a href="#name-audience" class="section-name selfRef"><code>audience</code></a>
           </h4>
-<p id="section-5.4.3-1">An array of strings, narrowing the set of targets for which the token may be
+<p id="section-6.4.3-1">An array of strings, narrowing the set of targets for which the token may be
 issued. Each value <span class="bcp14">MUST</span> appear among the <code>resource.id</code> values of the
-permitted evaluations.<a href="#section-5.4.3-1" class="pilcrow">¶</a></p>
-<p id="section-5.4.3-2">The value is an array even when it names a single target. This is the key
+permitted evaluations.<a href="#section-6.4.3-1" class="pilcrow">¶</a></p>
+<p id="section-6.4.3-2">The value is an array even when it names a single target. This is the key
 where the single-type rule above is most visible, and where it also makes
-the aggregation rule of <a href="#aggregation" class="auto internal xref">Section 5.6</a> state plainly: intersection is an
+the aggregation rule of <a href="#aggregation" class="auto internal xref">Section 6.6</a> state plainly: intersection is an
 operation over sets. An AS remains free to render a single-element set as a
-bare string in the token's own <code>aud</code> claim, where <span>[<a href="#RFC7519" class="cite xref">RFC7519</a>]</span> permits it.<a href="#section-5.4.3-2" class="pilcrow">¶</a></p>
-<p id="section-5.4.3-3">Where the resulting set is empty, the AS <span class="bcp14">MUST</span> fail the request; for token
-exchange requests the appropriate error is <code>invalid_target</code> (<span>[<a href="#RFC8693" class="cite xref">RFC8693</a>]</span>).<a href="#section-5.4.3-3" class="pilcrow">¶</a></p>
+bare string in the token's own <code>aud</code> claim, where <span>[<a href="#RFC7519" class="cite xref">RFC7519</a>]</span> permits it.<a href="#section-6.4.3-2" class="pilcrow">¶</a></p>
+<p id="section-6.4.3-3">Where the resulting set is empty, the AS <span class="bcp14">MUST</span> fail the request; for token
+exchange requests the appropriate error is <code>invalid_target</code> (<span>[<a href="#RFC8693" class="cite xref">RFC8693</a>]</span>).<a href="#section-6.4.3-3" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="authorizationdetails">
-<section id="section-5.4.4">
+<section id="section-6.4.4">
           <h4 id="name-authorization_details">
-<a href="#section-5.4.4" class="section-number selfRef">5.4.4. </a><a href="#name-authorization_details" class="section-name selfRef"><code>authorization_details</code></a>
+<a href="#section-6.4.4" class="section-number selfRef">6.4.4. </a><a href="#name-authorization_details" class="section-name selfRef"><code>authorization_details</code></a>
           </h4>
-<p id="section-5.4.4-1">An array in the syntax of <span>[<a href="#RFC9396" class="cite xref">RFC9396</a>]</span>, replacing - not merged with - the
-authorization details of the request.<a href="#section-5.4.4-1" class="pilcrow">¶</a></p>
-<p id="section-5.4.4-2">Replacement admits arbitrary structured narrowing, which is what a PDP
+<p id="section-6.4.4-1">An array in the syntax of <span>[<a href="#RFC9396" class="cite xref">RFC9396</a>]</span>, replacing - not merged with - the
+authorization details of the request.<a href="#section-6.4.4-1" class="pilcrow">¶</a></p>
+<p id="section-6.4.4-2">Replacement admits arbitrary structured narrowing, which is what a PDP
 filtering rich authorization requests needs, but "narrower" is not decidable
-for arbitrary authorization detail types. This profile therefore requires:<a href="#section-5.4.4-2" class="pilcrow">¶</a></p>
+for arbitrary authorization detail types. This profile therefore requires:<a href="#section-6.4.4-2" class="pilcrow">¶</a></p>
 <ul class="normal">
-<li class="normal" id="section-5.4.4-3.1">
-              <p id="section-5.4.4-3.1.1"><strong>Structural check, always.</strong> Every returned entry <span class="bcp14">MUST</span> have a <code>type</code>
+<li class="normal" id="section-6.4.4-3.1">
+              <p id="section-6.4.4-3.1.1"><strong>Structural check, always.</strong> Every returned entry <span class="bcp14">MUST</span> have a <code>type</code>
 present in the request, and its <code>locations</code>, <code>actions</code>, and <code>datatypes</code>
 members <span class="bcp14">MUST</span> be subsets of the corresponding members of the request entry
-of that type. The AS <span class="bcp14">MUST</span> reject the decision otherwise.<a href="#section-5.4.4-3.1.1" class="pilcrow">¶</a></p>
+of that type. The AS <span class="bcp14">MUST</span> reject the decision otherwise.<a href="#section-6.4.4-3.1.1" class="pilcrow">¶</a></p>
 </li>
-            <li class="normal" id="section-5.4.4-3.2">
-              <p id="section-5.4.4-3.2.1"><strong>Type-specific members.</strong> For members beyond those defined in
+            <li class="normal" id="section-6.4.4-3.2">
+              <p id="section-6.4.4-3.2.1"><strong>Type-specific members.</strong> For members beyond those defined in
 <span>[<a href="#RFC9396" class="cite xref">RFC9396</a>]</span>, the AS <span class="bcp14">MUST</span> either apply a validator specific to that
 authorization details type or reject the decision. An AS <span class="bcp14">MUST NOT</span> pass
-unvalidated structure into an issued token.<a href="#section-5.4.4-3.2.1" class="pilcrow">¶</a></p>
+unvalidated structure into an issued token.<a href="#section-6.4.4-3.2.1" class="pilcrow">¶</a></p>
 </li>
           </ul>
 </section>
 </div>
 <div id="crit">
-<section id="section-5.4.5">
+<section id="section-6.4.5">
           <h4 id="name-crit">
-<a href="#section-5.4.5" class="section-number selfRef">5.4.5. </a><a href="#name-crit" class="section-name selfRef"><code>crit</code></a>
+<a href="#section-6.4.5" class="section-number selfRef">6.4.5. </a><a href="#name-crit" class="section-name selfRef"><code>crit</code></a>
           </h4>
-<p id="section-5.4.5-1">An array of strings naming members of <code>claims</code> (<a href="#claims" class="auto internal xref">Section 5.5.1</a>) that are
+<p id="section-6.4.5-1">An array of strings naming members of <code>claims</code> (<a href="#claims" class="auto internal xref">Section 6.5.1</a>) that are
 themselves mandatory-to-understand. The name and semantics are taken from
 the <code>crit</code> header parameter of <span>[<a href="#RFC7515" class="cite xref">RFC7515</a>]</span>: an AS that does not understand
-and apply a named member <span class="bcp14">MUST</span> treat the permit as a denial.<a href="#section-5.4.5-1" class="pilcrow">¶</a></p>
-<p id="section-5.4.5-2"><code>crit</code> exists because the static classification in this section is
+and apply a named member <span class="bcp14">MUST</span> treat the permit as a denial.<a href="#section-6.4.5-1" class="pilcrow">¶</a></p>
+<p id="section-6.4.5-2"><code>crit</code> exists because the static classification in this section is
 incomplete. An additive claim is normally safe to ignore, except where the
 claim <em>is</em> a constraint that a downstream enforcement point is expected to
 apply - a ceiling asserted by policy, for instance. Dropping such a claim
-broadens what the token effectively authorizes.<a href="#section-5.4.5-2" class="pilcrow">¶</a></p>
-<p id="section-5.4.5-3">A PDP <span class="bcp14">MUST NOT</span> include <code>crit</code> unless the AS has declared support for the
-corresponding capability (<a href="#discovery" class="auto internal xref">Section 6</a>).<a href="#section-5.4.5-3" class="pilcrow">¶</a></p>
+broadens what the token effectively authorizes.<a href="#section-6.4.5-2" class="pilcrow">¶</a></p>
+<p id="section-6.4.5-3">A PDP <span class="bcp14">MUST NOT</span> include <code>crit</code> unless the AS has declared support for the
+corresponding capability (<a href="#discovery" class="auto internal xref">Section 7</a>).<a href="#section-6.4.5-3" class="pilcrow">¶</a></p>
 </section>
 </div>
 </section>
 </div>
 <div id="decorating-keys">
-<section id="section-5.5">
+<section id="section-6.5">
         <h3 id="name-decorating-keys">
-<a href="#section-5.5" class="section-number selfRef">5.5. </a><a href="#name-decorating-keys" class="section-name selfRef">Decorating Keys</a>
+<a href="#section-6.5" class="section-number selfRef">6.5. </a><a href="#name-decorating-keys" class="section-name selfRef">Decorating Keys</a>
         </h3>
 <div id="claims">
-<section id="section-5.5.1">
+<section id="section-6.5.1">
           <h4 id="name-claims">
-<a href="#section-5.5.1" class="section-number selfRef">5.5.1. </a><a href="#name-claims" class="section-name selfRef"><code>claims</code></a>
+<a href="#section-6.5.1" class="section-number selfRef">6.5.1. </a><a href="#name-claims" class="section-name selfRef"><code>claims</code></a>
           </h4>
-<p id="section-5.5.1-1">An object whose members are claim names, in the sense of <span>[<a href="#RFC7519" class="cite xref">RFC7519</a>]</span>, and
+<p id="section-6.5.1-1">An object whose members are claim names, in the sense of <span>[<a href="#RFC7519" class="cite xref">RFC7519</a>]</span>, and
 the values to be included in the issued token. This is the mechanism by
 which policy-derived attributes reach the token - group memberships, roles,
 and entitlements of the kind <span>[<a href="#RFC9068" class="cite xref">RFC9068</a>]</span> describes for JWT access tokens,
-drawn from the schema of <span>[<a href="#RFC7643" class="cite xref">RFC7643</a>]</span>.<a href="#section-5.5.1-1" class="pilcrow">¶</a></p>
-<p id="section-5.5.1-2">Members of <code>claims</code> are advisory under <a href="#mtu" class="auto internal xref">Section 5.2</a>: an AS that drops them issues
+drawn from the schema of <span>[<a href="#RFC7643" class="cite xref">RFC7643</a>]</span>.<a href="#section-6.5.1-1" class="pilcrow">¶</a></p>
+<p id="section-6.5.1-2">Members of <code>claims</code> are advisory under <a href="#mtu" class="auto internal xref">Section 6.2</a>: an AS that drops them issues
 a less capable token. A PDP that requires a member to be honored <span class="bcp14">MUST</span> name
-it in <code>crit</code>.<a href="#section-5.5.1-2" class="pilcrow">¶</a></p>
-<p id="section-5.5.1-3">A PDP <span class="bcp14">MUST NOT</span> set, and an AS <span class="bcp14">MUST</span> reject a response that sets, any of the
-following claims:<a href="#section-5.5.1-3" class="pilcrow">¶</a></p>
+it in <code>crit</code>.<a href="#section-6.5.1-2" class="pilcrow">¶</a></p>
+<p id="section-6.5.1-3">A PDP <span class="bcp14">MUST NOT</span> set, and an AS <span class="bcp14">MUST</span> reject a response that sets, any of the
+following claims:<a href="#section-6.5.1-3" class="pilcrow">¶</a></p>
 <table class="center" id="table-2">
             <caption><a href="#table-2" class="selfRef">Table 2</a></caption>
 <thead>
@@ -2082,27 +2177,27 @@ following claims:<a href="#section-5.5.1-3" class="pilcrow">¶</a></p>
               </tr>
             </tbody>
           </table>
-<p id="section-5.5.1-5">The reservation of <code>sub</code> and <code>aud</code> is the load-bearing one. Both are inputs
+<p id="section-6.5.1-5">The reservation of <code>sub</code> and <code>aud</code> is the load-bearing one. Both are inputs
 to the five-tuple; a PDP that could rewrite either would cause the AS to
 issue a token corresponding to a decision that was never evaluated.
 Re-subjecting a token is a fresh issuance, not an attenuation of an existing
-one, and <span class="bcp14">MUST</span> be evaluated as such.<a href="#section-5.5.1-5" class="pilcrow">¶</a></p>
+one, and <span class="bcp14">MUST</span> be evaluated as such.<a href="#section-6.5.1-5" class="pilcrow">¶</a></p>
 </section>
 </div>
 </section>
 </div>
 <div id="aggregation">
-<section id="section-5.6">
+<section id="section-6.6">
         <h3 id="name-aggregation-across-a-batch">
-<a href="#section-5.6" class="section-number selfRef">5.6. </a><a href="#name-aggregation-across-a-batch" class="section-name selfRef">Aggregation Across a Batch</a>
+<a href="#section-6.6" class="section-number selfRef">6.6. </a><a href="#name-aggregation-across-a-batch" class="section-name selfRef">Aggregation Across a Batch</a>
         </h3>
-<p id="section-5.6-1">An Access Evaluations response in <span>[<a href="#AUTHZEN" class="cite xref">AUTHZEN</a>]</span> carries no top-level context;
+<p id="section-6.6-1">An Access Evaluations response in <span>[<a href="#AUTHZEN" class="cite xref">AUTHZEN</a>]</span> carries no top-level context;
 each element of the <code>evaluations</code> array is a decision with its own optional
 context. Token shaping, however, is a property of the token: there is one
 lifetime, one claim set, one authorization details array for the token being
 minted, while this profile fans scopes and targets out across many
-evaluations.<a href="#section-5.6-1" class="pilcrow">¶</a></p>
-<p id="section-5.6-2">An AS <span class="bcp14">MUST</span> therefore compose per-item shaping as follows:<a href="#section-5.6-2" class="pilcrow">¶</a></p>
+evaluations.<a href="#section-6.6-1" class="pilcrow">¶</a></p>
+<p id="section-6.6-2">An AS <span class="bcp14">MUST</span> therefore compose per-item shaping as follows:<a href="#section-6.6-2" class="pilcrow">¶</a></p>
 <table class="center" id="table-3">
           <caption><a href="#table-3" class="selfRef">Table 3</a></caption>
 <thead>
@@ -2150,30 +2245,30 @@ evaluations.<a href="#section-5.6-1" class="pilcrow">¶</a></p>
             </tr>
           </tbody>
         </table>
-<p id="section-5.6-4">Shaping keys appearing in the context of a <strong>denied</strong> item <span class="bcp14">MUST</span> be ignored.<a href="#section-5.6-4" class="pilcrow">¶</a></p>
-<p id="section-5.6-5">Where two permitted items return different values for the same member of
+<p id="section-6.6-4">Shaping keys appearing in the context of a <strong>denied</strong> item <span class="bcp14">MUST</span> be ignored.<a href="#section-6.6-4" class="pilcrow">¶</a></p>
+<p id="section-6.6-5">Where two permitted items return different values for the same member of
 <code>claims</code>, the AS <span class="bcp14">MUST</span> reject the decision. There is no general narrowing
 merge for arbitrary JSON values, and choosing one arbitrarily could
 broaden the result. Identical values are not a conflict. A PDP <span class="bcp14">SHOULD</span> return
-token-level shaping on a single item to avoid the situation.<a href="#section-5.6-5" class="pilcrow">¶</a></p>
+token-level shaping on a single item to avoid the situation.<a href="#section-6.6-5" class="pilcrow">¶</a></p>
 </section>
 </div>
 </section>
 </div>
 <div id="discovery">
-<section id="section-6">
+<section id="section-7">
       <h2 id="name-discovery">
-<a href="#section-6" class="section-number selfRef">6. </a><a href="#name-discovery" class="section-name selfRef">Discovery</a>
+<a href="#section-7" class="section-number selfRef">7. </a><a href="#name-discovery" class="section-name selfRef">Discovery</a>
       </h2>
 <div id="pdp-capabilities">
-<section id="section-6.1">
+<section id="section-7.1">
         <h3 id="name-policy-decision-point-capab">
-<a href="#section-6.1" class="section-number selfRef">6.1. </a><a href="#name-policy-decision-point-capab" class="section-name selfRef">Policy Decision Point Capabilities</a>
+<a href="#section-7.1" class="section-number selfRef">7.1. </a><a href="#name-policy-decision-point-capab" class="section-name selfRef">Policy Decision Point Capabilities</a>
         </h3>
-<p id="section-6.1-1">A PDP supporting this profile <span class="bcp14">MUST</span> advertise the capability URN registered
-in <a href="#iana-capability" class="auto internal xref">Section 11.2</a> in the <code>capabilities</code> member of its metadata document,
-retrievable at <code>/.well-known/authzen-configuration</code>:<a href="#section-6.1-1" class="pilcrow">¶</a></p>
-<div class="lang-json sourcecode" id="section-6.1-2">
+<p id="section-7.1-1">A PDP supporting this profile <span class="bcp14">MUST</span> advertise the capability URN registered
+in <a href="#iana-capability" class="auto internal xref">Section 12.2</a> in the <code>capabilities</code> member of its metadata document,
+retrievable at <code>/.well-known/authzen-configuration</code>:<a href="#section-7.1-1" class="pilcrow">¶</a></p>
+<div class="lang-json sourcecode" id="section-7.1-2">
 <pre>
 {
   "policy_decision_point": "https://pdp.example.com",
@@ -2183,9 +2278,9 @@ retrievable at <code>/.well-known/authzen-configuration</code>:<a href="#section
     "urn:ietf:params:authzen:token-issuance"
   ]
 }
-</pre><a href="#section-6.1-2" class="pilcrow">¶</a>
+</pre><a href="#section-7.1-2" class="pilcrow">¶</a>
 </div>
-<p id="section-6.1-3">The URN asserts support for the request mapping and response vocabulary of
+<p id="section-7.1-3">The URN asserts support for the request mapping and response vocabulary of
 this document. It is not a statement about the content of the PDP's policy,
 and a PDP <span class="bcp14">MUST NOT</span> be read as claiming to hold rules for any particular
 issuance. What a deployment's policy permits is disclosed only through
@@ -2193,20 +2288,20 @@ decisions. This is the same line
 <span>[<a href="#I-D.ietf-oauth-identity-assertion-authz-grant" class="cite xref">I-D.ietf-oauth-identity-assertion-authz-grant</a>]</span> draws for
 <code>authorization_grant_profiles_supported</code>, which indicates that a server
 implements a profile's processing rules and not that any particular issuer,
-client, subject, or audience will be accepted.<a href="#section-6.1-3" class="pilcrow">¶</a></p>
-<p id="section-6.1-4">Advertising the capability is accordingly a commitment to the request shapes
+client, subject, or audience will be accepted.<a href="#section-7.1-3" class="pilcrow">¶</a></p>
+<p id="section-7.1-4">Advertising the capability is accordingly a commitment to the request shapes
 this profile can produce. A PDP that advertises it <span class="bcp14">MUST</span> render a decision for
 a gate tuple naming any action name composable from the short names
-registered in <a href="#iana-actions" class="auto internal xref">Section 11.4</a>, and <span class="bcp14">MUST NOT</span> reject the evaluation on the
+registered in <a href="#iana-actions" class="auto internal xref">Section 12.4</a>, and <span class="bcp14">MUST NOT</span> reject the evaluation on the
 grounds that it holds no policy for that action. Denying is a decision; a
 protocol error is not. The same applies to a batch that mixes a gate tuple
 with scope tuples, which is the ordinary shape of a request naming scopes
-(<a href="#composition" class="auto internal xref">Section 4.5</a>).<a href="#section-6.1-4" class="pilcrow">¶</a></p>
-<p id="section-6.1-5">The obligation matters because the gate vocabulary is a product of two
+(<a href="#composition" class="auto internal xref">Section 5.5</a>).<a href="#section-7.1-4" class="pilcrow">¶</a></p>
+<p id="section-7.1-5">The obligation matters because the gate vocabulary is a product of two
 registries and grows as bindings register short names. An AS pairs the token
 type it is about to mint with the grant it received; it cannot know which
-pairings a given deployment's policy anticipated, and must not have to.<a href="#section-6.1-5" class="pilcrow">¶</a></p>
-<p id="section-6.1-6">For the same reason, this profile defines one capability URN rather than one
+pairings a given deployment's policy anticipated, and must not have to.<a href="#section-7.1-5" class="pilcrow">¶</a></p>
+<p id="section-7.1-6">For the same reason, this profile defines one capability URN rather than one
 per token type and grant combination. Finer granularity would oblige the AS
 to predict what the PDP has policy for, which the rule above exists to avoid,
 and would publish the shape of a deployment's issuance policy in an
@@ -2215,8 +2310,8 @@ tracks vocabulary, not policy. An extension that adds response vocabulary
 registers its own URN, since an AS must understand what it is asked to
 enforce; one that adds only advisory context keys or new registered action
 names does not, since a PDP ignores a context key it does not recognize and
-the rule above already obliges it to decide any registered gate action.<a href="#section-6.1-6" class="pilcrow">¶</a></p>
-<p id="section-6.1-7">An operator enabling a new grant or token type nonetheless has a real
+the rule above already obliges it to decide any registered gate action.<a href="#section-7.1-6" class="pilcrow">¶</a></p>
+<p id="section-7.1-7">An operator enabling a new grant or token type nonetheless has a real
 question to answer: whether the deployment's policy anticipates the gate
 actions the AS is about to start sending, or whether every such request will
 be denied. That question is about policy content, so its answer belongs on
@@ -2226,17 +2321,17 @@ The Action Search API of <span>[<a href="#AUTHZEN" class="cite xref">AUTHZEN</a>
 representative subject and an <code>audience</code> resource returns the action names
 policy would permit, and gate actions among them indicate the issuances the
 deployment is prepared for. This is a deployment-time check, not a
-per-request one, and nothing in this profile requires it.<a href="#section-6.1-7" class="pilcrow">¶</a></p>
+per-request one, and nothing in this profile requires it.<a href="#section-7.1-7" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="policy-enforcement-point-capabilities">
-<section id="section-6.2">
+<section id="section-7.2">
         <h3 id="name-policy-enforcement-point-ca">
-<a href="#section-6.2" class="section-number selfRef">6.2. </a><a href="#name-policy-enforcement-point-ca" class="section-name selfRef">Policy Enforcement Point Capabilities</a>
+<a href="#section-7.2" class="section-number selfRef">7.2. </a><a href="#name-policy-enforcement-point-ca" class="section-name selfRef">Policy Enforcement Point Capabilities</a>
         </h3>
-<p id="section-6.2-1">An AS <span class="bcp14">MAY</span> declare the capabilities it understands in the request context,
-using the same URNs:<a href="#section-6.2-1" class="pilcrow">¶</a></p>
-<div class="lang-json sourcecode" id="section-6.2-2">
+<p id="section-7.2-1">An AS <span class="bcp14">MAY</span> declare the capabilities it understands in the request context,
+using the same URNs:<a href="#section-7.2-1" class="pilcrow">¶</a></p>
+<div class="lang-json sourcecode" id="section-7.2-2">
 <pre>
 {
   "subject":  { "type": "user", "id": "U0405936" },
@@ -2253,37 +2348,37 @@ using the same URNs:<a href="#section-6.2-1" class="pilcrow">¶</a></p>
     }
   }
 }
-</pre><a href="#section-6.2-2" class="pilcrow">¶</a>
+</pre><a href="#section-7.2-2" class="pilcrow">¶</a>
 </div>
-<p id="section-6.2-3">Capability URNs are reused on both legs rather than introducing a list of
+<p id="section-7.2-3">Capability URNs are reused on both legs rather than introducing a list of
 key names, so that extensions obtain granularity from the registry rather
-than from a second, parallel mechanism.<a href="#section-6.2-3" class="pilcrow">¶</a></p>
-<p id="section-6.2-4">The declaration is an optimization, not a safety mechanism, and this is why
+than from a second, parallel mechanism.<a href="#section-7.2-3" class="pilcrow">¶</a></p>
+<p id="section-7.2-4">The declaration is an optimization, not a safety mechanism, and this is why
 it is <span class="bcp14">OPTIONAL</span>. Safety is already unilateral: a PDP that marks a key <code>crit</code>
 obliges any AS implementing this profile to fail closed if it does not
-understand it (<a href="#mtu" class="auto internal xref">Section 5.2</a>), and an AS that does not implement this profile
+understand it (<a href="#mtu" class="auto internal xref">Section 6.2</a>), and an AS that does not implement this profile
 ignores the <code>issuance</code> envelope entirely, <code>crit</code> included. Withholding <code>crit</code>
 from an undeclared AS therefore protects nothing. What the declaration buys a
 PDP is the ability to choose a decision the AS can actually enforce -
 denying, say, rather than permitting subject to a constraint it knows will be
 discarded. That is worth having as extensions add vocabulary, and worth
-nothing in a deployment using only the keys defined here.<a href="#section-6.2-4" class="pilcrow">¶</a></p>
-<p id="section-6.2-5">An AS is not otherwise required to announce itself. The behaviors this
+nothing in a deployment using only the keys defined here.<a href="#section-7.2-4" class="pilcrow">¶</a></p>
+<p id="section-7.2-5">An AS is not otherwise required to announce itself. The behaviors this
 profile depends on - treating a gate denial as fatal, narrowing to the
 permitted scope subset - are constitutive of implementing it rather than
 features an AS might separately lack, and <span>[<a href="#AUTHZEN" class="cite xref">AUTHZEN</a>]</span> already assumes a PDP
-trusts its PEP to enforce what it decides.<a href="#section-6.2-5" class="pilcrow">¶</a></p>
-<p id="section-6.2-6">The declaration describes the AS's implementation and <span class="bcp14">MUST NOT</span> be treated as
+trusts its PEP to enforce what it decides.<a href="#section-7.2-5" class="pilcrow">¶</a></p>
+<p id="section-7.2-6">The declaration describes the AS's implementation and <span class="bcp14">MUST NOT</span> be treated as
 an authorization input. A PDP that varied its decision based on it would be
-allowing a property of the enforcement point to influence policy.<a href="#section-6.2-6" class="pilcrow">¶</a></p>
+allowing a property of the enforcement point to influence policy.<a href="#section-7.2-6" class="pilcrow">¶</a></p>
 </section>
 </div>
 </section>
 </div>
 <div id="error-mapping">
-<section id="section-7">
+<section id="section-8">
       <h2 id="name-error-mapping">
-<a href="#section-7" class="section-number selfRef">7. </a><a href="#name-error-mapping" class="section-name selfRef">Error Mapping</a>
+<a href="#section-8" class="section-number selfRef">8. </a><a href="#name-error-mapping" class="section-name selfRef">Error Mapping</a>
       </h2>
 <table class="center" id="table-4">
         <caption><a href="#table-4" class="selfRef">Table 4</a></caption>
@@ -2314,7 +2409,7 @@ allowing a property of the enforcement point to influence policy.<a href="#secti
               <code>invalid_target</code> (<span>[<a href="#RFC8693" class="cite xref">RFC8693</a>]</span>)</td>
           </tr>
           <tr>
-            <td class="text-left" rowspan="1" colspan="1">Shaping key violates <a href="#no-broadening" class="auto internal xref">Section 5.3</a>
+            <td class="text-left" rowspan="1" colspan="1">Shaping key violates <a href="#no-broadening" class="auto internal xref">Section 6.3</a>
 </td>
             <td class="text-left" rowspan="1" colspan="1">Treat as denial; fail the request</td>
           </tr>
@@ -2328,40 +2423,40 @@ allowing a property of the enforcement point to influence policy.<a href="#secti
           </tr>
         </tbody>
       </table>
-<p id="section-7-2">Reason information returned by a PDP is diagnostic and intended for the
+<p id="section-8-2">Reason information returned by a PDP is diagnostic and intended for the
 operator of the AS. An AS <span class="bcp14">MUST NOT</span> relay PDP reason strings to the client,
 as they may disclose policy structure to a party that is not authorized to
-learn it.<a href="#section-7-2" class="pilcrow">¶</a></p>
-<p id="section-7-3">Where a PDP returns a denial accompanied by authentication requirements -
+learn it.<a href="#section-8-2" class="pilcrow">¶</a></p>
+<p id="section-8-3">Where a PDP returns a denial accompanied by authentication requirements -
 the step-up pattern of <span>[<a href="#AUTHZEN" class="cite xref">AUTHZEN</a>]</span>, in which required <code>acr</code> and <code>amr</code> values
 are named - an AS <span class="bcp14">SHOULD</span> surface this to the client. This document does not
 define that mapping: <code>insufficient_user_authentication</code> in <span>[<a href="#RFC9470" class="cite xref">RFC9470</a>]</span> is
 defined for resource servers rather than for the token endpoint, and no
-equivalent signal exists there. This is an open item.<a href="#section-7-3" class="pilcrow">¶</a></p>
+equivalent signal exists there. This is an open item.<a href="#section-8-3" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="examples">
-<section id="section-8">
+<section id="section-9">
       <h2 id="name-examples">
-<a href="#section-8" class="section-number selfRef">8. </a><a href="#name-examples" class="section-name selfRef">Examples</a>
+<a href="#section-9" class="section-number selfRef">9. </a><a href="#name-examples" class="section-name selfRef">Examples</a>
       </h2>
-<p id="section-8-1">The first example below is shown in full, framed against the HTTPS JSON
-binding of <span>[<a href="#AUTHZEN" class="cite xref">AUTHZEN</a>]</span>. The remaining examples show only the JSON payload.<a href="#section-8-1" class="pilcrow">¶</a></p>
-<p id="section-8-2">The transport is a property of the deployment, not of this profile: an
+<p id="section-9-1">The first example below is shown in full, framed against the HTTPS JSON
+binding of <span>[<a href="#AUTHZEN" class="cite xref">AUTHZEN</a>]</span>. The remaining examples show only the JSON payload.<a href="#section-9-1" class="pilcrow">¶</a></p>
+<p id="section-9-2">The transport is a property of the deployment, not of this profile: an
 evaluation carrying the mapping defined here is the same evaluation whatever
 binding conveys it. Where the HTTPS JSON binding is in use, the request URL
 is the PDP's <code>access_evaluations_endpoint</code>, or <code>access_evaluation_endpoint</code>
 for a request that reduces to a single evaluation, as published in the PDP's
 metadata; the paths shown below are the defaults that apply when metadata
-provides no value.<a href="#section-8-2" class="pilcrow">¶</a></p>
+provides no value.<a href="#section-9-2" class="pilcrow">¶</a></p>
 <div id="client-credentials-one-scope">
-<section id="section-8.1">
+<section id="section-9.1">
         <h3 id="name-client-credentials-one-scop">
-<a href="#section-8.1" class="section-number selfRef">8.1. </a><a href="#name-client-credentials-one-scop" class="section-name selfRef">Client Credentials, One Scope</a>
+<a href="#section-9.1" class="section-number selfRef">9.1. </a><a href="#name-client-credentials-one-scop" class="section-name selfRef">Client Credentials, One Scope</a>
         </h3>
-<p id="section-8.1-1">One scope is requested, so the request is the gate tuple and one scope
-tuple. This is the floor: two evaluations, so the Access Evaluations API.<a href="#section-8.1-1" class="pilcrow">¶</a></p>
-<div class="lang-http-message sourcecode" id="section-8.1-2">
+<p id="section-9.1-1">One scope is requested, so the request is the gate tuple and one scope
+tuple. This is the floor: two evaluations, so the Access Evaluations API.<a href="#section-9.1-1" class="pilcrow">¶</a></p>
+<div class="lang-http-message sourcecode" id="section-9.1-2">
 <pre>
 POST /access/v1/evaluations HTTP/1.1
 Host: pdp.example.com
@@ -2392,9 +2487,9 @@ Authorization: Bearer &lt;token&gt;
   ],
   "options": { "evaluations_semantic": "execute_all" }
 }
-</pre><a href="#section-8.1-2" class="pilcrow">¶</a>
+</pre><a href="#section-9.1-2" class="pilcrow">¶</a>
 </div>
-<div class="lang-http-message sourcecode" id="section-8.1-3">
+<div class="lang-http-message sourcecode" id="section-9.1-3">
 <pre>
 HTTP/1.1 200 OK
 Content-Type: application/json
@@ -2408,18 +2503,18 @@ Content-Type: application/json
     { "decision": true }
   ]
 }
-</pre><a href="#section-8.1-3" class="pilcrow">¶</a>
+</pre><a href="#section-9.1-3" class="pilcrow">¶</a>
 </div>
 </section>
 </div>
 <div id="authorization-code-downscoping">
-<section id="section-8.2">
+<section id="section-9.2">
         <h3 id="name-authorization-code-downscop">
-<a href="#section-8.2" class="section-number selfRef">8.2. </a><a href="#name-authorization-code-downscop" class="section-name selfRef">Authorization Code, Downscoping</a>
+<a href="#section-9.2" class="section-number selfRef">9.2. </a><a href="#name-authorization-code-downscop" class="section-name selfRef">Authorization Code, Downscoping</a>
         </h3>
-<p id="section-8.2-1">Three scopes are requested. The gate leads at index 0 and <code>execute_all</code>
-allows the AS to issue the permitted subset of the rest.<a href="#section-8.2-1" class="pilcrow">¶</a></p>
-<div class="lang-json sourcecode" id="section-8.2-2">
+<p id="section-9.2-1">Three scopes are requested. The gate leads at index 0 and <code>execute_all</code>
+allows the AS to issue the permitted subset of the rest.<a href="#section-9.2-1" class="pilcrow">¶</a></p>
+<div class="lang-json sourcecode" id="section-9.2-2">
 <pre>
 {
   "subject":  { "type": "user", "id": "U0405936" },
@@ -2448,9 +2543,9 @@ allows the AS to issue the permitted subset of the rest.<a href="#section-8.2-1"
   ],
   "options": { "evaluations_semantic": "execute_all" }
 }
-</pre><a href="#section-8.2-2" class="pilcrow">¶</a>
+</pre><a href="#section-9.2-2" class="pilcrow">¶</a>
 </div>
-<div class="lang-json sourcecode" id="section-8.2-3">
+<div class="lang-json sourcecode" id="section-9.2-3">
 <pre>
 {
   "evaluations": [
@@ -2468,28 +2563,28 @@ allows the AS to issue the permitted subset of the rest.<a href="#section-8.2-1"
     }
   ]
 }
-</pre><a href="#section-8.2-3" class="pilcrow">¶</a>
+</pre><a href="#section-9.2-3" class="pilcrow">¶</a>
 </div>
-<p id="section-8.2-4">The AS issues a token bearing <code>files.read files.write</code>, a <code>groups</code> claim,
-and reports the reduced scope set in the token response.<a href="#section-8.2-4" class="pilcrow">¶</a></p>
-<p id="section-8.2-5">Had the same subject arrived at the same audience with the same scopes on a
+<p id="section-9.2-4">The AS issues a token bearing <code>files.read files.write</code>, a <code>groups</code> claim,
+and reports the reduced scope set in the token response.<a href="#section-9.2-4" class="pilcrow">¶</a></p>
+<p id="section-9.2-5">Had the same subject arrived at the same audience with the same scopes on a
 refresh, index 0 would have read
 <code>issue:access_token:refresh_token</code>, and a policy that requires fresh
-authorization here could deny it while leaving the scope tuples untouched.<a href="#section-8.2-5" class="pilcrow">¶</a></p>
+authorization here could deny it while leaving the scope tuples untouched.<a href="#section-9.2-5" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="no-scopes-requested">
-<section id="section-8.3">
+<section id="section-9.3">
         <h3 id="name-no-scopes-requested">
-<a href="#section-8.3" class="section-number selfRef">8.3. </a><a href="#name-no-scopes-requested" class="section-name selfRef">No Scopes Requested</a>
+<a href="#section-9.3" class="section-number selfRef">9.3. </a><a href="#name-no-scopes-requested" class="section-name selfRef">No Scopes Requested</a>
         </h3>
-<p id="section-8.3-1">No scopes and no default set, so the gate tuple stands alone. This is the
+<p id="section-9.3-1">No scopes and no default set, so the gate tuple stands alone. This is the
 only shape this document produces that is a single evaluation, and it is
 therefore the only one sent to the Access Evaluation API rather than the
 Access Evaluations API: the payload is a bare evaluation with no
 <code>evaluations</code> array, and under the HTTPS JSON binding it is a <code>POST</code> to
-<code>/access/v1/evaluation</code>.<a href="#section-8.3-1" class="pilcrow">¶</a></p>
-<div class="lang-json sourcecode" id="section-8.3-2">
+<code>/access/v1/evaluation</code>.<a href="#section-9.3-1" class="pilcrow">¶</a></p>
+<div class="lang-json sourcecode" id="section-9.3-2">
 <pre>
 {
   "subject":  { "type": "client", "id": "svc-reporting" },
@@ -2508,9 +2603,9 @@ Access Evaluations API: the payload is a bare evaluation with no
     }
   }
 }
-</pre><a href="#section-8.3-2" class="pilcrow">¶</a>
+</pre><a href="#section-9.3-2" class="pilcrow">¶</a>
 </div>
-<div class="lang-json sourcecode" id="section-8.3-3">
+<div class="lang-json sourcecode" id="section-9.3-3">
 <pre>
 {
   "decision": true,
@@ -2521,46 +2616,46 @@ Access Evaluations API: the payload is a bare evaluation with no
     }
   }
 }
-</pre><a href="#section-8.3-3" class="pilcrow">¶</a>
+</pre><a href="#section-9.3-3" class="pilcrow">¶</a>
 </div>
 </section>
 </div>
 </section>
 </div>
 <div id="companions">
-<section id="section-9">
+<section id="section-10">
       <h2 id="name-relationship-to-companion-d">
-<a href="#section-9" class="section-number selfRef">9. </a><a href="#name-relationship-to-companion-d" class="section-name selfRef">Relationship to Companion Documents</a>
+<a href="#section-10" class="section-number selfRef">10. </a><a href="#name-relationship-to-companion-d" class="section-name selfRef">Relationship to Companion Documents</a>
       </h2>
-<p id="section-9-1">This document defines the mapping and the shaping vocabulary, and registers
-short names for the grant types listed in <a href="#iana-actions" class="auto internal xref">Section 11.4</a>. For a grant whose
+<p id="section-10-1">This document defines the mapping and the shaping vocabulary, and registers
+short names for the grant types listed in <a href="#iana-actions" class="auto internal xref">Section 12.4</a>. For a grant whose
 request names a single party and a single target, that is everything an AS
 needs; the client credentials and authorization code examples above are
-complete, and no companion document is required to implement them.<a href="#section-9-1" class="pilcrow">¶</a></p>
-<p id="section-9-2">A binding is required where a grant family adds structure this document does
+complete, and no companion document is required to implement them.<a href="#section-10-1" class="pilcrow">¶</a></p>
+<p id="section-10-2">A binding is required where a grant family adds structure this document does
 not model. The token exchange family adds two such things: a request names a
 second party, the requesting party, whose authority is separately at stake;
 and several of its members issue an artifact whose own audience differs from
 the audience of the access it describes. Bindings are therefore expected for
 that family - including identity chaining, identity assertion authorization
 grants, and transaction tokens - and a profile describing the use of AuthZEN
-search operations to populate the authorization claims of <span>[<a href="#RFC9068" class="cite xref">RFC9068</a>]</span>.<a href="#section-9-2" class="pilcrow">¶</a></p>
-<p id="section-9-3">Bindings specify the subject derivation for their grant, any additional
+search operations to populate the authorization claims of <span>[<a href="#RFC9068" class="cite xref">RFC9068</a>]</span>.<a href="#section-10-2" class="pilcrow">¶</a></p>
+<p id="section-10-3">Bindings specify the subject derivation for their grant, any additional
 context keys, the token type short names they register, and any invariants
-of their own that a PDP cannot override.<a href="#section-9-3" class="pilcrow">¶</a></p>
+of their own that a PDP cannot override.<a href="#section-10-3" class="pilcrow">¶</a></p>
 <div id="related">
-<section id="section-9.1">
+<section id="section-10.1">
         <h3 id="name-related-work">
-<a href="#section-9.1" class="section-number selfRef">9.1. </a><a href="#name-related-work" class="section-name selfRef">Related Work</a>
+<a href="#section-10.1" class="section-number selfRef">10.1. </a><a href="#name-related-work" class="section-name selfRef">Related Work</a>
         </h3>
-<p id="section-9.1-1">Two other efforts place an AuthZEN Policy Decision Point behind an
-authorization server.<a href="#section-9.1-1" class="pilcrow">¶</a></p>
-<p id="section-9.1-2"><span>[<a href="#I-D.brossard-oauth-rar-authzen" class="cite xref">I-D.brossard-oauth-rar-authzen</a>]</span> carries an AuthZEN request and response
+<p id="section-10.1-1">Two other efforts place an AuthZEN Policy Decision Point behind an
+authorization server.<a href="#section-10.1-1" class="pilcrow">¶</a></p>
+<p id="section-10.1-2"><span>[<a href="#I-D.brossard-oauth-rar-authzen" class="cite xref">I-D.brossard-oauth-rar-authzen</a>]</span> carries an AuthZEN request and response
 inside <code>authorization_details</code>, placing the evaluation on the OAuth wire. It
 has expired. This document does not adopt that approach: the evaluation
 stays between the authorization server and its Policy Decision Point, and
-the client sees only an OAuth response.<a href="#section-9.1-2" class="pilcrow">¶</a></p>
-<p id="section-9.1-3"><span>[<a href="#ARAP" class="cite xref">ARAP</a>]</span> defines what happens when a Policy Decision Point denies a request
+the client sees only an OAuth response.<a href="#section-10.1-2" class="pilcrow">¶</a></p>
+<p id="section-10.1-3"><span>[<a href="#ARAP" class="cite xref">ARAP</a>]</span> defines what happens when a Policy Decision Point denies a request
 but marks the denial as requestable: the enforcement point submits an access
 request, an approval is obtained out of band, and a fresh evaluation is
 performed so that the Policy Decision Point remains authoritative at
@@ -2568,208 +2663,208 @@ enforcement time. That profile deliberately does not bind the loop to OAuth,
 requiring instead that a separate profile define a completion mode
 appropriate to the flow. The AuthZEN Working Group's Access Request OAuth
 Profile supplies that completion mode, and it governs the same moment as
-this document.<a href="#section-9.1-3" class="pilcrow">¶</a></p>
-<p id="section-9.1-4">The two divide along the value of <code>decision</code>. The approval work specifies
+this document.<a href="#section-10.1-3" class="pilcrow">¶</a></p>
+<p id="section-10.1-4">The two divide along the value of <code>decision</code>. The approval work specifies
 the deny path: a requestable denial becomes an asynchronous approval, and
 issuance follows the re-evaluation. This document specifies the allow path:
 how the evaluation request is formed, and how a permit may narrow what is
 issued. The approval work therefore already establishes that response
 <code>context</code> shapes issuance; it does so for approval state, where this
-document does so for the granted authorization.<a href="#section-9.1-4" class="pilcrow">¶</a></p>
-<p id="section-9.1-5">Because both must construct an evaluation request from an OAuth token
+document does so for the granted authorization.<a href="#section-10.1-4" class="pilcrow">¶</a></p>
+<p id="section-10.1-5">Because both must construct an evaluation request from an OAuth token
 request, that construction is shared surface, and its treatment in the
 approval profiles is deliberately brief, being incidental to their subject.
 Where the two overlap, this document is intended to supply the detail rather
-than to compete, and aligning the two is expected work.<a href="#section-9.1-5" class="pilcrow">¶</a></p>
+than to compete, and aligning the two is expected work.<a href="#section-10.1-5" class="pilcrow">¶</a></p>
 </section>
 </div>
 </section>
 </div>
 <div id="security-considerations">
-<section id="section-10">
+<section id="section-11">
       <h2 id="name-security-considerations">
-<a href="#section-10" class="section-number selfRef">10. </a><a href="#name-security-considerations" class="section-name selfRef">Security Considerations</a>
+<a href="#section-11" class="section-number selfRef">11. </a><a href="#name-security-considerations" class="section-name selfRef">Security Considerations</a>
       </h2>
 <div id="fail-closed">
-<section id="section-10.1">
+<section id="section-11.1">
         <h3 id="name-fail-closed">
-<a href="#section-10.1" class="section-number selfRef">10.1. </a><a href="#name-fail-closed" class="section-name selfRef">Fail Closed</a>
+<a href="#section-11.1" class="section-number selfRef">11.1. </a><a href="#name-fail-closed" class="section-name selfRef">Fail Closed</a>
         </h3>
-<p id="section-10.1-1">Every failure of the profile - an unreachable PDP, a malformed response, a
-shaping value that violates <a href="#no-broadening" class="auto internal xref">Section 5.3</a>, an unrecognized <code>crit</code>
+<p id="section-11.1-1">Every failure of the profile - an unreachable PDP, a malformed response, a
+shaping value that violates <a href="#no-broadening" class="auto internal xref">Section 6.3</a>, an unrecognized <code>crit</code>
 member - <span class="bcp14">MUST</span> result in no token being issued. A PDP that cannot be
-consulted is not an authorization to proceed.<a href="#section-10.1-1" class="pilcrow">¶</a></p>
-<p id="section-10.1-2">Because the PDP is on the token issuance path, its availability becomes the
+consulted is not an authorization to proceed.<a href="#section-11.1-1" class="pilcrow">¶</a></p>
+<p id="section-11.1-2">Because the PDP is on the token issuance path, its availability becomes the
 AS's availability. Deployments should consider caching of decisions, local
 policy fallback that is explicitly configured rather than implicit, and the
-latency budget of the token endpoint.<a href="#section-10.1-2" class="pilcrow">¶</a></p>
+latency budget of the token endpoint.<a href="#section-11.1-2" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="the-policy-decision-point-as-a-trust-dependency">
-<section id="section-10.2">
+<section id="section-11.2">
         <h3 id="name-the-policy-decision-point-a">
-<a href="#section-10.2" class="section-number selfRef">10.2. </a><a href="#name-the-policy-decision-point-a" class="section-name selfRef">The Policy Decision Point as a Trust Dependency</a>
+<a href="#section-11.2" class="section-number selfRef">11.2. </a><a href="#name-the-policy-decision-point-a" class="section-name selfRef">The Policy Decision Point as a Trust Dependency</a>
         </h3>
-<p id="section-10.2-1">A PDP that can shape tokens can narrow every grant an AS issues, and a
+<p id="section-11.2-1">A PDP that can shape tokens can narrow every grant an AS issues, and a
 compromised PDP can deny service. The constraints in this document bound the
 damage in the other direction: because no shaping key may broaden a grant,
 because <code>sub</code>, <code>aud</code>, and <code>cnf</code> are reserved, and because the AS validates
 every constraining key before applying it, a compromised PDP cannot cause an
 AS to issue a token for a different subject, aimed at a different audience,
 bound to a different key, or bearing a privilege that no evaluation
-considered.<a href="#section-10.2-1" class="pilcrow">¶</a></p>
-<p id="section-10.2-2">This is why the reservations in <a href="#claims" class="auto internal xref">Section 5.5.1</a> are normative rather than
+considered.<a href="#section-11.2-1" class="pilcrow">¶</a></p>
+<p id="section-11.2-2">This is why the reservations in <a href="#claims" class="auto internal xref">Section 6.5.1</a> are normative rather than
 advisory. An implementation that passed PDP-supplied claims into a token
 without checking them against that list would give the PDP the ability to
-mint arbitrary identities.<a href="#section-10.2-2" class="pilcrow">¶</a></p>
+mint arbitrary identities.<a href="#section-11.2-2" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="integrity-of-the-decision-response">
-<section id="section-10.3">
+<section id="section-11.3">
         <h3 id="name-integrity-of-the-decision-r">
-<a href="#section-10.3" class="section-number selfRef">10.3. </a><a href="#name-integrity-of-the-decision-r" class="section-name selfRef">Integrity of the Decision Response</a>
+<a href="#section-11.3" class="section-number selfRef">11.3. </a><a href="#name-integrity-of-the-decision-r" class="section-name selfRef">Integrity of the Decision Response</a>
         </h3>
-<p id="section-10.3-1">The <code>crit</code> mechanism relies on the response arriving intact. An attacker
+<p id="section-11.3-1">The <code>crit</code> mechanism relies on the response arriving intact. An attacker
 able to strip <code>crit</code> from a response is also able to change <code>decision</code> to
 <code>true</code>, so <code>crit</code> does not extend the attack surface beyond what transport
 protection between the AS and the PDP must already cover. It is not a
 substitute for that protection, and deployments requiring non-repudiation of
-decisions should use the response signing mechanisms of <span>[<a href="#AUTHZEN" class="cite xref">AUTHZEN</a>]</span>.<a href="#section-10.3-1" class="pilcrow">¶</a></p>
+decisions should use the response signing mechanisms of <span>[<a href="#AUTHZEN" class="cite xref">AUTHZEN</a>]</span>.<a href="#section-11.3-1" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="privacy">
-<section id="section-10.4">
+<section id="section-11.4">
         <h3 id="name-privacy">
-<a href="#section-10.4" class="section-number selfRef">10.4. </a><a href="#name-privacy" class="section-name selfRef">Privacy</a>
+<a href="#section-11.4" class="section-number selfRef">11.4. </a><a href="#name-privacy" class="section-name selfRef">Privacy</a>
         </h3>
-<p id="section-10.4-1">Evaluation requests carry subject identifiers, client identifiers, targets,
+<p id="section-11.4-1">Evaluation requests carry subject identifiers, client identifiers, targets,
 and authentication context to the PDP, and do so on every token issuance.
 Where the PDP is operated by a party other than the operator of the AS, this
 is a disclosure of authentication and access patterns for every user of the
-system.<a href="#section-10.4-1" class="pilcrow">¶</a></p>
-<p id="section-10.4-2">Requiring that identifier transformations be applied before the request is
-constructed (<a href="#iana-types" class="auto internal xref">Section 11.3</a> and the subject rules above) means that a PDP
+system.<a href="#section-11.4-1" class="pilcrow">¶</a></p>
+<p id="section-11.4-2">Requiring that identifier transformations be applied before the request is
+constructed (<a href="#iana-types" class="auto internal xref">Section 12.3</a> and the subject rules above) means that a PDP
 receiving pairwise or pseudonymous identifiers sees only the identifier the
 token itself will carry, rather than a durable global identifier. Deployments
-sensitive to this should prefer such identifiers.<a href="#section-10.4-2" class="pilcrow">¶</a></p>
-<p id="section-10.4-3">Where <code>context</code> conveys authentication context or device posture, deployments
+sensitive to this should prefer such identifiers.<a href="#section-11.4-2" class="pilcrow">¶</a></p>
+<p id="section-11.4-3">Where <code>context</code> conveys authentication context or device posture, deployments
 should include only what their policies actually consume. The design rule of
-<a href="#design-goals" class="auto internal xref">Section 1.1</a> already bounds how much that ought to be.<a href="#section-10.4-3" class="pilcrow">¶</a></p>
+<a href="#design-goals" class="auto internal xref">Section 1.1</a> already bounds how much that ought to be.<a href="#section-11.4-3" class="pilcrow">¶</a></p>
 </section>
 </div>
 </section>
 </div>
 <div id="iana-considerations">
-<section id="section-11">
+<section id="section-12">
       <h2 id="name-iana-considerations">
-<a href="#section-11" class="section-number selfRef">11. </a><a href="#name-iana-considerations" class="section-name selfRef">IANA Considerations</a>
+<a href="#section-12" class="section-number selfRef">12. </a><a href="#name-iana-considerations" class="section-name selfRef">IANA Considerations</a>
       </h2>
-<p id="section-11-1">The registrations requested by this document fall into two groups with
-different dependency properties, described in <a href="#iana-deps" class="auto internal xref">Section 11.1</a>.<a href="#section-11-1" class="pilcrow">¶</a></p>
+<p id="section-12-1">The registrations requested by this document fall into two groups with
+different dependency properties, described in <a href="#iana-deps" class="auto internal xref">Section 12.1</a>.<a href="#section-12-1" class="pilcrow">¶</a></p>
 <div id="iana-deps">
-<section id="section-11.1">
+<section id="section-12.1">
         <h3 id="name-registration-dependencies">
-<a href="#section-11.1" class="section-number selfRef">11.1. </a><a href="#name-registration-dependencies" class="section-name selfRef">Registration Dependencies</a>
+<a href="#section-12.1" class="section-number selfRef">12.1. </a><a href="#name-registration-dependencies" class="section-name selfRef">Registration Dependencies</a>
         </h3>
-<p id="section-11.1-1">The capability registration in <a href="#iana-capability" class="auto internal xref">Section 11.2</a> is an entry in a registry
+<p id="section-12.1-1">The capability registration in <a href="#iana-capability" class="auto internal xref">Section 12.2</a> is an entry in a registry
 established by another body's specification, and inherits that registry's
-state. The two registries created in <a href="#iana-types" class="auto internal xref">Section 11.3</a> and <a href="#iana-actions" class="auto internal xref">Section 11.4</a> are
-new registries created by this document, and have no such dependency.<a href="#section-11.1-1" class="pilcrow">¶</a></p>
-<p id="section-11.1-2"><span>[<a href="#AUTHZEN" class="cite xref">AUTHZEN</a>]</span> Section 12 asks IANA for two things: an <code>authzen</code> sub-namespace of
+state. The two registries created in <a href="#iana-types" class="auto internal xref">Section 12.3</a> and <a href="#iana-actions" class="auto internal xref">Section 12.4</a> are
+new registries created by this document, and have no such dependency.<a href="#section-12.1-1" class="pilcrow">¶</a></p>
+<p id="section-12.1-2"><span>[<a href="#AUTHZEN" class="cite xref">AUTHZEN</a>]</span> Section 12 asks IANA for two things: an <code>authzen</code> sub-namespace of
 <code>urn:ietf:params</code> under <span>[<a href="#RFC3553" class="cite xref">RFC3553</a>]</span>, and an "AuthZEN Policy Decision Point
 Capabilities" registry whose entries are named as URNs within that
 sub-namespace. At the time of writing, neither appears in the IANA registries.
 The <code>urn:ietf:params</code> sub-namespace registry has a registration policy of IETF
 Review <span>[<a href="#RFC6924" class="cite xref">RFC6924</a>]</span>, which a specification published outside the IETF stream
-cannot satisfy on its own.<a href="#section-11.1-2" class="pilcrow">¶</a></p>
-<p id="section-11.1-3">This document is on the IETF stream, and therefore can. Three resolutions are
-available, and the choice is for the working group:<a href="#section-11.1-3" class="pilcrow">¶</a></p>
-<ol start="1" type="1" class="normal type-1" id="section-11.1-4">
-<li id="section-11.1-4.1">
-            <p id="section-11.1-4.1.1">This document, or a companion document, performs the <span>[<a href="#RFC3553" class="cite xref">RFC3553</a>]</span>
+cannot satisfy on its own.<a href="#section-12.1-2" class="pilcrow">¶</a></p>
+<p id="section-12.1-3">This document is on the IETF stream, and therefore can. Three resolutions are
+available, and the choice is for the working group:<a href="#section-12.1-3" class="pilcrow">¶</a></p>
+<ol start="1" type="1" class="normal type-1" id="section-12.1-4">
+<li id="section-12.1-4.1">
+            <p id="section-12.1-4.1.1">This document, or a companion document, performs the <span>[<a href="#RFC3553" class="cite xref">RFC3553</a>]</span>
 registration of the <code>authzen</code> sub-namespace, satisfying IETF Review. The
-capability name then takes the form given in <a href="#iana-capability" class="auto internal xref">Section 11.2</a>.<a href="#section-11.1-4.1.1" class="pilcrow">¶</a></p>
+capability name then takes the form given in <a href="#iana-capability" class="auto internal xref">Section 12.2</a>.<a href="#section-12.1-4.1.1" class="pilcrow">¶</a></p>
 </li>
-          <li id="section-11.1-4.2">
-            <p id="section-11.1-4.2.1">The capability is named in the <code>urn:openid:authzen</code> namespace rather than
+          <li id="section-12.1-4.2">
+            <p id="section-12.1-4.2.1">The capability is named in the <code>urn:openid:authzen</code> namespace rather than
 under <code>urn:ietf:params</code>, and no IANA action is requested for it. <span>[<a href="#ARAP" class="cite xref">ARAP</a>]</span>
 takes this route, naming its capability
 <code>urn:openid:authzen:capability:access-request</code> and its error conditions
 under <code>urn:openid:authzen:access-request:error</code>, so this is the scheme
 AuthZEN profiles use in practice. The capability name would be
-<code>urn:openid:authzen:capability:token-issuance</code>.<a href="#section-11.1-4.2.1" class="pilcrow">¶</a></p>
+<code>urn:openid:authzen:capability:token-issuance</code>.<a href="#section-12.1-4.2.1" class="pilcrow">¶</a></p>
 </li>
-          <li id="section-11.1-4.3">
-            <p id="section-11.1-4.3.1">This document declines the dependency and registers its capability under
+          <li id="section-12.1-4.3">
+            <p id="section-12.1-4.3.1">This document declines the dependency and registers its capability under
 <code>urn:ietf:params:oauth</code>, the sub-namespace established by <span>[<a href="#RFC6755" class="cite xref">RFC6755</a>]</span>,
 whose registration policy is Specification Required and is therefore not
 blocked. The capability name would be
-<code>urn:ietf:params:oauth:authzen-capability:token-issuance</code>.<a href="#section-11.1-4.3.1" class="pilcrow">¶</a></p>
+<code>urn:ietf:params:oauth:authzen-capability:token-issuance</code>.<a href="#section-12.1-4.3.1" class="pilcrow">¶</a></p>
 </li>
         </ol>
-<p id="section-11.1-5">A capability identifier is only useful if both parties compute the same
+<p id="section-12.1-5">A capability identifier is only useful if both parties compute the same
 string, so one naming scheme for all AuthZEN capabilities is worth more than
 this document's independence from any particular one. Options 1 and 2 both
 achieve that, and differ in which body assigns the name; option 2 has the
 advantage of matching what AuthZEN profiles already do, at the cost of leaving
 the registry <span>[<a href="#AUTHZEN" class="cite xref">AUTHZEN</a>]</span> asks for without entries. Option 3 is the fallback if
-neither is available.<a href="#section-11.1-5" class="pilcrow">¶</a></p>
+neither is available.<a href="#section-12.1-5" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="iana-capability">
-<section id="section-11.2">
+<section id="section-12.2">
         <h3 id="name-authzen-policy-decision-poi">
-<a href="#section-11.2" class="section-number selfRef">11.2. </a><a href="#name-authzen-policy-decision-poi" class="section-name selfRef">AuthZEN Policy Decision Point Capability</a>
+<a href="#section-12.2" class="section-number selfRef">12.2. </a><a href="#name-authzen-policy-decision-poi" class="section-name selfRef">AuthZEN Policy Decision Point Capability</a>
         </h3>
-<p id="section-11.2-1">IANA is requested to register the following in the "AuthZEN Policy Decision
+<p id="section-12.2-1">IANA is requested to register the following in the "AuthZEN Policy Decision
 Point Capabilities" registry established by <span>[<a href="#AUTHZEN" class="cite xref">AUTHZEN</a>]</span>, subject to
-<a href="#iana-deps" class="auto internal xref">Section 11.1</a>:<a href="#section-11.2-1" class="pilcrow">¶</a></p>
-<span class="break"></span><dl class="dlParallel" id="section-11.2-2">
-          <dt id="section-11.2-2.1">Capability Name:</dt>
-          <dd style="margin-left: 1.5em" id="section-11.2-2.2">
-            <p id="section-11.2-2.2.1"><code>:token-issuance</code><a href="#section-11.2-2.2.1" class="pilcrow">¶</a></p>
+<a href="#iana-deps" class="auto internal xref">Section 12.1</a>:<a href="#section-12.2-1" class="pilcrow">¶</a></p>
+<span class="break"></span><dl class="dlParallel" id="section-12.2-2">
+          <dt id="section-12.2-2.1">Capability Name:</dt>
+          <dd style="margin-left: 1.5em" id="section-12.2-2.2">
+            <p id="section-12.2-2.2.1"><code>:token-issuance</code><a href="#section-12.2-2.2.1" class="pilcrow">¶</a></p>
 </dd>
           <dd class="break"></dd>
-<dt id="section-11.2-2.3">Capability URN:</dt>
-          <dd style="margin-left: 1.5em" id="section-11.2-2.4">
-            <p id="section-11.2-2.4.1"><code>urn:ietf:params:authzen:token-issuance</code><a href="#section-11.2-2.4.1" class="pilcrow">¶</a></p>
+<dt id="section-12.2-2.3">Capability URN:</dt>
+          <dd style="margin-left: 1.5em" id="section-12.2-2.4">
+            <p id="section-12.2-2.4.1"><code>urn:ietf:params:authzen:token-issuance</code><a href="#section-12.2-2.4.1" class="pilcrow">¶</a></p>
 </dd>
           <dd class="break"></dd>
-<dt id="section-11.2-2.5">Capability Description:</dt>
-          <dd style="margin-left: 1.5em" id="section-11.2-2.6">
-            <p id="section-11.2-2.6.1">Support for the OAuth 2.0 token issuance profile, comprising the request
-mapping and the <code>issuance</code> response context vocabulary.<a href="#section-11.2-2.6.1" class="pilcrow">¶</a></p>
+<dt id="section-12.2-2.5">Capability Description:</dt>
+          <dd style="margin-left: 1.5em" id="section-12.2-2.6">
+            <p id="section-12.2-2.6.1">Support for the OAuth 2.0 token issuance profile, comprising the request
+mapping and the <code>issuance</code> response context vocabulary.<a href="#section-12.2-2.6.1" class="pilcrow">¶</a></p>
 </dd>
           <dd class="break"></dd>
-<dt id="section-11.2-2.7">Change Controller:</dt>
-          <dd style="margin-left: 1.5em" id="section-11.2-2.8">
-            <p id="section-11.2-2.8.1">IETF<a href="#section-11.2-2.8.1" class="pilcrow">¶</a></p>
+<dt id="section-12.2-2.7">Change Controller:</dt>
+          <dd style="margin-left: 1.5em" id="section-12.2-2.8">
+            <p id="section-12.2-2.8.1">IETF<a href="#section-12.2-2.8.1" class="pilcrow">¶</a></p>
 </dd>
           <dd class="break"></dd>
-<dt id="section-11.2-2.9">Specification Document(s):</dt>
-          <dd style="margin-left: 1.5em" id="section-11.2-2.10">
-            <p id="section-11.2-2.10.1">This document<a href="#section-11.2-2.10.1" class="pilcrow">¶</a></p>
+<dt id="section-12.2-2.9">Specification Document(s):</dt>
+          <dd style="margin-left: 1.5em" id="section-12.2-2.10">
+            <p id="section-12.2-2.10.1">This document<a href="#section-12.2-2.10.1" class="pilcrow">¶</a></p>
 </dd>
         <dd class="break"></dd>
 </dl>
 <ul class="normal ulEmpty">
-<li class="normal ulEmpty" id="section-11.2-3.1">
-            <p id="section-11.2-3.1.1"><strong>Editor's note.</strong> <span>[<a href="#AUTHZEN" class="cite xref">AUTHZEN</a>]</span> requires capability names to begin with a
+<li class="normal ulEmpty" id="section-12.2-3.1">
+            <p id="section-12.2-3.1.1"><strong>Editor's note.</strong> <span>[<a href="#AUTHZEN" class="cite xref">AUTHZEN</a>]</span> requires capability names to begin with a
 colon but gives no worked example of the resulting URN, so the rendering
 above is inferred. It should be confirmed against the registry as
-established and against the first registrations made in it.<a href="#section-11.2-3.1.1" class="pilcrow">¶</a></p>
+established and against the first registrations made in it.<a href="#section-12.2-3.1.1" class="pilcrow">¶</a></p>
 </li>
         </ul>
 </section>
 </div>
 <div id="iana-types">
-<section id="section-11.3">
+<section id="section-12.3">
         <h3 id="name-issuance-authorization-enti">
-<a href="#section-11.3" class="section-number selfRef">11.3. </a><a href="#name-issuance-authorization-enti" class="section-name selfRef">Issuance Authorization Entity Types Registry</a>
+<a href="#section-12.3" class="section-number selfRef">12.3. </a><a href="#name-issuance-authorization-enti" class="section-name selfRef">Issuance Authorization Entity Types Registry</a>
         </h3>
-<p id="section-11.3-1">IANA is requested to establish the "OAuth Token Issuance Authorization
+<p id="section-12.3-1">IANA is requested to establish the "OAuth Token Issuance Authorization
 Entity Types" registry, with a registration policy of Specification Required
-<span>[<a href="#RFC8126" class="cite xref">RFC8126</a>]</span>, containing the following initial entries:<a href="#section-11.3-1" class="pilcrow">¶</a></p>
+<span>[<a href="#RFC8126" class="cite xref">RFC8126</a>]</span>, containing the following initial entries:<a href="#section-12.3-1" class="pilcrow">¶</a></p>
 <table class="center" id="table-5">
           <caption><a href="#table-5" class="selfRef">Table 5</a></caption>
 <thead>
@@ -2813,25 +2908,25 @@ Entity Types" registry, with a registration policy of Specification Required
 </section>
 </div>
 <div id="iana-actions">
-<section id="section-11.4">
+<section id="section-12.4">
         <h3 id="name-issuance-authorization-acti">
-<a href="#section-11.4" class="section-number selfRef">11.4. </a><a href="#name-issuance-authorization-acti" class="section-name selfRef">Issuance Authorization Action Names Registry</a>
+<a href="#section-12.4" class="section-number selfRef">12.4. </a><a href="#name-issuance-authorization-acti" class="section-name selfRef">Issuance Authorization Action Names Registry</a>
         </h3>
-<p id="section-11.4-1">IANA is requested to establish the "OAuth Token Issuance Authorization
+<p id="section-12.4-1">IANA is requested to establish the "OAuth Token Issuance Authorization
 Action Names" registry, with a registration policy of Specification Required
 <span>[<a href="#RFC8126" class="cite xref">RFC8126</a>]</span>, for the two short-name vocabularies from which action names in
-the reserved <code>issue:</code> space are composed.<a href="#section-11.4-1" class="pilcrow">¶</a></p>
-<p id="section-11.4-2">A gate action name is <code>issue:&lt;token-type&gt;:&lt;grant-type&gt;</code>, so the registry
+the reserved <code>issue:</code> space are composed.<a href="#section-12.4-1" class="pilcrow">¶</a></p>
+<p id="section-12.4-2">A gate action name is <code>issue:&lt;token-type&gt;:&lt;grant-type&gt;</code>, so the registry
 grows with the number of token types plus the number of grant types, not
 with their product. The combinations that are meaningful in a deployment are
-a matter of policy, not of registration.<a href="#section-11.4-2" class="pilcrow">¶</a></p>
-<p id="section-11.4-3">Every short name <span class="bcp14">MUST</span> match <code>[a-z][a-z0-9_]{0,30}</code>, and a composed action
-name <span class="bcp14">MUST NOT</span> exceed 50 characters. <a href="#action-portability" class="auto internal xref">Section 4.3.2</a> gives the reason:
+a matter of policy, not of registration.<a href="#section-12.4-2" class="pilcrow">¶</a></p>
+<p id="section-12.4-3">Every short name <span class="bcp14">MUST</span> match <code>[a-z][a-z0-9_]{0,30}</code>, and a composed action
+name <span class="bcp14">MUST NOT</span> exceed 50 characters. <a href="#action-portability" class="auto internal xref">Section 5.3.2</a> gives the reason:
 these bounds are what let the name be transformed mechanically into a
 relation identifier that relationship-based engines accept. Registrants
 should note that the hyphen is excluded deliberately, and that a short name
-therefore differs from the corresponding URI wherever that URI contains one.<a href="#section-11.4-3" class="pilcrow">¶</a></p>
-<p id="section-11.4-4">Token type short names, initially:<a href="#section-11.4-4" class="pilcrow">¶</a></p>
+therefore differs from the corresponding URI wherever that URI contains one.<a href="#section-12.4-3" class="pilcrow">¶</a></p>
+<p id="section-12.4-4">Token type short names, initially:<a href="#section-12.4-4" class="pilcrow">¶</a></p>
 <table class="center" id="table-6">
           <caption><a href="#table-6" class="selfRef">Table 6</a></caption>
 <thead>
@@ -2867,7 +2962,7 @@ therefore differs from the corresponding URI wherever that URI contains one.<a h
             </tr>
           </tbody>
         </table>
-<p id="section-11.4-6">Grant type short names, initially:<a href="#section-11.4-6" class="pilcrow">¶</a></p>
+<p id="section-12.4-6">Grant type short names, initially:<a href="#section-12.4-6" class="pilcrow">¶</a></p>
 <table class="center" id="table-7">
           <caption><a href="#table-7" class="selfRef">Table 7</a></caption>
 <thead>
@@ -2935,23 +3030,23 @@ therefore differs from the corresponding URI wherever that URI contains one.<a h
             </tr>
           </tbody>
         </table>
-<p id="section-11.4-8">Registrations <span class="bcp14">MUST</span> give the URI or parameter value the short name
+<p id="section-12.4-8">Registrations <span class="bcp14">MUST</span> give the URI or parameter value the short name
 corresponds to, and <span class="bcp14">MUST</span> state which of the two vocabularies they join.
 Names outside the <code>issue:</code> prefix are not registered here, since scope
-values are carried verbatim and are not a registered vocabulary.<a href="#section-11.4-8" class="pilcrow">¶</a></p>
+values are carried verbatim and are not a registered vocabulary.<a href="#section-12.4-8" class="pilcrow">¶</a></p>
 </section>
 </div>
 </section>
 </div>
 <div id="sec-combined-references">
-<section id="section-12">
+<section id="section-13">
       <h2 id="name-references">
-<a href="#section-12" class="section-number selfRef">12. </a><a href="#name-references" class="section-name selfRef">References</a>
+<a href="#section-13" class="section-number selfRef">13. </a><a href="#name-references" class="section-name selfRef">References</a>
       </h2>
 <div id="sec-normative-references">
-<section id="section-12.1">
+<section id="section-13.1">
         <h3 id="name-normative-references">
-<a href="#section-12.1" class="section-number selfRef">12.1. </a><a href="#name-normative-references" class="section-name selfRef">Normative References</a>
+<a href="#section-13.1" class="section-number selfRef">13.1. </a><a href="#name-normative-references" class="section-name selfRef">Normative References</a>
         </h3>
 <dl class="references">
 <dt id="AUTHZEN">[AUTHZEN]</dt>
@@ -2986,9 +3081,9 @@ values are carried verbatim and are not a registered vocabulary.<a href="#sectio
 </section>
 </div>
 <div id="sec-informative-references">
-<section id="section-12.2">
+<section id="section-13.2">
         <h3 id="name-informative-references">
-<a href="#section-12.2" class="section-number selfRef">12.2. </a><a href="#name-informative-references" class="section-name selfRef">Informative References</a>
+<a href="#section-13.2" class="section-number selfRef">13.2. </a><a href="#name-informative-references" class="section-name selfRef">Informative References</a>
         </h3>
 <dl class="references">
 <dt id="ARAP">[ARAP]</dt>
@@ -2998,6 +3093,10 @@ values are carried verbatim and are not a registered vocabulary.<a href="#sectio
 <dt id="I-D.brossard-oauth-rar-authzen">[I-D.brossard-oauth-rar-authzen]</dt>
         <dd>
 <span class="refAuthor">Brossard, D.</span>, <span class="refAuthor">Gazitt, O.</span>, and <span class="refAuthor">A. Babeanu</span>, <span class="refTitle">"AuthZEN Request/Response Profile for OAuth 2.0 Rich Authorization Requests"</span>, <span class="refContent">Work in Progress</span>, <span class="seriesInfo">Internet-Draft, draft-brossard-oauth-rar-authzen-03</span>, <time datetime="2024-07-08" class="refDate">8 July 2024</time>, <span>&lt;<a href="https://datatracker.ietf.org/doc/html/draft-brossard-oauth-rar-authzen-03">https://datatracker.ietf.org/doc/html/draft-brossard-oauth-rar-authzen-03</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="I-D.gerber-oauth-deferred-token-response">[I-D.gerber-oauth-deferred-token-response]</dt>
+        <dd>
+<span class="refAuthor">Jacobsen, F. K.</span>, <span class="refAuthor">de Oliveira Niero, G.</span>, and <span class="refAuthor">M. Gerber</span>, <span class="refTitle">"Deferred Token Response"</span>, <span class="refContent">Work in Progress</span>, <span class="seriesInfo">Internet-Draft, draft-gerber-oauth-deferred-token-response-00</span>, <time datetime="2026-06-23" class="refDate">23 June 2026</time>, <span>&lt;<a href="https://datatracker.ietf.org/doc/html/draft-gerber-oauth-deferred-token-response-00">https://datatracker.ietf.org/doc/html/draft-gerber-oauth-deferred-token-response-00</a>&gt;</span>. </dd>
 <dd class="break"></dd>
 <dt id="I-D.ietf-oauth-identity-assertion-authz-grant">[I-D.ietf-oauth-identity-assertion-authz-grant]</dt>
         <dd>

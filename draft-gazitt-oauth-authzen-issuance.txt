@@ -4,8 +4,8 @@
 
 Web Authorization Protocol                                     O. Gazitt
 Internet-Draft                                               Independent
-Intended status: Standards Track                           2 August 2026
-Expires: 3 February 2027
+Intended status: Standards Track                           3 August 2026
+Expires: 4 February 2027
 
 
               AuthZEN Profile for OAuth 2.0 Token Issuance
@@ -63,7 +63,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 3 February 2027.
+   This Internet-Draft will expire on 4 February 2027.
 
 Copyright Notice
 
@@ -87,52 +87,56 @@ Table of Contents
      1.3.  Requirements Language
    2.  Terminology
    3.  Architecture
-   4.  Forming the Evaluation Request
-     4.1.  Subject
-     4.2.  Resource
-     4.3.  Actions: Gate Tuples and Scope Tuples
-       4.3.1.  Gate Tuple
-       4.3.2.  Action Name Portability
-       4.3.3.  Scope Tuple
-       4.3.4.  Gate Tuples Are Always Present
-     4.4.  Context
-     4.5.  Batching and Result Composition
-   5.  Processing the Evaluation Response
-     5.1.  The issuance Envelope
-     5.2.  Mandatory-to-Understand
-     5.3.  No Broadening
-     5.4.  Constraining Keys
-       5.4.1.  granted_scope
-       5.4.2.  token_lifetime
-       5.4.3.  audience
-       5.4.4.  authorization_details
-       5.4.5.  crit
-     5.5.  Decorating Keys
-       5.5.1.  claims
-     5.6.  Aggregation Across a Batch
-   6.  Discovery
-     6.1.  Policy Decision Point Capabilities
-     6.2.  Policy Enforcement Point Capabilities
-   7.  Error Mapping
-   8.  Examples
-     8.1.  Client Credentials, One Scope
-     8.2.  Authorization Code, Downscoping
-     8.3.  No Scopes Requested
-   9.  Relationship to Companion Documents
-     9.1.  Related Work
-   10. Security Considerations
-     10.1.  Fail Closed
-     10.2.  The Policy Decision Point as a Trust Dependency
-     10.3.  Integrity of the Decision Response
-     10.4.  Privacy
-   11. IANA Considerations
-     11.1.  Registration Dependencies
-     11.2.  AuthZEN Policy Decision Point Capability
-     11.3.  Issuance Authorization Entity Types Registry
-     11.4.  Issuance Authorization Action Names Registry
-   12. References
-     12.1.  Normative References
-     12.2.  Informative References
+   4.  Deployment Considerations
+     4.1.  Colocation and Latency
+     4.2.  Decisions That Cannot Be Made Synchronously
+     4.3.  The Seam Inside the Authorization Server
+   5.  Forming the Evaluation Request
+     5.1.  Subject
+     5.2.  Resource
+     5.3.  Actions: Gate Tuples and Scope Tuples
+       5.3.1.  Gate Tuple
+       5.3.2.  Action Name Portability
+       5.3.3.  Scope Tuple
+       5.3.4.  Gate Tuples Are Always Present
+     5.4.  Context
+     5.5.  Batching and Result Composition
+   6.  Processing the Evaluation Response
+     6.1.  The issuance Envelope
+     6.2.  Mandatory-to-Understand
+     6.3.  No Broadening
+     6.4.  Constraining Keys
+       6.4.1.  granted_scope
+       6.4.2.  token_lifetime
+       6.4.3.  audience
+       6.4.4.  authorization_details
+       6.4.5.  crit
+     6.5.  Decorating Keys
+       6.5.1.  claims
+     6.6.  Aggregation Across a Batch
+   7.  Discovery
+     7.1.  Policy Decision Point Capabilities
+     7.2.  Policy Enforcement Point Capabilities
+   8.  Error Mapping
+   9.  Examples
+     9.1.  Client Credentials, One Scope
+     9.2.  Authorization Code, Downscoping
+     9.3.  No Scopes Requested
+   10. Relationship to Companion Documents
+     10.1.  Related Work
+   11. Security Considerations
+     11.1.  Fail Closed
+     11.2.  The Policy Decision Point as a Trust Dependency
+     11.3.  Integrity of the Decision Response
+     11.4.  Privacy
+   12. IANA Considerations
+     12.1.  Registration Dependencies
+     12.2.  AuthZEN Policy Decision Point Capability
+     12.3.  Issuance Authorization Entity Types Registry
+     12.4.  Issuance Authorization Action Names Registry
+   13. References
+     13.1.  Normative References
+     13.2.  Informative References
    Acknowledgments
    Author's Address
 
@@ -172,7 +176,7 @@ Table of Contents
    *One mechanism, many issuance moments.* The decision point is
    structurally identical across grant types: a party is asking for a
    token, naming a target and some set of privileges.  This document
-   defines that mapping once.  Bindings (Section 9) supply what is
+   defines that mapping once.  Bindings (Section 10) supply what is
    specific to a given grant or token type, and are expected to be
    short.
 
@@ -210,7 +214,7 @@ Table of Contents
    *Least surprise for the AS.* The profile does not ask the AS to
    surrender decisions it is authoritative for.  A PDP may narrow what
    is issued; it may not broaden it, re-subject it, or re-target it
-   (Section 5.3).
+   (Section 6.3).
 
 1.2.  Scope
 
@@ -222,7 +226,7 @@ Table of Contents
    The framework decides an *issuance gate*. Where a deployment's policy
    depends on quantitative or transactional constraints - a payment
    amount, a rate limit - those flow in as advisory context and out as
-   token shaping (Section 5), to be enforced by downstream policy
+   token shaping (Section 6), to be enforced by downstream policy
    enforcement points.  Any conforming PDP can adjudicate the gate,
    because the gate is expressed entirely in the five-tuple.  Whether a
    given PDP also adjudicates the context is a property of that
@@ -250,10 +254,10 @@ Table of Contents
 
    Gate tuple:  An evaluation request whose action expresses _issuance
       authority_ - whether the subject may obtain a token of a given
-      type for the issuance target.  See Section 4.3.
+      type for the issuance target.  See Section 5.3.
 
    Scope tuple:  An evaluation request whose action is a requested
-      scope, expressing _access authority_. See Section 4.3.
+      scope, expressing _access authority_. See Section 5.3.
 
 3.  Architecture
 
@@ -283,13 +287,89 @@ Table of Contents
    consulted only after those checks succeed.  A PDP permit does not
    substitute for any of them.
 
-4.  Forming the Evaluation Request
+4.  Deployment Considerations
 
-4.1.  Subject
+4.1.  Colocation and Latency
+
+   A token endpoint can be a very high volume path.  Multi-tenant
+   authorization servers operate at request rates that leave a per-
+   request budget in the low milliseconds, and an issuance decision that
+   added a round trip to a remote service would not be deployable at
+   that scale.
+
+   This profile does not add one.  [AUTHZEN] specifies a request and
+   response contract between a Policy Enforcement Point and a Policy
+   Decision Point; it does not specify where the Policy Decision Point
+   runs.  The PDP of Section 3 may be embedded in the authorization
+   server's own process, loaded as a module or as a WebAssembly
+   component, resident on the same host, or reached over a network.
+   Conformance to this profile is a property of the messages exchanged
+   and not of the topology that carries them, and deployments with the
+   strictest budgets are expected to evaluate in process or on the same
+   host.  Step 3 of Section 3 is drawn as an arrow because it is a
+   request, not because it is a hop.
+
+   Two properties of the issuance moment make the budget more forgiving
+   than the volume alone suggests.
+
+   The decision is made once per token rather than once per request.  An
+   access token is presented many times, over a lifetime usually
+   measured in minutes or hours, so the cost of deciding at issuance is
+   amortized across every later presentation.  This is the reverse of
+   the resource server deployments [AUTHZEN] was first written for,
+   where the decision recurs on every call and the budget is
+   correspondingly tighter.
+
+   The inputs are already in hand.  By the time an AS reaches this
+   decision it has authenticated the client, validated the grant, and
+   resolved the subject.  The evaluation request of Section 5 is
+   assembled from values the AS already holds, and this profile implies
+   no additional lookup to construct it.
+
+4.2.  Decisions That Cannot Be Made Synchronously
+
+   Some issuance decisions cannot complete within the time a token
+   request will wait, at any topology.  A policy may call for human
+   review, for an out-of-band approval, or for a check against a system
+   whose own latency is unbounded.
+
+   This document defines no mechanism for those, and does not need to.
+   [I-D.gerber-oauth-deferred-token-response] defines a deferred token
+   response, in which an authorization server that cannot answer
+   immediately returns a deferral code and the client retrieves the
+   outcome later.  An AS implementing both may treat a decision it
+   cannot obtain synchronously as a deferral rather than as a denial,
+   evaluate it out of band, and apply the response of Section 6 to the
+   token it eventually issues.  Delay does not relax Section 6.3: a
+   decision that arrives late constrains the issued token exactly as one
+   that arrives promptly would.
+
+4.3.  The Seam Inside the Authorization Server
+
+   Section 3 separates validating a grant from deciding whether to honor
+   it, and asks a PDP only the second question.  In a deployed
+   authorization server that separation is often less clean than the
+   figure.  Credential handling, grant validation, session and consent
+   state, and token minting are commonly one subsystem, with the inputs
+   this profile needs distributed across it rather than exposed at any
+   single point.
+
+   The consequence is practical rather than normative.  An authorization
+   server that cannot assemble the fields of Section 5 at one point in
+   its issuance path will have to introduce such a point, and for many
+   implementations that will be the substantive work rather than the
+   mapping or the response handling.  This profile is defined in terms
+   of the values an AS holds when it makes the decision, not in terms of
+   where an implementation keeps them, so it constrains neither the
+   internal structure nor the refactoring.
+
+5.  Forming the Evaluation Request
+
+5.1.  Subject
 
    subject identifies the party the issued token will represent.
 
-   subject.type MUST be one of the registered values in Section 11.3:
+   subject.type MUST be one of the registered values in Section 12.3:
 
    *  user - a natural person.
 
@@ -306,7 +386,7 @@ Table of Contents
    constructed, so that the identifier the PDP authorizes is the
    identifier the token carries.
 
-4.2.  Resource
+5.2.  Resource
 
    resource.type MUST be audience. resource.id MUST be the issuance
    target.
@@ -322,7 +402,7 @@ Table of Contents
    determines resource.id.  Where it does not, the AS's default audience
    for the grant determines it.
 
-4.3.  Actions: Gate Tuples and Scope Tuples
+5.3.  Actions: Gate Tuples and Scope Tuples
 
    Token issuance asks two questions that are frequently conflated:
 
@@ -344,7 +424,7 @@ Table of Contents
    evaluation, these two questions MUST be expressed as separate
    evaluations rather than as two interpretations of one action.name.
 
-4.3.1.  Gate Tuple
+5.3.1.  Gate Tuple
 
    A gate tuple is an evaluation whose action.name has three colon-
    separated segments:
@@ -352,7 +432,7 @@ Table of Contents
    issue:<token-type>:<grant-type>
 
    where <token-type> and <grant-type> are short names registered in
-   Section 11.4 - for example issue:access_token:authorization_code,
+   Section 12.4 - for example issue:access_token:authorization_code,
    issue:id_token:authorization_code,
    issue:refresh_token:token_exchange.
 
@@ -376,9 +456,9 @@ Table of Contents
    of the request.  Together the two segments name one privilege: what
    may be minted, and by what means.
 
-4.3.2.  Action Name Portability
+5.3.2.  Action Name Portability
 
-   Short names registered under Section 11.4 MUST match
+   Short names registered under Section 12.4 MUST match
    [a-z][a-z0-9_]{0,30}, and a composed gate action name MUST NOT exceed
    50 characters.
 
@@ -396,11 +476,11 @@ Table of Contents
    impose before any question of characters arose.
 
    The guarantee covers only the vocabulary this document defines.
-   Scope values are carried verbatim (Section 4.3.3) and routinely
+   Scope values are carried verbatim (Section 5.3.3) and routinely
    contain characters no such grammar admits; mapping them remains
    internal to the PDP.
 
-4.3.3.  Scope Tuple
+5.3.3.  Scope Tuple
 
    A scope tuple is an evaluation whose action.name is a single
    requested scope value, carried verbatim.
@@ -411,21 +491,21 @@ Table of Contents
    for, and the PDP decides what that means in its own policy
    vocabulary.
 
-4.3.4.  Gate Tuples Are Always Present
+5.3.4.  Gate Tuples Are Always Present
 
    An AS MUST include a gate tuple in every evaluation request it forms
    under this profile.  A binding MAY require more than one
-   (Section 4.5).
+   (Section 5.5).
 
    The floor is therefore two evaluations for a request naming scopes,
    and one for a request naming none.  Deployments are expected to write
    issuance policy for every token type and grant combination their AS
    can produce; a PDP that advertises support for this profile renders a
-   decision on any registered gate action it is sent (Section 6.1), so
+   decision on any registered gate action it is sent (Section 7.1), so
    an AS never has to predict which combinations a given PDP has policy
    for.
 
-4.4.  Context
+5.4.  Context
 
    The context object carries advisory input.  A conforming PDP MUST be
    able to render a decision without it.
@@ -453,16 +533,16 @@ Table of Contents
 
                                  Table 1
 
-   The single-type rule of Section 5.1 applies here as well: each key
+   The single-type rule of Section 6.1 applies here as well: each key
    above has one JSON type, and bindings defining further context keys
    MUST state a type for each.
 
    Per Section 1.1, any input on which the decision genuinely depends
    belongs in the five-tuple, not here.  The grant type is the worked
    example: it is decision-critical, so it is a segment of the gate
-   action name (Section 4.3.1) and does not appear in context at all.
+   action name (Section 5.3.1) and does not appear in context at all.
 
-4.5.  Batching and Result Composition
+5.5.  Batching and Result Composition
 
    Where a request yields more than one tuple, the AS MUST use the
    Access Evaluations API of [AUTHZEN] with options.evaluations_semantic
@@ -498,12 +578,12 @@ Table of Contents
    authorizes a token of that kind to exist; it does not authorize an
    empty one.
 
-5.  Processing the Evaluation Response
+6.  Processing the Evaluation Response
 
    A PDP MAY return, in the response context, information that shapes
    the token the AS issues.
 
-5.1.  The issuance Envelope
+6.1.  The issuance Envelope
 
    All keys defined by this profile appear within a single issuance
    member of the response context:
@@ -532,7 +612,7 @@ Table of Contents
    to schematize, and to project into a typed representation than the
    shorthand saves.
 
-5.2.  Mandatory-to-Understand
+6.2.  Mandatory-to-Understand
 
    [AUTHZEN], in the definitions of the decision values in its Decision
    section, states that where a PEP does not understand information in
@@ -555,7 +635,7 @@ Table of Contents
       For such keys, an AS that does not understand and apply the key
       MUST treat the permit as a denial.
 
-5.3.  No Broadening
+6.3.  No Broadening
 
    A PDP MUST NOT return a shaping value that grants access the AS would
    not otherwise have granted, and an AS MUST reject a decision that
@@ -566,12 +646,12 @@ Table of Contents
    bearing admin, and the token would assert a privilege no evaluation
    ever considered.
 
-5.4.  Constraining Keys
+6.4.  Constraining Keys
 
    The keys in this section are mandatory-to-understand under
-   Section 5.2.
+   Section 6.2.
 
-5.4.1.  granted_scope
+6.4.1.  granted_scope
 
    A space-delimited string in the syntax of the scope parameter of
    [RFC6749], giving the scope set the AS is authorized to grant.
@@ -590,7 +670,7 @@ Table of Contents
    Where scope tuples are present, the per-item decisions already
    express downscoping, and a PDP SHOULD NOT also return granted_scope.
 
-5.4.2.  token_lifetime
+6.4.2.  token_lifetime
 
    A non-negative integer number of seconds, interpreted as a *ceiling*.
    The AS MUST issue a token whose lifetime is the lesser of this value
@@ -600,7 +680,7 @@ Table of Contents
    A value of 0 MUST be treated as a denial rather than as an
    instruction to mint an already-expired token.
 
-5.4.3.  audience
+6.4.3.  audience
 
    An array of strings, narrowing the set of targets for which the token
    may be issued.  Each value MUST appear among the resource.id values
@@ -608,7 +688,7 @@ Table of Contents
 
    The value is an array even when it names a single target.  This is
    the key where the single-type rule above is most visible, and where
-   it also makes the aggregation rule of Section 5.6 state plainly:
+   it also makes the aggregation rule of Section 6.6 state plainly:
    intersection is an operation over sets.  An AS remains free to render
    a single-element set as a bare string in the token's own aud claim,
    where [RFC7519] permits it.
@@ -617,7 +697,7 @@ Table of Contents
    token exchange requests the appropriate error is invalid_target
    ([RFC8693]).
 
-5.4.4.  authorization_details
+6.4.4.  authorization_details
 
    An array in the syntax of [RFC9396], replacing - not merged with -
    the authorization details of the request.
@@ -638,9 +718,9 @@ Table of Contents
       authorization details type or reject the decision.  An AS MUST NOT
       pass unvalidated structure into an issued token.
 
-5.4.5.  crit
+6.4.5.  crit
 
-   An array of strings naming members of claims (Section 5.5.1) that are
+   An array of strings naming members of claims (Section 6.5.1) that are
    themselves mandatory-to-understand.  The name and semantics are taken
    from the crit header parameter of [RFC7515]: an AS that does not
    understand and apply a named member MUST treat the permit as a
@@ -653,11 +733,11 @@ Table of Contents
    Dropping such a claim broadens what the token effectively authorizes.
 
    A PDP MUST NOT include crit unless the AS has declared support for
-   the corresponding capability (Section 6).
+   the corresponding capability (Section 7).
 
-5.5.  Decorating Keys
+6.5.  Decorating Keys
 
-5.5.1.  claims
+6.5.1.  claims
 
    An object whose members are claim names, in the sense of [RFC7519],
    and the values to be included in the issued token.  This is the
@@ -665,7 +745,7 @@ Table of Contents
    memberships, roles, and entitlements of the kind [RFC9068] describes
    for JWT access tokens, drawn from the schema of [RFC7643].
 
-   Members of claims are advisory under Section 5.2: an AS that drops
+   Members of claims are advisory under Section 6.2: an AS that drops
    them issues a less capable token.  A PDP that requires a member to be
    honored MUST name it in crit.
 
@@ -710,7 +790,7 @@ Table of Contents
    evaluated.  Re-subjecting a token is a fresh issuance, not an
    attenuation of an existing one, and MUST be evaluated as such.
 
-5.6.  Aggregation Across a Batch
+6.6.  Aggregation Across a Batch
 
    An Access Evaluations response in [AUTHZEN] carries no top-level
    context; each element of the evaluations array is a decision with its
@@ -751,12 +831,12 @@ Table of Contents
    conflict.  A PDP SHOULD return token-level shaping on a single item
    to avoid the situation.
 
-6.  Discovery
+7.  Discovery
 
-6.1.  Policy Decision Point Capabilities
+7.1.  Policy Decision Point Capabilities
 
    A PDP supporting this profile MUST advertise the capability URN
-   registered in Section 11.2 in the capabilities member of its metadata
+   registered in Section 12.2 in the capabilities member of its metadata
    document, retrievable at /.well-known/authzen-configuration:
 
    {
@@ -781,11 +861,11 @@ Table of Contents
    Advertising the capability is accordingly a commitment to the request
    shapes this profile can produce.  A PDP that advertises it MUST
    render a decision for a gate tuple naming any action name composable
-   from the short names registered in Section 11.4, and MUST NOT reject
+   from the short names registered in Section 12.4, and MUST NOT reject
    the evaluation on the grounds that it holds no policy for that
    action.  Denying is a decision; a protocol error is not.  The same
    applies to a batch that mixes a gate tuple with scope tuples, which
-   is the ordinary shape of a request naming scopes (Section 4.5).
+   is the ordinary shape of a request naming scopes (Section 5.5).
 
    The obligation matters because the gate vocabulary is a product of
    two registries and grows as bindings register short names.  An AS
@@ -818,7 +898,7 @@ Table of Contents
    deployment is prepared for.  This is a deployment-time check, not a
    per-request one, and nothing in this profile requires it.
 
-6.2.  Policy Enforcement Point Capabilities
+7.2.  Policy Enforcement Point Capabilities
 
    An AS MAY declare the capabilities it understands in the request
    context, using the same URNs:
@@ -846,7 +926,7 @@ Table of Contents
    The declaration is an optimization, not a safety mechanism, and this
    is why it is OPTIONAL.  Safety is already unilateral: a PDP that
    marks a key crit obliges any AS implementing this profile to fail
-   closed if it does not understand it (Section 5.2), and an AS that
+   closed if it does not understand it (Section 6.2), and an AS that
    does not implement this profile ignores the issuance envelope
    entirely, crit included.  Withholding crit from an undeclared AS
    therefore protects nothing.  What the declaration buys a PDP is the
@@ -866,7 +946,7 @@ Table of Contents
    based on it would be allowing a property of the enforcement point to
    influence policy.
 
-7.  Error Mapping
+8.  Error Mapping
 
       +==========================+=================================+
       | Condition                | Authorization server behavior   |
@@ -882,7 +962,7 @@ Table of Contents
       | audience set             |                                 |
       +--------------------------+---------------------------------+
       | Shaping key violates     | Treat as denial; fail the       |
-      | Section 5.3              | request                         |
+      | Section 6.3              | request                         |
       +--------------------------+---------------------------------+
       | Unknown crit member      | Treat as denial; fail the       |
       |                          | request                         |
@@ -906,7 +986,7 @@ Table of Contents
    servers rather than for the token endpoint, and no equivalent signal
    exists there.  This is an open item.
 
-8.  Examples
+9.  Examples
 
    The first example below is shown in full, framed against the HTTPS
    JSON binding of [AUTHZEN].  The remaining examples show only the JSON
@@ -920,7 +1000,7 @@ Table of Contents
    evaluation, as published in the PDP's metadata; the paths shown below
    are the defaults that apply when metadata provides no value.
 
-8.1.  Client Credentials, One Scope
+9.1.  Client Credentials, One Scope
 
    One scope is requested, so the request is the gate tuple and one
    scope tuple.  This is the floor: two evaluations, so the Access
@@ -969,7 +1049,7 @@ Table of Contents
      ]
    }
 
-8.2.  Authorization Code, Downscoping
+9.2.  Authorization Code, Downscoping
 
    Three scopes are requested.  The gate leads at index 0 and
    execute_all allows the AS to issue the permitted subset of the rest.
@@ -1028,7 +1108,7 @@ Table of Contents
    authorization here could deny it while leaving the scope tuples
    untouched.
 
-8.3.  No Scopes Requested
+9.3.  No Scopes Requested
 
    No scopes and no default set, so the gate tuple stands alone.  This
    is the only shape this document produces that is a single evaluation,
@@ -1065,10 +1145,10 @@ Table of Contents
      }
    }
 
-9.  Relationship to Companion Documents
+10.  Relationship to Companion Documents
 
    This document defines the mapping and the shaping vocabulary, and
-   registers short names for the grant types listed in Section 11.4.
+   registers short names for the grant types listed in Section 12.4.
    For a grant whose request names a single party and a single target,
    that is everything an AS needs; the client credentials and
    authorization code examples above are complete, and no companion
@@ -1088,7 +1168,7 @@ Table of Contents
    additional context keys, the token type short names they register,
    and any invariants of their own that a PDP cannot override.
 
-9.1.  Related Work
+10.1.  Related Work
 
    Two other efforts place an AuthZEN Policy Decision Point behind an
    authorization server.
@@ -1126,12 +1206,12 @@ Table of Contents
    supply the detail rather than to compete, and aligning the two is
    expected work.
 
-10.  Security Considerations
+11.  Security Considerations
 
-10.1.  Fail Closed
+11.1.  Fail Closed
 
    Every failure of the profile - an unreachable PDP, a malformed
-   response, a shaping value that violates Section 5.3, an unrecognized
+   response, a shaping value that violates Section 6.3, an unrecognized
    crit member - MUST result in no token being issued.  A PDP that
    cannot be consulted is not an authorization to proceed.
 
@@ -1140,7 +1220,7 @@ Table of Contents
    of decisions, local policy fallback that is explicitly configured
    rather than implicit, and the latency budget of the token endpoint.
 
-10.2.  The Policy Decision Point as a Trust Dependency
+11.2.  The Policy Decision Point as a Trust Dependency
 
    A PDP that can shape tokens can narrow every grant an AS issues, and
    a compromised PDP can deny service.  The constraints in this document
@@ -1151,12 +1231,12 @@ Table of Contents
    subject, aimed at a different audience, bound to a different key, or
    bearing a privilege that no evaluation considered.
 
-   This is why the reservations in Section 5.5.1 are normative rather
+   This is why the reservations in Section 6.5.1 are normative rather
    than advisory.  An implementation that passed PDP-supplied claims
    into a token without checking them against that list would give the
    PDP the ability to mint arbitrary identities.
 
-10.3.  Integrity of the Decision Response
+11.3.  Integrity of the Decision Response
 
    The crit mechanism relies on the response arriving intact.  An
    attacker able to strip crit from a response is also able to change
@@ -1166,7 +1246,7 @@ Table of Contents
    requiring non-repudiation of decisions should use the response
    signing mechanisms of [AUTHZEN].
 
-10.4.  Privacy
+11.4.  Privacy
 
    Evaluation requests carry subject identifiers, client identifiers,
    targets, and authentication context to the PDP, and do so on every
@@ -1175,7 +1255,7 @@ Table of Contents
    patterns for every user of the system.
 
    Requiring that identifier transformations be applied before the
-   request is constructed (Section 11.3 and the subject rules above)
+   request is constructed (Section 12.3 and the subject rules above)
    means that a PDP receiving pairwise or pseudonymous identifiers sees
    only the identifier the token itself will carry, rather than a
    durable global identifier.  Deployments sensitive to this should
@@ -1186,17 +1266,17 @@ Table of Contents
    The design rule of Section 1.1 already bounds how much that ought to
    be.
 
-11.  IANA Considerations
+12.  IANA Considerations
 
    The registrations requested by this document fall into two groups
-   with different dependency properties, described in Section 11.1.
+   with different dependency properties, described in Section 12.1.
 
-11.1.  Registration Dependencies
+12.1.  Registration Dependencies
 
-   The capability registration in Section 11.2 is an entry in a registry
+   The capability registration in Section 12.2 is an entry in a registry
    established by another body's specification, and inherits that
-   registry's state.  The two registries created in Section 11.3 and
-   Section 11.4 are new registries created by this document, and have no
+   registry's state.  The two registries created in Section 12.3 and
+   Section 12.4 are new registries created by this document, and have no
    such dependency.
 
    [AUTHZEN] Section 12 asks IANA for two things: an authzen sub-
@@ -1214,7 +1294,7 @@ Table of Contents
    1.  This document, or a companion document, performs the [RFC3553]
        registration of the authzen sub-namespace, satisfying IETF
        Review.  The capability name then takes the form given in
-       Section 11.2.
+       Section 12.2.
 
    2.  The capability is named in the urn:openid:authzen namespace
        rather than under urn:ietf:params, and no IANA action is
@@ -1240,11 +1320,11 @@ Table of Contents
    asks for without entries.  Option 3 is the fallback if neither is
    available.
 
-11.2.  AuthZEN Policy Decision Point Capability
+12.2.  AuthZEN Policy Decision Point Capability
 
    IANA is requested to register the following in the "AuthZEN Policy
    Decision Point Capabilities" registry established by [AUTHZEN],
-   subject to Section 11.1:
+   subject to Section 12.1:
 
    Capability Name:  :token-issuance
 
@@ -1264,7 +1344,7 @@ Table of Contents
       registry as established and against the first registrations made
       in it.
 
-11.3.  Issuance Authorization Entity Types Registry
+12.3.  Issuance Authorization Entity Types Registry
 
    IANA is requested to establish the "OAuth Token Issuance
    Authorization Entity Types" registry, with a registration policy of
@@ -1285,7 +1365,7 @@ Table of Contents
 
                                  Table 5
 
-11.4.  Issuance Authorization Action Names Registry
+12.4.  Issuance Authorization Action Names Registry
 
    IANA is requested to establish the "OAuth Token Issuance
    Authorization Action Names" registry, with a registration policy of
@@ -1299,7 +1379,7 @@ Table of Contents
    registration.
 
    Every short name MUST match [a-z][a-z0-9_]{0,30}, and a composed
-   action name MUST NOT exceed 50 characters.  Section 4.3.2 gives the
+   action name MUST NOT exceed 50 characters.  Section 5.3.2 gives the
    reason: these bounds are what let the name be transformed
    mechanically into a relation identifier that relationship-based
    engines accept.  Registrants should note that the hyphen is excluded
@@ -1348,9 +1428,9 @@ Table of Contents
    scope values are carried verbatim and are not a registered
    vocabulary.
 
-12.  References
+13.  References
 
-12.1.  Normative References
+13.1.  Normative References
 
    [AUTHZEN]  OpenID Foundation AuthZEN Working Group, "Authorization
               API 1.0", 11 January 2026, <https://openid.net/specs/
@@ -1383,7 +1463,7 @@ Table of Contents
               DOI 10.17487/RFC9396, May 2023,
               <https://www.rfc-editor.org/rfc/rfc9396>.
 
-12.2.  Informative References
+13.2.  Informative References
 
    [ARAP]     McGuinness, K., "AuthZEN Access Request and Approval
               Profile 1.0", 27 July 2026,
@@ -1397,6 +1477,13 @@ Table of Contents
               brossard-oauth-rar-authzen-03, 8 July 2024,
               <https://datatracker.ietf.org/doc/html/draft-brossard-
               oauth-rar-authzen-03>.
+
+   [I-D.gerber-oauth-deferred-token-response]
+              Jacobsen, F. K., de Oliveira Niero, G., and M. Gerber,
+              "Deferred Token Response", Work in Progress, Internet-
+              Draft, draft-gerber-oauth-deferred-token-response-00, 23
+              June 2026, <https://datatracker.ietf.org/doc/html/draft-
+              gerber-oauth-deferred-token-response-00>.
 
    [I-D.ietf-oauth-identity-assertion-authz-grant]
               Parecki, A., McGuinness, K., and B. Campbell, "Identity
