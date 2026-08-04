@@ -1,4 +1,4 @@
-<!-- regenerate: on (set to off if you edit this file) -->
+<!-- regenerate: off (set to off if you edit this file) -->
 
 # OAUTH Drafts
 
@@ -18,6 +18,15 @@ This is the working area for individual Internet-Drafts.
 * [Individual Draft](https://datatracker.ietf.org/doc/html/draft-gazitt-oauth-authzen-token-exchange)
 * [Compare Editor's Copy to Individual Draft](https://ogazitt.github.io/oauth-authzen/#go.draft-gazitt-oauth-authzen-token-exchange.diff)
 
+## Background
+
+Both drafts are motivated at length in the series *Policy at the token
+endpoint* at <https://notes.ogazitt.com>, which covers why an authorization
+server's issuance decision has been left undefined by every specification
+that depends on it, how a token request maps onto an authorization
+decision, and what a policy decision point is and is not allowed to change
+about the resulting token. The drafts are normative and stand on their own;
+the posts carry the reasoning and the alternatives that were rejected.
 
 ## Contributing
 
