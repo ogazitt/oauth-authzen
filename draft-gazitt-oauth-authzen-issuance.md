@@ -841,11 +841,16 @@ as they may disclose policy structure to a party that is not authorized to
 learn it.
 
 Where a PDP returns a denial accompanied by authentication requirements -
-the step-up pattern of {{AUTHZEN}}, in which required `acr` and `amr` values
-are named - an AS SHOULD surface this to the client. This document does not
-define that mapping: `insufficient_user_authentication` in {{RFC9470}} is
-defined for resource servers rather than for the token endpoint, and no
-equivalent signal exists there. This is an open item.
+the step-up pattern of {{AUTHZEN}}, in which the required `acr` and `amr`
+values are named - an AS SHOULD surface the requirement to the client. This
+document does not define that mapping, and neither end of it is presently
+specified. {{AUTHZEN}} illustrates the pattern in a non-normative example
+rather than defining the response context keys that carry it, leaving a
+profile nothing normative to reference; and on the OAuth side,
+`insufficient_user_authentication` in {{RFC9470}} is defined for resource
+servers rather than for the token endpoint, where no equivalent signal
+exists. This is an open item, and closing it requires work in both
+specifications.
 
 # Examples
 
