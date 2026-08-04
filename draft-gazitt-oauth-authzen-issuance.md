@@ -720,6 +720,8 @@ retrievable at `/.well-known/authzen-configuration`:
   "policy_decision_point": "https://pdp.example.com",
   "access_evaluation_endpoint":
       "https://pdp.example.com/access/v1/evaluation",
+  "access_evaluations_endpoint":
+      "https://pdp.example.com/access/v1/evaluations",
   "capabilities": [
     "urn:ietf:params:authzen:token-issuance"
   ]
