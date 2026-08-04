@@ -49,11 +49,8 @@ normative:
         org: "Independent"
 
 informative:
-  RFC7519:
   RFC8126:
   RFC8705:
-  RFC9068:
-  RFC9396:
   RFC9449:
   I-D.ietf-oauth-identity-chaining:
   I-D.ietf-oauth-identity-assertion-authz-grant:
@@ -187,7 +184,7 @@ tokens are *valid*.
 The exchange subject is derived from `subject_token`, interpreted according
 to `subject_token_type`:
 
-| `subject_token_type` | Exchange subject |
+| Value of subject_token_type | Exchange subject |
 |---|---|
 | `access_token`, `id_token`, `jwt` | The subject of the presented token |
 | `refresh_token` | The subject the refresh token was issued for |

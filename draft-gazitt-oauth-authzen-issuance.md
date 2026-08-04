@@ -308,7 +308,7 @@ constrains neither the internal structure nor the refactoring.
 
 # Forming the Evaluation Request {#request}
 
-## Subject
+## Subject {#subject}
 
 `subject` identifies the party the issued token will represent.
 
@@ -1117,7 +1117,7 @@ is a disclosure of authentication and access patterns for every user of the
 system.
 
 Requiring that identifier transformations be applied before the request is
-constructed ({{iana-types}} and the subject rules above) means that a PDP
+constructed ({{subject}}) means that a PDP
 receiving pairwise or pseudonymous identifiers sees only the identifier the
 token itself will carry, rather than a durable global identifier. Deployments
 sensitive to this should prefer such identifiers.
