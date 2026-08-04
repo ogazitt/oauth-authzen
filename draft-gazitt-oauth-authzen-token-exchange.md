@@ -373,7 +373,8 @@ authorized their disclosure to the PDP.
 
 Except where a request names no scopes and the two gate tuples coincide
 ({{actor-gate}}), the AS uses the Access Evaluations API of {{AUTHZEN}} as
-{{ISSUANCE}} specifies.
+{{ISSUANCE}} specifies, with `options.evaluations_semantic` set to
+`execute_all`.
 
 {{ISSUANCE}} requires gate tuples to occupy the leading indices of the
 `evaluations` array. Here that ordinarily means indices 0 and 1, in the order
@@ -381,20 +382,19 @@ given in {{actions}}: the subject gate first, then the requesting party gate.
 Scope tuples follow. The AS MUST fail the request without issuing a token if
 either gate is denied.
 
-The evaluations semantic depends on what the deployment intends a denial to
-mean:
+Narrowing is the ordinary outcome of a scope denial, and matches
+{{I-D.ietf-oauth-identity-assertion-authz-grant}}, which states that granted
+scopes may be a subset of those requested. Where a deployment instead intends
+the requested privileges to be granted whole, it does not vary the evaluations
+semantic to obtain that: it fails the request when any scope tuple is denied.
 
-* `execute_all` where scope denials should narrow the grant. This is the
-  default for this binding, and matches {{I-D.ietf-oauth-identity-assertion-authz-grant}},
-  which states that granted scopes may be a subset of those requested.
-* `deny_on_first_deny` where the requested privileges are a conjunction that
-  must be granted whole, as in the Txn-Token case described in
-  {{txn-tokens}}.
-
-Because {{AUTHZEN}} selects the semantic per request rather than per item,
-an AS using `execute_all` enforces the fatality of a gate denial itself.
-This is within the enforcement point's role; the AS is already interpreting
-per-item results in order to downscope.
+A short-circuiting semantic is not used, because it may return a truncated
+`evaluations` array while the aggregation rules of {{ISSUANCE}} are defined
+over the complete set of per-item results. Composing those results is the AS's
+work here in any case: {{AUTHZEN}} selects the semantic per request rather
+than per item, so the fatality of a gate denial is enforced by the AS and not
+by the PDP. Retaining every per-item result also preserves the record of which
+privilege was refused, which is what an operator needs when a request fails.
 
 # Token Type Bindings
 
