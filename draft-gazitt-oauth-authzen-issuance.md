@@ -673,9 +673,9 @@ following claims:
 | `authorization_details` | Has its own key and narrowing rules |
 | `may_act` | Confers future delegation authority; broadening by construction |
 
-The reservation of `sub` and `aud` is the load-bearing one. Both are inputs
-to the five-tuple; a PDP that could rewrite either would cause the AS to
-issue a token corresponding to a decision that was never evaluated.
+The entries for `sub` and `aud` rest on stronger ground than the rest. Both
+are inputs to the five-tuple; a PDP that could rewrite either would cause the
+AS to issue a token corresponding to a decision that was never evaluated.
 Re-subjecting a token is a fresh issuance, not an attenuation of an existing
 one, and MUST be evaluated as such.
 
