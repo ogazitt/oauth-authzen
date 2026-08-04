@@ -1070,7 +1070,7 @@ svg {
 </tr></thead>
 <tfoot><tr>
 <td class="left">Gazitt</td>
-<td class="center">Expires 4 February 2027</td>
+<td class="center">Expires 5 February 2027</td>
 <td class="right">[Page]</td>
 </tr></tfoot>
 </table>
@@ -1083,12 +1083,12 @@ svg {
 <dd class="internet-draft">draft-gazitt-oauth-authzen-token-exchange-latest</dd>
 <dt class="label-published">Published:</dt>
 <dd class="published">
-<time datetime="2026-08-03" class="published">3 August 2026</time>
+<time datetime="2026-08-04" class="published">4 August 2026</time>
     </dd>
 <dt class="label-intended-status">Intended Status:</dt>
 <dd class="intended-status">Standards Track</dd>
 <dt class="label-expires">Expires:</dt>
-<dd class="expires"><time datetime="2027-02-04">4 February 2027</time></dd>
+<dd class="expires"><time datetime="2027-02-05">5 February 2027</time></dd>
 <dt class="label-authors">Author:</dt>
 <dd class="authors">
 <div class="author">
@@ -1147,7 +1147,7 @@ the token types layered on token exchange contributes to that mapping.<a href="#
         time. It is inappropriate to use Internet-Drafts as reference
         material or to cite them other than as "work in progress."<a href="#section-boilerplate.1-3" class="pilcrow">¶</a></p>
 <p id="section-boilerplate.1-4">
-        This Internet-Draft will expire on 4 February 2027.<a href="#section-boilerplate.1-4" class="pilcrow">¶</a></p>
+        This Internet-Draft will expire on 5 February 2027.<a href="#section-boilerplate.1-4" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="copyright">
@@ -1464,7 +1464,7 @@ to <code>subject_token_type</code>:<a href="#section-4.1-1" class="pilcrow">¶</
           <caption><a href="#table-1" class="selfRef">Table 1</a></caption>
 <thead>
             <tr>
-              <th class="text-left" rowspan="1" colspan="1">subject_token_type</th>
+              <th class="text-left" rowspan="1" colspan="1">Value of subject_token_type</th>
               <th class="text-left" rowspan="1" colspan="1">Exchange subject</th>
             </tr>
           </thead>
@@ -1765,30 +1765,25 @@ authorized their disclosure to the PDP.<a href="#section-4.5-5" class="pilcrow">
         </h3>
 <p id="section-4.6-1">Except where a request names no scopes and the two gate tuples coincide
 (<a href="#actor-gate" class="auto internal xref">Section 4.3.2</a>), the AS uses the Access Evaluations API of <span>[<a href="#AUTHZEN" class="cite xref">AUTHZEN</a>]</span> as
-<span>[<a href="#ISSUANCE" class="cite xref">ISSUANCE</a>]</span> specifies.<a href="#section-4.6-1" class="pilcrow">¶</a></p>
+<span>[<a href="#ISSUANCE" class="cite xref">ISSUANCE</a>]</span> specifies, with <code>options.evaluations_semantic</code> set to
+<code>execute_all</code>.<a href="#section-4.6-1" class="pilcrow">¶</a></p>
 <p id="section-4.6-2"><span>[<a href="#ISSUANCE" class="cite xref">ISSUANCE</a>]</span> requires gate tuples to occupy the leading indices of the
 <code>evaluations</code> array. Here that ordinarily means indices 0 and 1, in the order
 given in <a href="#actions" class="auto internal xref">Section 4.3</a>: the subject gate first, then the requesting party gate.
 Scope tuples follow. The AS <span class="bcp14">MUST</span> fail the request without issuing a token if
 either gate is denied.<a href="#section-4.6-2" class="pilcrow">¶</a></p>
-<p id="section-4.6-3">The evaluations semantic depends on what the deployment intends a denial to
-mean:<a href="#section-4.6-3" class="pilcrow">¶</a></p>
-<ul class="normal">
-<li class="normal" id="section-4.6-4.1">
-            <p id="section-4.6-4.1.1"><code>execute_all</code> where scope denials should narrow the grant. This is the
-default for this binding, and matches <span>[<a href="#I-D.ietf-oauth-identity-assertion-authz-grant" class="cite xref">I-D.ietf-oauth-identity-assertion-authz-grant</a>]</span>,
-which states that granted scopes may be a subset of those requested.<a href="#section-4.6-4.1.1" class="pilcrow">¶</a></p>
-</li>
-          <li class="normal" id="section-4.6-4.2">
-            <p id="section-4.6-4.2.1"><code>deny_on_first_deny</code> where the requested privileges are a conjunction that
-must be granted whole, as in the Txn-Token case described in
-<a href="#txn-tokens" class="auto internal xref">Section 5.4</a>.<a href="#section-4.6-4.2.1" class="pilcrow">¶</a></p>
-</li>
-        </ul>
-<p id="section-4.6-5">Because <span>[<a href="#AUTHZEN" class="cite xref">AUTHZEN</a>]</span> selects the semantic per request rather than per item,
-an AS using <code>execute_all</code> enforces the fatality of a gate denial itself.
-This is within the enforcement point's role; the AS is already interpreting
-per-item results in order to downscope.<a href="#section-4.6-5" class="pilcrow">¶</a></p>
+<p id="section-4.6-3">Narrowing is the ordinary outcome of a scope denial, and matches
+<span>[<a href="#I-D.ietf-oauth-identity-assertion-authz-grant" class="cite xref">I-D.ietf-oauth-identity-assertion-authz-grant</a>]</span>, which states that granted
+scopes may be a subset of those requested. Where a deployment instead intends
+the requested privileges to be granted whole, it does not vary the evaluations
+semantic to obtain that: it fails the request when any scope tuple is denied.<a href="#section-4.6-3" class="pilcrow">¶</a></p>
+<p id="section-4.6-4">A short-circuiting semantic is not used, because it may return a truncated
+<code>evaluations</code> array while the aggregation rules of <span>[<a href="#ISSUANCE" class="cite xref">ISSUANCE</a>]</span> are defined
+over the complete set of per-item results. Composing those results is the AS's
+work here in any case: <span>[<a href="#AUTHZEN" class="cite xref">AUTHZEN</a>]</span> selects the semantic per request rather
+than per item, so the fatality of a gate denial is enforced by the AS and not
+by the PDP. Retaining every per-item result also preserves the record of which
+privilege was refused, which is what an operator needs when a request fails.<a href="#section-4.6-4" class="pilcrow">¶</a></p>
 </section>
 </div>
 </section>
@@ -2442,10 +2437,6 @@ values those documents ultimately register.<a href="#section-11.1-5.1.1" class="
         <dd>
 <span class="refAuthor">Tulshibagwale, A.</span>, <span class="refAuthor">Fletcher, G.</span>, and <span class="refAuthor">P. Kasselman</span>, <span class="refTitle">"Transaction Tokens"</span>, <span class="refContent">Work in Progress</span>, <span class="seriesInfo">Internet-Draft, draft-ietf-oauth-transaction-tokens-11</span>, <time datetime="2026-07-30" class="refDate">30 July 2026</time>, <span>&lt;<a href="https://datatracker.ietf.org/doc/html/draft-ietf-oauth-transaction-tokens-11">https://datatracker.ietf.org/doc/html/draft-ietf-oauth-transaction-tokens-11</a>&gt;</span>. </dd>
 <dd class="break"></dd>
-<dt id="RFC7519">[RFC7519]</dt>
-        <dd>
-<span class="refAuthor">Jones, M.</span>, <span class="refAuthor">Bradley, J.</span>, and <span class="refAuthor">N. Sakimura</span>, <span class="refTitle">"JSON Web Token (JWT)"</span>, <span class="seriesInfo">RFC 7519</span>, <span class="seriesInfo">DOI 10.17487/RFC7519</span>, <time datetime="2015-05" class="refDate">May 2015</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc7519">https://www.rfc-editor.org/rfc/rfc7519</a>&gt;</span>. </dd>
-<dd class="break"></dd>
 <dt id="RFC8126">[RFC8126]</dt>
         <dd>
 <span class="refAuthor">Cotton, M.</span>, <span class="refAuthor">Leiba, B.</span>, and <span class="refAuthor">T. Narten</span>, <span class="refTitle">"Guidelines for Writing an IANA Considerations Section in RFCs"</span>, <span class="seriesInfo">BCP 26</span>, <span class="seriesInfo">RFC 8126</span>, <span class="seriesInfo">DOI 10.17487/RFC8126</span>, <time datetime="2017-06" class="refDate">June 2017</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc8126">https://www.rfc-editor.org/rfc/rfc8126</a>&gt;</span>. </dd>
@@ -2453,14 +2444,6 @@ values those documents ultimately register.<a href="#section-11.1-5.1.1" class="
 <dt id="RFC8705">[RFC8705]</dt>
         <dd>
 <span class="refAuthor">Campbell, B.</span>, <span class="refAuthor">Bradley, J.</span>, <span class="refAuthor">Sakimura, N.</span>, and <span class="refAuthor">T. Lodderstedt</span>, <span class="refTitle">"OAuth 2.0 Mutual-TLS Client Authentication and Certificate-Bound Access Tokens"</span>, <span class="seriesInfo">RFC 8705</span>, <span class="seriesInfo">DOI 10.17487/RFC8705</span>, <time datetime="2020-02" class="refDate">February 2020</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc8705">https://www.rfc-editor.org/rfc/rfc8705</a>&gt;</span>. </dd>
-<dd class="break"></dd>
-<dt id="RFC9068">[RFC9068]</dt>
-        <dd>
-<span class="refAuthor">Bertocci, V.</span>, <span class="refTitle">"JSON Web Token (JWT) Profile for OAuth 2.0 Access Tokens"</span>, <span class="seriesInfo">RFC 9068</span>, <span class="seriesInfo">DOI 10.17487/RFC9068</span>, <time datetime="2021-10" class="refDate">October 2021</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc9068">https://www.rfc-editor.org/rfc/rfc9068</a>&gt;</span>. </dd>
-<dd class="break"></dd>
-<dt id="RFC9396">[RFC9396]</dt>
-        <dd>
-<span class="refAuthor">Lodderstedt, T.</span>, <span class="refAuthor">Richer, J.</span>, and <span class="refAuthor">B. Campbell</span>, <span class="refTitle">"OAuth 2.0 Rich Authorization Requests"</span>, <span class="seriesInfo">RFC 9396</span>, <span class="seriesInfo">DOI 10.17487/RFC9396</span>, <time datetime="2023-05" class="refDate">May 2023</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc9396">https://www.rfc-editor.org/rfc/rfc9396</a>&gt;</span>. </dd>
 <dd class="break"></dd>
 <dt id="RFC9449">[RFC9449]</dt>
         <dd>

@@ -4,8 +4,8 @@
 
 Web Authorization Protocol                                     O. Gazitt
 Internet-Draft                                               Independent
-Intended status: Standards Track                           3 August 2026
-Expires: 4 February 2027
+Intended status: Standards Track                           4 August 2026
+Expires: 5 February 2027
 
 
               AuthZEN Profile for OAuth 2.0 Token Issuance
@@ -63,7 +63,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 4 February 2027.
+   This Internet-Draft will expire on 5 February 2027.
 
 Copyright Notice
 
@@ -784,11 +784,11 @@ Table of Contents
 
                                  Table 2
 
-   The reservation of sub and aud is the load-bearing one.  Both are
-   inputs to the five-tuple; a PDP that could rewrite either would cause
-   the AS to issue a token corresponding to a decision that was never
-   evaluated.  Re-subjecting a token is a fresh issuance, not an
-   attenuation of an existing one, and MUST be evaluated as such.
+   The entries for sub and aud rest on stronger ground than the rest.
+   Both are inputs to the five-tuple; a PDP that could rewrite either
+   would cause the AS to issue a token corresponding to a decision that
+   was never evaluated.  Re-subjecting a token is a fresh issuance, not
+   an attenuation of an existing one, and MUST be evaluated as such.
 
 6.6.  Aggregation Across a Batch
 
@@ -843,6 +843,8 @@ Table of Contents
      "policy_decision_point": "https://pdp.example.com",
      "access_evaluation_endpoint":
          "https://pdp.example.com/access/v1/evaluation",
+     "access_evaluations_endpoint":
+         "https://pdp.example.com/access/v1/evaluations",
      "capabilities": [
        "urn:ietf:params:authzen:token-issuance"
      ]
@@ -979,12 +981,17 @@ Table of Contents
    not authorized to learn it.
 
    Where a PDP returns a denial accompanied by authentication
-   requirements - the step-up pattern of [AUTHZEN], in which required
-   acr and amr values are named - an AS SHOULD surface this to the
-   client.  This document does not define that mapping:
+   requirements - the step-up pattern of [AUTHZEN], in which the
+   required acr and amr values are named - an AS SHOULD surface the
+   requirement to the client.  This document does not define that
+   mapping, and neither end of it is presently specified.  [AUTHZEN]
+   illustrates the pattern in a non-normative example rather than
+   defining the response context keys that carry it, leaving a profile
+   nothing normative to reference; and on the OAuth side,
    insufficient_user_authentication in [RFC9470] is defined for resource
-   servers rather than for the token endpoint, and no equivalent signal
-   exists there.  This is an open item.
+   servers rather than for the token endpoint, where no equivalent
+   signal exists.  This is an open item, and closing it requires work in
+   both specifications.
 
 9.  Examples
 
@@ -1255,11 +1262,10 @@ Table of Contents
    patterns for every user of the system.
 
    Requiring that identifier transformations be applied before the
-   request is constructed (Section 12.3 and the subject rules above)
-   means that a PDP receiving pairwise or pseudonymous identifiers sees
-   only the identifier the token itself will carry, rather than a
-   durable global identifier.  Deployments sensitive to this should
-   prefer such identifiers.
+   request is constructed (Section 5.1) means that a PDP receiving
+   pairwise or pseudonymous identifiers sees only the identifier the
+   token itself will carry, rather than a durable global identifier.
+   Deployments sensitive to this should prefer such identifiers.
 
    Where context conveys authentication context or device posture,
    deployments should include only what their policies actually consume.

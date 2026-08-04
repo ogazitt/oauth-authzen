@@ -4,8 +4,8 @@
 
 Web Authorization Protocol                                     O. Gazitt
 Internet-Draft                                               Independent
-Intended status: Standards Track                           3 August 2026
-Expires: 4 February 2027
+Intended status: Standards Track                           4 August 2026
+Expires: 5 February 2027
 
 
               AuthZEN Binding for OAuth 2.0 Token Exchange
@@ -59,7 +59,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 4 February 2027.
+   This Internet-Draft will expire on 5 February 2027.
 
 Copyright Notice
 
@@ -231,7 +231,7 @@ Table of Contents
    according to subject_token_type:
 
    +=============================+====================================+
-   | subject_token_type          | Exchange subject                   |
+   | Value of subject_token_type | Exchange subject                   |
    +=============================+====================================+
    | access_token, id_token, jwt | The subject of the presented token |
    +-----------------------------+------------------------------------+
@@ -461,7 +461,8 @@ Table of Contents
 
    Except where a request names no scopes and the two gate tuples
    coincide (Section 4.3.2), the AS uses the Access Evaluations API of
-   [AUTHZEN] as [ISSUANCE] specifies.
+   [AUTHZEN] as [ISSUANCE] specifies, with options.evaluations_semantic
+   set to execute_all.
 
    [ISSUANCE] requires gate tuples to occupy the leading indices of the
    evaluations array.  Here that ordinarily means indices 0 and 1, in
@@ -469,22 +470,21 @@ Table of Contents
    requesting party gate.  Scope tuples follow.  The AS MUST fail the
    request without issuing a token if either gate is denied.
 
-   The evaluations semantic depends on what the deployment intends a
-   denial to mean:
+   Narrowing is the ordinary outcome of a scope denial, and matches
+   [I-D.ietf-oauth-identity-assertion-authz-grant], which states that
+   granted scopes may be a subset of those requested.  Where a
+   deployment instead intends the requested privileges to be granted
+   whole, it does not vary the evaluations semantic to obtain that: it
+   fails the request when any scope tuple is denied.
 
-   *  execute_all where scope denials should narrow the grant.  This is
-      the default for this binding, and matches
-      [I-D.ietf-oauth-identity-assertion-authz-grant], which states that
-      granted scopes may be a subset of those requested.
-
-   *  deny_on_first_deny where the requested privileges are a
-      conjunction that must be granted whole, as in the Txn-Token case
-      described in Section 5.4.
-
-   Because [AUTHZEN] selects the semantic per request rather than per
-   item, an AS using execute_all enforces the fatality of a gate denial
-   itself.  This is within the enforcement point's role; the AS is
-   already interpreting per-item results in order to downscope.
+   A short-circuiting semantic is not used, because it may return a
+   truncated evaluations array while the aggregation rules of [ISSUANCE]
+   are defined over the complete set of per-item results.  Composing
+   those results is the AS's work here in any case: [AUTHZEN] selects
+   the semantic per request rather than per item, so the fatality of a
+   gate denial is enforced by the AS and not by the PDP.  Retaining
+   every per-item result also preserves the record of which privilege
+   was refused, which is what an operator needs when a request fails.
 
 5.  Token Type Bindings
 
@@ -1032,10 +1032,6 @@ Table of Contents
               <https://datatracker.ietf.org/doc/html/draft-ietf-oauth-
               transaction-tokens-11>.
 
-   [RFC7519]  Jones, M., Bradley, J., and N. Sakimura, "JSON Web Token
-              (JWT)", RFC 7519, DOI 10.17487/RFC7519, May 2015,
-              <https://www.rfc-editor.org/rfc/rfc7519>.
-
    [RFC8126]  Cotton, M., Leiba, B., and T. Narten, "Guidelines for
               Writing an IANA Considerations Section in RFCs", BCP 26,
               RFC 8126, DOI 10.17487/RFC8126, June 2017,
@@ -1046,15 +1042,6 @@ Table of Contents
               and Certificate-Bound Access Tokens", RFC 8705,
               DOI 10.17487/RFC8705, February 2020,
               <https://www.rfc-editor.org/rfc/rfc8705>.
-
-   [RFC9068]  Bertocci, V., "JSON Web Token (JWT) Profile for OAuth 2.0
-              Access Tokens", RFC 9068, DOI 10.17487/RFC9068, October
-              2021, <https://www.rfc-editor.org/rfc/rfc9068>.
-
-   [RFC9396]  Lodderstedt, T., Richer, J., and B. Campbell, "OAuth 2.0
-              Rich Authorization Requests", RFC 9396,
-              DOI 10.17487/RFC9396, May 2023,
-              <https://www.rfc-editor.org/rfc/rfc9396>.
 
    [RFC9449]  Fett, D., Campbell, B., Bradley, J., Lodderstedt, T.,
               Jones, M., and D. Waite, "OAuth 2.0 Demonstrating Proof of
