@@ -1,0 +1,2499 @@
+<!DOCTYPE html>
+<html lang="en" class="Internet-Draft">
+<head>
+<meta charset="utf-8">
+<meta content="Common,Latin" name="scripts">
+<meta content="initial-scale=1.0" name="viewport">
+<title>AuthZEN Binding for OAuth 2.0 Token Exchange</title>
+<meta content="Omri Gazitt" name="author">
+<meta content="
+       OAuth 2.0 Token Exchange (RFC 8693) defines the moment at which an
+authorization server decides whether one party may obtain a token to act as,
+or on behalf of, another. It states that the decision is governed by policy,
+and does not define that policy. The specifications layered on top of it -
+identity chaining, identity assertion authorization grants, and transaction
+tokens - inherit the same seam. 
+       This document binds those flows to the AuthZEN profile for OAuth 2.0 token
+issuance. It specifies how a token exchange request is derived into AuthZEN
+evaluation requests, how the authority of the requesting party is expressed
+as a decision distinct from the authority being delegated, and what each of
+the token types layered on token exchange contributes to that mapping. 
+    " name="description">
+<meta content="xml2rfc 3.34.0" name="generator">
+<meta content="oauth" name="keyword">
+<meta content="authorization" name="keyword">
+<meta content="authzen" name="keyword">
+<meta content="policy" name="keyword">
+<meta content="token exchange" name="keyword">
+<meta content="delegation" name="keyword">
+<meta content="draft-gazitt-oauth-authzen-token-exchange-latest" name="ietf.draft">
+<!-- Generator version information:
+  xml2rfc 3.34.0
+    Python 3.14.5
+    ConfigArgParse 1.7.5
+    google-i18n-address 3.1.1
+    intervaltree 3.2.1
+    Jinja2 3.1.6
+    lxml 6.1.1
+    natsort 8.4.0
+    platformdirs 4.11.0
+    pycountry 24.6.1
+    PyYAML 6.0.3
+    requests 2.33.1
+    wcwidth 0.8.2
+-->
+<link href="draft-gazitt-oauth-authzen-token-exchange.xml" rel="alternate" type="application/rfc+xml">
+<link href="#copyright" rel="license">
+<style type="text/css">@font-face {
+  font-family: 'Lora';
+  font-style: italic;
+  font-weight: 400;
+  font-display: swap;
+  src: local('Lora Italic'), local('Lora-Italic'), url('https://martinthomson.github.io/rfc-css/fonts/lora-italic-cyrillic-ext.woff2') format('woff2');
+  unicode-range: U+0460-052F, U+1C80-1C88, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
+}
+@font-face {
+  font-family: 'Lora';
+  font-style: italic;
+  font-weight: 400;
+  font-display: swap;
+  src: local('Lora Italic'), local('Lora-Italic'), url('https://martinthomson.github.io/rfc-css/fonts/lora-italic-cyrillic-ext.woff2') format('woff2');
+  unicode-range: U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+@font-face {
+  font-family: 'Lora';
+  font-style: italic;
+  font-weight: 400;
+  font-display: swap;
+  src: local('Lora Italic'), local('Lora-Italic'), url('https://martinthomson.github.io/rfc-css/fonts/lora-italic-vietnamese.woff2') format('woff2');
+  unicode-range: U+0102-0103, U+0110-0111, U+1EA0-1EF9, U+20AB;
+}
+@font-face {
+  font-family: 'Lora';
+  font-style: italic;
+  font-weight: 400;
+  font-display: swap;
+  src: local('Lora Italic'), local('Lora-Italic'), url('https://martinthomson.github.io/rfc-css/fonts/lora-italic-latin-ext.woff2') format('woff2');
+  unicode-range: U+0100-024F, U+0259, U+1E00-1EFF, U+2020, U+20A0-20AB, U+20AD-20CF, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+@font-face {
+  font-family: 'Lora';
+  font-style: italic;
+  font-weight: 400;
+  font-display: swap;
+  src: local('Lora Italic'), local('Lora-Italic'), url('https://martinthomson.github.io/rfc-css/fonts/lora-italic-latin.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: 'Lora';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: local('Lora Regular'), local('Lora-Regular'), url('https://martinthomson.github.io/rfc-css/fonts/lora-regular-cyrillic-ext.woff2') format('woff2');
+  unicode-range: U+0460-052F, U+1C80-1C88, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
+}
+@font-face {
+  font-family: 'Lora';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: local('Lora Regular'), local('Lora-Regular'), url('https://martinthomson.github.io/rfc-css/fonts/lora-regular-cyrillic.woff2') format('woff2');
+  unicode-range: U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+@font-face {
+  font-family: 'Lora';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: local('Lora Regular'), local('Lora-Regular'), url('https://martinthomson.github.io/rfc-css/fonts/lora-regular-vietnamese.woff2') format('woff2');
+  unicode-range: U+0102-0103, U+0110-0111, U+1EA0-1EF9, U+20AB;
+}
+@font-face {
+  font-family: 'Lora';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: local('Lora Regular'), local('Lora-Regular'), url('https://martinthomson.github.io/rfc-css/fonts/lora-regular-latin-ext.woff2') format('woff2');
+  unicode-range: U+0100-024F, U+0259, U+1E00-1EFF, U+2020, U+20A0-20AB, U+20AD-20CF, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+@font-face {
+  font-family: 'Lora';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: local('Lora Regular'), local('Lora-Regular'), url('https://martinthomson.github.io/rfc-css/fonts/lora-regular-latin.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: 'Lora';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: local('Lora Bold'), local('Lora-Bold'), url('https://martinthomson.github.io/rfc-css/fonts/lora-bold-cyrillic-ext.woff2') format('woff2');
+  unicode-range: U+0460-052F, U+1C80-1C88, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
+}
+@font-face {
+  font-family: 'Lora';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: local('Lora Bold'), local('Lora-Bold'), url('https://martinthomson.github.io/rfc-css/fonts/lora-bold-cyrillic.woff2') format('woff2');
+  unicode-range: U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+@font-face {
+  font-family: 'Lora';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: local('Lora Bold'), local('Lora-Bold'), url('https://martinthomson.github.io/rfc-css/fonts/lora-bold-vietnamese.woff2') format('woff2');
+  unicode-range: U+0102-0103, U+0110-0111, U+1EA0-1EF9, U+20AB;
+}
+@font-face {
+  font-family: 'Lora';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: local('Lora Bold'), local('Lora-Bold'), url('https://martinthomson.github.io/rfc-css/fonts/lora-bold-latin-ext.woff2') format('woff2');
+  unicode-range: U+0100-024F, U+0259, U+1E00-1EFF, U+2020, U+20A0-20AB, U+20AD-20CF, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+@font-face {
+  font-family: 'Lora';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: local('Lora Bold'), local('Lora-Bold'), url('https://martinthomson.github.io/rfc-css/fonts/lora-bold-latin.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: 'Lora';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: local('Lora SemiBold'), local('Lora-SemiBold'), url('https://martinthomson.github.io/rfc-css/fonts/lora-semibold-latin.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+@font-face {
+  font-family: 'Oxygen Mono';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: local('Oxygen Mono'), local('OxygenMono-Regular'), url('https://martinthomson.github.io/rfc-css/fonts/oxygenmono-regular-latin-ext.woff2') format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+@font-face {
+  font-family: 'Oxygen Mono';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: local('Oxygen Mono'), local('OxygenMono-Regular'), url('https://martinthomson.github.io/rfc-css/fonts/oxygenmono-regular-latin.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+@font-face {
+  font-family: 'Sofia Sans Semi Condensed';
+  font-style: italic;
+  font-weight: 1 1000;
+  src: url('https://martinthomson.github.io/rfc-css/fonts/sofiasanssemicondensed-italic-cyrillic-ext.woff2') format('woff2');
+  unicode-range: U+0460-052F, U+1C80-1C8A, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
+}
+@font-face {
+  font-family: 'Sofia Sans Semi Condensed';
+  font-style: italic;
+  font-weight: 1 1000;
+  src: url('https://martinthomson.github.io/rfc-css/fonts/sofiasanssemicondensed-italic-cyrillic.woff2') format('woff2');
+  unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+@font-face {
+  font-family: 'Sofia Sans Semi Condensed';
+  font-style: italic;
+  font-weight: 1 1000;
+  src: url('https://martinthomson.github.io/rfc-css/fonts/sofiasanssemicondensed-italic-greek.woff2') format('woff2');
+  unicode-range: U+0370-0377, U+037A-037F, U+0384-038A, U+038C, U+038E-03A1, U+03A3-03FF;
+}
+@font-face {
+  font-family: 'Sofia Sans Semi Condensed';
+  font-style: italic;
+  font-weight: 1 1000;
+  src: url('https://martinthomson.github.io/rfc-css/fonts/sofiasanssemicondensed-italic-latin-ext.woff2') format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+@font-face {
+  font-family: 'Sofia Sans Semi Condensed';
+  font-style: italic;
+  font-weight: 1 1000;
+  src: url('https://martinthomson.github.io/rfc-css/fonts/sofiasanssemicondensed-italic-latin.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: 'Sofia Sans Semi Condensed';
+  font-style: normal;
+  font-weight: 1 1000;
+  src: url('https://martinthomson.github.io/rfc-css/fonts/sofiasanssemicondensed-regular-cyrillic-ext.woff2') format('woff2');
+  unicode-range: U+0460-052F, U+1C80-1C8A, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
+}
+@font-face {
+  font-family: 'Sofia Sans Semi Condensed';
+  font-style: normal;
+  font-weight: 1 1000;
+  src: url('https://martinthomson.github.io/rfc-css/fonts/sofiasanssemicondensed-regular-cyrillic.woff2') format('woff2');
+  unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+@font-face {
+  font-family: 'Sofia Sans Semi Condensed';
+  font-style: normal;
+  font-weight: 1 1000;
+  src: url('https://martinthomson.github.io/rfc-css/fonts/sofiasanssemicondensed-regular-greek.woff2') format('woff2');
+  unicode-range: U+0370-0377, U+037A-037F, U+0384-038A, U+038C, U+038E-03A1, U+03A3-03FF;
+}
+@font-face {
+  font-family: 'Sofia Sans Semi Condensed';
+  font-style: normal;
+  font-weight: 1 1000;
+  src: url('https://martinthomson.github.io/rfc-css/fonts/sofiasanssemicondensed-regular-latin-ext.woff2') format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+@font-face {
+  font-family: 'Sofia Sans Semi Condensed';
+  font-style: normal;
+  font-weight: 1 1000;
+  src: url('https://martinthomson.github.io/rfc-css/fonts/sofiasanssemicondensed-regular-latin.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+:root {
+  color-scheme: light dark;
+  --background-color: #fff;
+  --text-color: #222;
+  --title-color: #191919;
+  --link-color: #2a6496;
+  --highlight-color: #f9f9f9;
+  --line-color: #eee;
+  --pilcrow-weak: #ddd;
+  --pilcrow-strong: #bbb;
+  --small-font-size: 14.5px;
+  --font-mono: 'Oxygen Mono', monospace;
+  --font-title: "Sofia Sans Semi Condensed", sans-serif;
+  scrollbar-color: #bbb #eee;
+}
+body {
+  max-width: 600px;
+  margin: 75px auto;
+  padding: 0 5px;
+  color: var(--text-color);
+  background-color: var(--background-color);
+  font: 16px/22px "Lora", serif;
+  scroll-behavior: smooth;
+}
+
+.ears {
+  display: none;
+}
+
+/* headings */
+section {
+  clear: both;
+}
+.section-number {
+  padding-right: 0.5em;
+}
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-title);
+  font-weight: 680;
+  margin: 0.8em 0 0.3em;
+  font-size-adjust: 0.5;
+  color: var(--title-color);
+}
+h1 {
+  &#title {
+    font-size: 32px;
+    line-height: 40px;
+    clear: both;
+    margin: 1.5em 0 0.2em;
+  }
+  &#rfcnum {
+    margin: 1.5em 0 0.2em;
+    & + h1#title {
+      margin: 0.2em 0;
+    }
+  }
+}
+
+h1, h2, h3 {
+  font-size: 22px;
+  line-height: 27px;
+}
+h4, h5, h6 {
+  font-size: 20px;
+  line-height: 24px;
+}
+
+/* general structure */
+.author {
+  padding-bottom: 0.3em;
+  vertical-align: top;
+}
+#abstract+p {
+  font-size: 18px;
+  line-height: 24px;
+  & code, & samp, & tt {
+    font-size: 16px;
+    line-height: 0;
+  }
+}
+
+p {
+  padding: 0;
+  margin: 0.5em 0;
+  text-align: left;
+}
+div {
+  margin: 0;
+}
+.alignRight {
+  margin: 1em 0;
+  &.art-text {
+    background-color: var(--highlight-color);
+    border: 1px solid var(--line-color);
+    border-radius: 3px;
+    padding: 0.5em 1em 0;
+    margin-bottom: 0.5em;
+    & pre {
+      padding: 0;
+      width: auto;
+    }
+  }
+  & > *:first-child {
+    border: none;
+    margin: 0;
+    float: right;
+    clear: both;
+  }
+  & > *:nth-child(2) {
+    clear: both;
+    display: block;
+    border: none;
+  }
+}
+svg {
+  display: block;
+  /* font-family isn't space-separated, but =~ will have to do */
+  &[font-family~="monospace" i], & [font-family~="monospace" i] {
+    font-family: var(--font-mono);
+  }
+}
+.alignCenter {
+  margin: 1em 0;
+  &.art-text {
+    background-color: var(--highlight-color);
+    border: 1px solid var(--line-color);
+    border-radius: 3px;
+    padding: 0.5em 1em 0;
+    margin-bottom: 0.5em;
+    & pre {
+      padding: 0;
+      width: auto;
+    }
+  }
+  & > *:first-child {
+    border: none;
+    /* this isn't optimal, but it's an existence proof.  PrinceXML doesn't
+       support flexbox yet.
+    */
+    display: table;
+    margin: 0 auto;
+  }
+}
+
+/* lists */
+ol, ul {
+  padding: 0;
+  margin: 0 0 0.5em 2em;
+  & :is(ol, ul) {
+    margin-left: 1em;
+  }
+}
+li {
+  margin: 0 0 0.25em 0;
+}
+ul.empty, .ulEmpty {
+  list-style-type: none;
+  & li {
+    margin-top: 0.5em;
+  }
+}
+:is(ul, ol).compact, .ulCompact, .olCompact {
+  margin: 0 0 0 2em;
+  & li {
+    margin: 0;
+    & :first-child { margin-top: 0; }
+    & :last-child { margin-bottom: 0; }
+  }
+}
+
+/* definition lists */
+dl {
+  clear: left;
+  --indent: 3ch;
+  /* --indent: attr(indent ch); not supported in any browser, but we can dream */
+  &.olPercent {
+    --indent: 5ch;
+    & > dt {
+      min-width: calc(var(--indent) - 2ch);
+      float: none;
+    }
+  }
+
+  dl > dd > & {
+    margin-top: 0.5em;
+    margin-bottom: 0;
+  }
+
+  &:not(.dlNewline) > dt {
+    float: left;
+    margin-right: 2ch;
+    min-width: 8ch;
+  }
+  & > dd {
+    margin-bottom: .8em;
+    margin-left: var(--indent) !important; /* stupid element overrides */
+    min-height: 2ex;
+  }
+}
+:is(dl.compact, .dlCompact) > dd {
+  margin-bottom: 0;
+  & > :is(:first-child, .break:first-child + *) {
+    margin-top: 0;
+  }
+  & > :is(:last-child) {
+    margin-bottom: 0;
+  }
+}
+:is(dd, span).break {
+  display: none;
+}
+
+/* links */
+a {
+  text-decoration: none;
+  &[href] {
+    color: var(--link-color);
+    &:hover { text-decoration: underline; }
+    &.selfRef {
+      color: var(--text-color);
+      &:hover {
+        text-decoration: none;
+        background-color: var(--highlight-color);
+      }
+    }
+  }
+}
+.iref + a[href].internal {
+  color: var(--text-color);
+}
+a.xref:is(.cite, .auto), :is(#status-of-memo, #copyright) a {
+  white-space: nowrap;
+}
+
+/* Figures */
+tt, code, pre {
+  background-color: var(--highlight-color);
+  font: 14px/22px var(--font-mono);
+}
+tt, code {
+  /* changing the font for inline elements leads to different ascender
+     and descender heights; as we want to retain baseline alignment,
+     remove leading to avoid altering the final height of lines
+     note: this fails if these blocks take an entire line,
+     a different solution would be great */
+  line-height: 0;
+}
+:is(h1, h2, h3, h4, h5, h6) :is(tt, code) {
+  font-size: 84%;
+}
+pre {
+  border: 1px solid var(--line-color);
+  font-size: 13.5px;
+  line-height: 16px;
+  letter-spacing: -0.2px;
+  margin: 5px;
+  padding: 5px;
+}
+img {
+  max-width: 100%;
+}
+figure {
+  margin: 0.5em 0;
+  padding: 0;
+  & blockquote {
+    margin: 0.8em 0.4em 0.4em;
+  }
+}
+figcaption, caption {
+  font-style: italic;
+  margin: 0.5em 1.5em;
+  text-align: left;
+  caption-side: bottom;
+}
+@media screen {
+  /* Auto-collapse boilerplate. */
+  :is(#status-of-memo, #copyright) {
+    & p {
+      margin: -2px 0;
+      max-height: 0;
+      transition: max-height 2s ease, margin 0.5s ease 0.5s;
+      overflow: hidden;
+    }
+    &:hover p,
+    & h2:target ~ p {
+      margin: 0.5em 0;
+      max-height: 500px;
+      overflow: auto;
+    }
+  }
+  pre, svg {
+    display: inline-block;
+    /* In the horizontal direction, sometimes people make over-sized figures.
+       Scrollbars for those is therefore necessary: auto adds them as necessary..
+       In the vertical direction, the line-height can combine with the font
+       asender/descender height to produce scrollbars: hidden avoids that. */
+    overflow: auto hidden;
+  }
+  pre {
+    max-width: 100%;
+    width: calc(100% - 22px - 1em);
+  }
+  svg {
+    max-width: calc(100% - 22px - 1em);
+  }
+  figure pre {
+    display: block;
+    width: calc(100% - 25px);
+  }
+  :is(pre, svg) + .pilcrow {
+    display: inline-block;
+    vertical-align: text-bottom;
+    padding-bottom: 8px;
+  }
+}
+
+/* aside, blockquote */
+aside, blockquote {
+  margin-left: 0;
+  padding: 0 2em;
+  font-style: italic;
+}
+blockquote {
+  margin: 1em 0;
+  border-left: 2px var(--pilcrow-strong) solid;
+}
+cite {
+  display: block;
+  text-align: right;
+  font-style: italic;
+}
+
+/* tables */
+table {
+  width: auto;
+  max-width: 100%;
+  margin: 0 0 1em;
+  border-collapse: collapse;
+  &.right { margin-left: auto; }
+  &.center { margin-left: auto; margin-right: auto; }
+  &.left { margin-right: auto; }
+  & .text-left { text-align: left; }
+  & .text-center { text-align: center; }
+  & .text-right { text-align: right; }
+  & caption {
+    margin: 0;
+    padding: 3px 0 3px 1em;
+  }
+  & p { margin: 0; }
+}
+
+thead, tbody {
+  border: 1px solid var(--line-color);
+}
+th, td {
+  text-align: left;
+  vertical-align: top;
+  padding: 5px 10px;
+}
+th {
+  background-color: var(--line-color);
+}
+:is(tr:nth-child(2n), thead+tbody > tr:nth-child(2n+1)) > td {
+  background-color: var(--background-color);
+}
+:is(tr:nth-child(2n+1), thead+tbody > tr:nth-child(2n)) > td {
+  background-color: var(--highlight-color);
+}
+
+/* pilcrow */
+a.pilcrow {
+  margin-left: 3px;
+  opacity: 0.2;
+  user-select: none;
+  &[href] {
+    color: var(--pilcrow-weak);
+    &:hover { text-decoration: none; }
+  }
+  @media not print {
+    :hover > &, &:focus {
+      opacity: 1;
+    }
+    &[href]:hover {
+      color: var(--pilcrow-strong);
+      background-color: transparent;
+    }
+  }
+  @media print {
+    display: none;
+  }
+}
+
+/* misc */
+hr {
+  border: 0;
+  border-top: 1px solid var(--line-color);
+}
+.bcp14 {
+  font-variant: small-caps;
+  font-weight: 600;
+  font-size: var(--small-font-size);
+}
+.role {
+  font-variant: all-small-caps;
+}
+sub, sup {
+  line-height: 1;
+  font-size: 80%;
+}
+
+/* info block */
+#identifiers {
+  margin: 0;
+  font-size: var(--small-font-size);
+  line-height: 18px;
+  --identifier-width: 15ch;
+  & dt {
+    width: var(--identifier-width);
+    min-width: var(--identifier-width);
+    clear: left;
+    float: left;
+    text-align: right;
+    margin-right: 1ch;
+  }
+  & dd {
+    margin: 0;
+    margin-left: calc(1em + var(--identifier-width)) !important;
+    min-width: 5em;
+  }
+  & .authors {
+    & .author {
+      display: inline-block;
+      margin-right: 1.5em;
+    }
+    & .org {
+      font-style: italic;
+    }
+  }
+}
+
+/* The prepared/rendered info at the very bottom of the page */
+.docInfo {
+  color: #999;
+  font-size: 0.9em;
+  font-style: italic;
+  margin-top: 2em;
+  & .prepared {
+    float: right;
+  }
+}
+
+/* table of contents */
+#toc {
+  padding: 0.75em 0 2em 0;
+  margin-bottom: 1em;
+
+  & nav {
+    & ul {
+      margin: 0 0.5em 0 0;
+      padding: 0;
+      list-style: none;
+    }
+    & li {
+      line-height: 1.3em;
+      margin: 2px 0;
+      padding-left: 1.2em;
+      text-indent: -1.2em;
+    }
+  }
+  & a.xref {
+    white-space: normal;
+  }
+}
+
+.references {
+  & > dt {
+    text-align: right;
+    font-weight: bold;
+    min-width: 10ch;
+    margin-right: 1.5ch;
+    &:target::before {
+      content: "⇒";
+      margin: 0 10px 0 -25px;
+    }
+  }
+  & > dd {
+    margin-left: 12ch !important;
+    overflow: visible;
+    & .refInstance {
+      margin-bottom: 0.8em;
+    }
+    & .ascii {
+      margin-bottom: 0.25em;
+    }
+  }
+}
+
+#rfc\.index\.index + ul {
+  margin-left: 0;
+}
+
+/* authors */
+address.vcard {
+  font-style: normal;
+  max-width: 20em;
+  margin: 1em auto 1em 0;
+
+  & .nameRole {
+    font-weight: 700;
+    margin-left: 0;
+  }
+  & .label {
+    margin: 0.5em 0;
+  }
+  & .type {
+    display: none;
+  }
+  & .alternative-contact {
+    margin: 0.5em 0 0.25em 0;
+  }
+  & .non-ascii {
+    margin: 0 0 0 2em;
+  }
+  & div.left {
+    text-align: left;
+  }
+  & div.right {
+    text-align: right;
+  }
+}
+
+hr.addr {
+  border-top: 1px dashed;
+  margin: 0;
+  color: #ddd;
+  max-width: calc(100% - 16px);
+}
+@media (min-width: 500px) {
+  #authors-addresses {
+    & > section {
+      column-count: 2;
+      column-gap: 20px;
+    }
+    & > section > h2 {
+      column-span: all;
+    }
+    /* hack for break-inside: avoid-column */
+    & address {
+      display: inline-block;
+      break-inside: avoid-column;
+    }
+  }
+}
+
+/* Comments */
+.rfcEditorRemove {
+  & p:first-of-type {
+    font-style: italic;
+  }
+}
+.cref {
+  background-color: rgba(249, 232, 105, 0.3);
+  padding: 2px 4px;
+}
+.crefSource {
+  font-style: italic;
+}
+
+@media screen {
+  #toc {
+    & nav {
+      font-family: var(--font-title);
+      font-weight: 360;
+      & > ul { margin-bottom: 2em; }
+      & ul {
+        margin: 0 0 0 4px;
+        & :is(p, li) {
+          margin: 2px 0;
+        }
+      }
+    }
+    & a.toplink {
+      float: right;
+    }
+  }
+}
+@media not screen {
+  #toc a.toplink {
+    display: none;
+  }
+}
+
+
+/* TOC layout for smaller screens */
+@media screen and (max-width: 929px) {
+  #toc {
+    position: fixed;
+    z-index: 2;
+    top: 0;
+    right: 0;
+    padding: 1px 0 0 0;
+    margin: 0;
+    border-bottom: 1px solid #ccc;
+    opacity: 0.6;
+    & h2 {
+      margin: 0;
+      padding: 2px 0 2px 6px;
+      padding-right: 1em;
+      font-size: 18px;
+      line-height: 24px;
+      min-width: 190px;
+      text-align: right;
+      background-color: #444;
+      color: white;
+      cursor: pointer;
+      &::before { /* css hamburger */
+        float: right;
+        position: relative;
+        width: 1em;
+        height: 1px;
+        left: -164px;
+        margin: 8px 0 0 0;
+        background: white none repeat scroll 0 0;
+        box-shadow: 0 4px 0 0 white, 0 8px 0 0 white;
+        content: "";
+      }
+    }
+    & nav {
+      display: none;
+      background-color: var(--background-color);
+      padding: 0.5em 1em 1em;
+      overflow: auto;
+      overscroll-behavior: contain;
+      height: calc(100vh - 48px);
+      border-left: 1px solid #ddd;
+    }
+    &.active {
+      opacity: 1;
+      & nav { display: block; }
+    }
+    /* Make the collapsed ToC header render white on gray also when it's a link */
+    & h2 a,
+    & h2 a:is(:link, :focus, :hover),
+    & a.toplink,
+    & a.toplink:hover {
+      color: white;
+      background-color: #444;
+      text-decoration: none;
+    }
+    & a.toplink {
+      margin: 2px 0.5em 0;
+    }
+  }
+}
+
+/* TOC layout for wide screens */
+@media screen and (min-width: 930px) {
+  body {
+    padding-right: 360px;
+    padding-right: calc(min(180px + 20%, 500px));
+  }
+  #toc {
+    position: fixed;
+    bottom: 0;
+    right: 0;
+    right: calc(50vw - 480px);
+    width: 312px;
+    margin: 0;
+    padding: 0;
+    z-index: 1;
+    & h2 {
+      margin: 0;
+      padding: 0.25em 1em 1em 0;
+    }
+    & nav {
+      display: block;
+      height: calc(90vh - 84px);
+      bottom: 0;
+      padding: 0.5em 0 2em;
+      overflow: auto;
+      overscroll-behavior: contain;
+      scrollbar-width: thin;
+    }
+    & a.toplink {
+      margin: 8px 0.5em 0;
+    }
+  }
+  img { /* future proofing */
+    max-width: 100%;
+    height: auto;
+  }
+}
+
+/* pagination */
+@media print {
+  body {
+    width: 100%;
+  }
+  p {
+    orphans: 3;
+    widows: 3;
+  }
+  #n-copyright-notice {
+    border-bottom: none;
+  }
+  #toc {
+    page-break-before: always;
+    border-top: none;
+    padding-top: 0;
+  }
+  #n-introduction {
+    page-break-before: always;
+  }
+  figure, pre, .vcard {
+    page-break-inside: avoid;
+  }
+  h1, h2, h3, h4, h5, h6 {
+    page-break-after: avoid;
+  }
+  :is(h2, h3, h4, h5, h6)+*, dd {
+    page-break-before: avoid;
+  }
+  pre {
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    font-size: 10pt;
+  }
+  table {
+    border: 1px solid #ddd;
+  }
+  td {
+    border-top: 1px solid #ddd;
+  }
+}
+
+@page :first {
+  padding-top: 0;
+  @top-left {
+    content: normal;
+    border: none;
+  }
+  @top-center {
+    content: normal;
+    border: none;
+  }
+  @top-right {
+    content: normal;
+    border: none;
+  }
+}
+
+@page {
+  size: A4;
+  margin-bottom: 45mm;
+  padding-top: 20px;
+}
+
+/* Dark mode. */
+@media (prefers-color-scheme: dark) {
+:root {
+  --background-color: #121212;
+  --text-color: #f0f0f0;
+  --title-color: #fff;
+  --link-color: #4da4f0;
+  --highlight-color: #282828;
+  --line-color: #444;
+  --pilcrow-weak: #444;
+  --pilcrow-strong: #666;
+  scrollbar-color: #777 #333;
+}
+}
+
+/* SVG Trick: a prefix match works because only black and white are allowed */
+svg {
+  & :is([stroke="black"], [stroke^="#000"]) {
+    stroke: var(--text-color);
+  }
+  & :is([stroke="white"], [stroke^="#fff"]) {
+    stroke: var(--background-color);
+  }
+  & :is([fill="black"], [fill^="#000"], :not([fill])) {
+    fill: var(--text-color);
+  }
+  & :is([fill="white"], [fill^="#fff"]) {
+    fill: var(--background-color);
+  }
+}
+/* Appended to i-d-template's lib/v3.css when building the editor's copy. */
+
+/* That stylesheet gives the paragraph after the Abstract heading a larger
+   lede treatment, which only reads as deliberate when the abstract is a
+   single paragraph. These abstracts are not, so the first paragraph came out
+   two points bigger than the two below it. */
+#abstract + p {
+  font-size: inherit;
+  line-height: inherit;
+}
+</style>
+
+</head>
+<body class="xml2rfc">
+<table class="ears">
+<thead><tr>
+<td class="left">Internet-Draft</td>
+<td class="center">AuthZEN Token Exchange Binding</td>
+<td class="right">August 2026</td>
+</tr></thead>
+<tfoot><tr>
+<td class="left">Gazitt</td>
+<td class="center">Expires 6 February 2027</td>
+<td class="right">[Page]</td>
+</tr></tfoot>
+</table>
+<div id="external-metadata" class="document-information"></div>
+<div id="internal-metadata" class="document-information">
+<dl id="identifiers">
+<dt class="label-workgroup">Workgroup:</dt>
+<dd class="workgroup">Web Authorization Protocol</dd>
+<dt class="label-internet-draft">Internet-Draft:</dt>
+<dd class="internet-draft">draft-gazitt-oauth-authzen-token-exchange-latest</dd>
+<dt class="label-published">Published:</dt>
+<dd class="published">
+<time datetime="2026-08-05" class="published">5 August 2026</time>
+    </dd>
+<dt class="label-intended-status">Intended Status:</dt>
+<dd class="intended-status">Standards Track</dd>
+<dt class="label-expires">Expires:</dt>
+<dd class="expires"><time datetime="2027-02-06">6 February 2027</time></dd>
+<dt class="label-authors">Author:</dt>
+<dd class="authors">
+<div class="author">
+      <div class="author-name">O. Gazitt</div>
+<div class="org">Independent</div>
+</div>
+</dd>
+</dl>
+</div>
+<h1 id="title">AuthZEN Binding for OAuth 2.0 Token Exchange</h1>
+<section id="section-abstract">
+      <h2 id="abstract"><a href="#abstract" class="selfRef">Abstract</a></h2>
+<p id="section-abstract-1">OAuth 2.0 Token Exchange (RFC 8693) defines the moment at which an
+authorization server decides whether one party may obtain a token to act as,
+or on behalf of, another. It states that the decision is governed by policy,
+and does not define that policy. The specifications layered on top of it -
+identity chaining, identity assertion authorization grants, and transaction
+tokens - inherit the same seam.<a href="#section-abstract-1" class="pilcrow">¶</a></p>
+<p id="section-abstract-2">This document binds those flows to the AuthZEN profile for OAuth 2.0 token
+issuance. It specifies how a token exchange request is derived into AuthZEN
+evaluation requests, how the authority of the requesting party is expressed
+as a decision distinct from the authority being delegated, and what each of
+the token types layered on token exchange contributes to that mapping.<a href="#section-abstract-2" class="pilcrow">¶</a></p>
+</section>
+<section class="note rfcEditorRemove" id="section-note.1">
+      <h2 id="name-about-this-document">
+<a href="#name-about-this-document" class="section-name selfRef">About This Document</a>
+      </h2>
+<p id="section-note.1-1">This note is to be removed before publishing as an RFC.<a href="#section-note.1-1" class="pilcrow">¶</a></p>
+<p id="section-note.1-2">
+        Status information for this document may be found at <span><a href="https://datatracker.ietf.org/doc/draft-gazitt-oauth-authzen-token-exchange/">https://datatracker.ietf.org/doc/draft-gazitt-oauth-authzen-token-exchange/</a></span>.<a href="#section-note.1-2" class="pilcrow">¶</a></p>
+<p id="section-note.1-3">
+        Discussion of this document takes place on the
+        Web Authorization Protocol Working Group mailing list (<span><a href="mailto:oauth@ietf.org">mailto:oauth@ietf.org</a></span>),
+        which is archived at <span><a href="https://mailarchive.ietf.org/arch/browse/oauth/">https://mailarchive.ietf.org/arch/browse/oauth/</a></span>.
+        Subscribe at <span><a href="https://www.ietf.org/mailman/listinfo/oauth/">https://www.ietf.org/mailman/listinfo/oauth/</a></span>.<a href="#section-note.1-3" class="pilcrow">¶</a></p>
+<p id="section-note.1-4">Source for this draft and an issue tracker can be found at
+        <span><a href="https://github.com/ogazitt/oauth-authzen">https://github.com/ogazitt/oauth-authzen</a></span>.<a href="#section-note.1-4" class="pilcrow">¶</a></p>
+</section>
+<div id="status-of-memo">
+<section id="section-boilerplate.1">
+        <h2 id="name-status-of-this-memo">
+<a href="#name-status-of-this-memo" class="section-name selfRef">Status of This Memo</a>
+        </h2>
+<p id="section-boilerplate.1-1">
+        This Internet-Draft is submitted in full conformance with the
+        provisions of BCP 78 and BCP 79.<a href="#section-boilerplate.1-1" class="pilcrow">¶</a></p>
+<p id="section-boilerplate.1-2">
+        Internet-Drafts are working documents of the Internet Engineering Task
+        Force (IETF). Note that other groups may also distribute working
+        documents as Internet-Drafts. The list of current Internet-Drafts is
+        at <span><a href="https://datatracker.ietf.org/drafts/current/">https://datatracker.ietf.org/drafts/current/</a></span>.<a href="#section-boilerplate.1-2" class="pilcrow">¶</a></p>
+<p id="section-boilerplate.1-3">
+        Internet-Drafts are draft documents valid for a maximum of six months
+        and may be updated, replaced, or obsoleted by other documents at any
+        time. It is inappropriate to use Internet-Drafts as reference
+        material or to cite them other than as "work in progress."<a href="#section-boilerplate.1-3" class="pilcrow">¶</a></p>
+<p id="section-boilerplate.1-4">
+        This Internet-Draft will expire on 6 February 2027.<a href="#section-boilerplate.1-4" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="copyright">
+<section id="section-boilerplate.2">
+        <h2 id="name-copyright-notice">
+<a href="#name-copyright-notice" class="section-name selfRef">Copyright Notice</a>
+        </h2>
+<p id="section-boilerplate.2-1">
+            Copyright (c) 2026 IETF Trust and the persons identified as the
+            document authors. All rights reserved.<a href="#section-boilerplate.2-1" class="pilcrow">¶</a></p>
+<p id="section-boilerplate.2-2">
+            This document is subject to BCP 78 and the IETF Trust's Legal
+            Provisions Relating to IETF Documents
+            (<span><a href="https://trustee.ietf.org/license-info">https://trustee.ietf.org/license-info</a></span>) in effect on the date of
+            publication of this document. Please review these documents
+            carefully, as they describe your rights and restrictions with
+            respect to this document. Code Components extracted from this
+            document must include Revised BSD License text as described in
+            Section 4.e of the Trust Legal Provisions and are provided without
+            warranty as described in the Revised BSD License.<a href="#section-boilerplate.2-2" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="toc">
+<section id="section-toc.1">
+        <a href="#" onclick="scroll(0,0)" class="toplink">▲</a><h2 id="name-table-of-contents">
+<a href="#name-table-of-contents" class="section-name selfRef">Table of Contents</a>
+        </h2>
+<nav class="toc"><ul class="compact toc ulBare ulEmpty">
+<li class="compact toc ulBare ulEmpty" id="section-toc.1-1.1">
+            <p id="section-toc.1-1.1.1" class="keepWithNext"><a href="#section-1" class="auto internal xref">1</a>.  <a href="#name-introduction" class="internal xref">Introduction</a></p>
+<ul class="compact toc ulBare ulEmpty">
+<li class="compact toc ulBare ulEmpty" id="section-toc.1-1.1.2.1">
+                <p id="section-toc.1-1.1.2.1.1" class="keepWithNext"><a href="#section-1.1" class="auto internal xref">1.1</a>.  <a href="#name-what-this-document-adds" class="internal xref">What This Document Adds</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.1.2.2">
+                <p id="section-toc.1-1.1.2.2.1" class="keepWithNext"><a href="#section-1.2" class="auto internal xref">1.2</a>.  <a href="#name-requirements-language" class="internal xref">Requirements Language</a></p>
+</li>
+            </ul>
+</li>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.2">
+            <p id="section-toc.1-1.2.1"><a href="#section-2" class="auto internal xref">2</a>.  <a href="#name-terminology" class="internal xref">Terminology</a></p>
+</li>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.3">
+            <p id="section-toc.1-1.3.1"><a href="#section-3" class="auto internal xref">3</a>.  <a href="#name-applicability" class="internal xref">Applicability</a></p>
+</li>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.4">
+            <p id="section-toc.1-1.4.1"><a href="#section-4" class="auto internal xref">4</a>.  <a href="#name-forming-the-evaluation-requ" class="internal xref">Forming the Evaluation Request</a></p>
+<ul class="compact toc ulBare ulEmpty">
+<li class="compact toc ulBare ulEmpty" id="section-toc.1-1.4.2.1">
+                <p id="section-toc.1-1.4.2.1.1"><a href="#section-4.1" class="auto internal xref">4.1</a>.  <a href="#name-subject" class="internal xref">Subject</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.4.2.2">
+                <p id="section-toc.1-1.4.2.2.1"><a href="#section-4.2" class="auto internal xref">4.2</a>.  <a href="#name-requesting-party" class="internal xref">Requesting Party</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.4.2.3">
+                <p id="section-toc.1-1.4.2.3.1"><a href="#section-4.3" class="auto internal xref">4.3</a>.  <a href="#name-actions" class="internal xref">Actions</a></p>
+<ul class="compact toc ulBare ulEmpty">
+<li class="compact toc ulBare ulEmpty" id="section-toc.1-1.4.2.3.2.1">
+                    <p id="section-toc.1-1.4.2.3.2.1.1"><a href="#section-4.3.1" class="auto internal xref">4.3.1</a>.  <a href="#name-subject-gate-tuple" class="internal xref">Subject Gate Tuple</a></p>
+</li>
+                  <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.4.2.3.2.2">
+                    <p id="section-toc.1-1.4.2.3.2.2.1"><a href="#section-4.3.2" class="auto internal xref">4.3.2</a>.  <a href="#name-requesting-party-gate-tuple" class="internal xref">Requesting Party Gate Tuple</a></p>
+</li>
+                  <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.4.2.3.2.3">
+                    <p id="section-toc.1-1.4.2.3.2.3.1"><a href="#section-4.3.3" class="auto internal xref">4.3.3</a>.  <a href="#name-may_act-is-not-a-substitute" class="internal xref"><code>may_act</code> Is Not a Substitute</a></p>
+</li>
+                  <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.4.2.3.2.4">
+                    <p id="section-toc.1-1.4.2.3.2.4.1"><a href="#section-4.3.4" class="auto internal xref">4.3.4</a>.  <a href="#name-scope-tuples" class="internal xref">Scope Tuples</a></p>
+</li>
+                </ul>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.4.2.4">
+                <p id="section-toc.1-1.4.2.4.1"><a href="#section-4.4" class="auto internal xref">4.4</a>.  <a href="#name-resource" class="internal xref">Resource</a></p>
+<ul class="compact toc ulBare ulEmpty">
+<li class="compact toc ulBare ulEmpty" id="section-toc.1-1.4.2.4.2.1">
+                    <p id="section-toc.1-1.4.2.4.2.1.1"><a href="#section-4.4.1" class="auto internal xref">4.4.1</a>.  <a href="#name-two-level-evaluation-for-ch" class="internal xref">Two-Level Evaluation for Chained Grants</a></p>
+</li>
+                </ul>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.4.2.5">
+                <p id="section-toc.1-1.4.2.5.1"><a href="#section-4.5" class="auto internal xref">4.5</a>.  <a href="#name-context" class="internal xref">Context</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.4.2.6">
+                <p id="section-toc.1-1.4.2.6.1"><a href="#section-4.6" class="auto internal xref">4.6</a>.  <a href="#name-batch-composition" class="internal xref">Batch Composition</a></p>
+</li>
+            </ul>
+</li>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.5">
+            <p id="section-toc.1-1.5.1"><a href="#section-5" class="auto internal xref">5</a>.  <a href="#name-token-type-bindings" class="internal xref">Token Type Bindings</a></p>
+<ul class="compact toc ulBare ulEmpty">
+<li class="compact toc ulBare ulEmpty" id="section-toc.1-1.5.2.1">
+                <p id="section-toc.1-1.5.2.1.1"><a href="#section-5.1" class="auto internal xref">5.1</a>.  <a href="#name-access-tokens-and-refresh-t" class="internal xref">Access Tokens and Refresh Tokens</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.5.2.2">
+                <p id="section-toc.1-1.5.2.2.1"><a href="#section-5.2" class="auto internal xref">5.2</a>.  <a href="#name-identity-chaining" class="internal xref">Identity Chaining</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.5.2.3">
+                <p id="section-toc.1-1.5.2.3.1"><a href="#section-5.3" class="auto internal xref">5.3</a>.  <a href="#name-identity-assertion-authoriz" class="internal xref">Identity Assertion Authorization Grant</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.5.2.4">
+                <p id="section-toc.1-1.5.2.4.1"><a href="#section-5.4" class="auto internal xref">5.4</a>.  <a href="#name-transaction-tokens" class="internal xref">Transaction Tokens</a></p>
+</li>
+            </ul>
+</li>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.6">
+            <p id="section-toc.1-1.6.1"><a href="#section-6" class="auto internal xref">6</a>.  <a href="#name-processing-the-response" class="internal xref">Processing the Response</a></p>
+</li>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.7">
+            <p id="section-toc.1-1.7.1"><a href="#section-7" class="auto internal xref">7</a>.  <a href="#name-error-mapping" class="internal xref">Error Mapping</a></p>
+</li>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.8">
+            <p id="section-toc.1-1.8.1"><a href="#section-8" class="auto internal xref">8</a>.  <a href="#name-discovery" class="internal xref">Discovery</a></p>
+</li>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.9">
+            <p id="section-toc.1-1.9.1"><a href="#section-9" class="auto internal xref">9</a>.  <a href="#name-examples" class="internal xref">Examples</a></p>
+<ul class="compact toc ulBare ulEmpty">
+<li class="compact toc ulBare ulEmpty" id="section-toc.1-1.9.2.1">
+                <p id="section-toc.1-1.9.2.1.1"><a href="#section-9.1" class="auto internal xref">9.1</a>.  <a href="#name-delegation-with-an-actor-to" class="internal xref">Delegation With an Actor Token</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.9.2.2">
+                <p id="section-toc.1-1.9.2.2.1"><a href="#section-9.2" class="auto internal xref">9.2</a>.  <a href="#name-scopeless-id-jag-two-levels" class="internal xref">Scopeless ID-JAG, Two Levels</a></p>
+</li>
+            </ul>
+</li>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.10">
+            <p id="section-toc.1-1.10.1"><a href="#section-10" class="auto internal xref">10</a>. <a href="#name-security-considerations" class="internal xref">Security Considerations</a></p>
+<ul class="compact toc ulBare ulEmpty">
+<li class="compact toc ulBare ulEmpty" id="section-toc.1-1.10.2.1">
+                <p id="section-toc.1-1.10.2.1.1"><a href="#section-10.1" class="auto internal xref">10.1</a>.  <a href="#name-impersonation-is-the-danger" class="internal xref">Impersonation Is the Dangerous Case</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.10.2.2">
+                <p id="section-toc.1-1.10.2.2.1"><a href="#section-10.2" class="auto internal xref">10.2</a>.  <a href="#name-chain-depth-and-repeated-ex" class="internal xref">Chain Depth and Repeated Exchange</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.10.2.3">
+                <p id="section-toc.1-1.10.2.3.1"><a href="#section-10.3" class="auto internal xref">10.3</a>.  <a href="#name-trust-in-the-subject-token-" class="internal xref">Trust in the Subject Token Issuer</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.10.2.4">
+                <p id="section-toc.1-1.10.2.4.1"><a href="#section-10.4" class="auto internal xref">10.4</a>.  <a href="#name-denial-information-disclosu" class="internal xref">Denial Information Disclosure</a></p>
+</li>
+            </ul>
+</li>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.11">
+            <p id="section-toc.1-1.11.1"><a href="#section-11" class="auto internal xref">11</a>. <a href="#name-iana-considerations" class="internal xref">IANA Considerations</a></p>
+<ul class="compact toc ulBare ulEmpty">
+<li class="compact toc ulBare ulEmpty" id="section-toc.1-1.11.2.1">
+                <p id="section-toc.1-1.11.2.1.1"><a href="#section-11.1" class="auto internal xref">11.1</a>.  <a href="#name-issuance-authorization-acti" class="internal xref">Issuance Authorization Action Names</a></p>
+</li>
+            </ul>
+</li>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.12">
+            <p id="section-toc.1-1.12.1"><a href="#section-12" class="auto internal xref">12</a>. <a href="#name-references" class="internal xref">References</a></p>
+<ul class="compact toc ulBare ulEmpty">
+<li class="compact toc ulBare ulEmpty" id="section-toc.1-1.12.2.1">
+                <p id="section-toc.1-1.12.2.1.1"><a href="#section-12.1" class="auto internal xref">12.1</a>.  <a href="#name-normative-references" class="internal xref">Normative References</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.12.2.2">
+                <p id="section-toc.1-1.12.2.2.1"><a href="#section-12.2" class="auto internal xref">12.2</a>.  <a href="#name-informative-references" class="internal xref">Informative References</a></p>
+</li>
+            </ul>
+</li>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.13">
+            <p id="section-toc.1-1.13.1"><a href="#appendix-A" class="auto internal xref"></a><a href="#name-acknowledgments" class="internal xref">Acknowledgments</a></p>
+</li>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.14">
+            <p id="section-toc.1-1.14.1"><a href="#appendix-B" class="auto internal xref"></a><a href="#name-authors-address" class="internal xref">Author's Address</a></p>
+</li>
+        </ul>
+</nav>
+</section>
+</div>
+<div id="introduction">
+<section id="section-1">
+      <h2 id="name-introduction">
+<a href="#section-1" class="section-number selfRef">1. </a><a href="#name-introduction" class="section-name selfRef">Introduction</a>
+      </h2>
+<p id="section-1-1"><span>[<a href="#RFC8693" class="cite xref">RFC8693</a>]</span> generalizes a family of operations in which a party presents one
+token and asks for another. The specification is precise about the inputs -
+<code>subject_token</code>, <code>actor_token</code>, <code>audience</code>, <code>resource</code>, <code>scope</code>,
+<code>requested_token_type</code> - and about the shape of the result, including the
+<code>act</code> claim that records a delegation chain and the <code>may_act</code> claim that
+authorizes one party to become the actor for another.<a href="#section-1-1" class="pilcrow">¶</a></p>
+<p id="section-1-2">It is deliberately silent about the decision. Section 2.2.1 conditions a
+successful response on the request meeting "all policy and other criteria of
+the authorization server", and defines neither the policy nor the criteria.<a href="#section-1-2" class="pilcrow">¶</a></p>
+<p id="section-1-3"><span>[<a href="#ISSUANCE" class="cite xref">ISSUANCE</a>]</span> defines a framework for externalizing that class of decision to
+a Policy Decision Point (PDP) using <span>[<a href="#AUTHZEN" class="cite xref">AUTHZEN</a>]</span>, casting the authorization
+server (AS) as a Policy Enforcement Point. That document is directly
+implementable for grants whose request names a single party and a single
+target. Token exchange names two parties, and several of its members name two
+levels of target; supplying that structure is what this document does. It
+covers:<a href="#section-1-3" class="pilcrow">¶</a></p>
+<ul class="normal">
+<li class="normal" id="section-1-4.1">
+          <p id="section-1-4.1.1">token exchange as defined in <span>[<a href="#RFC8693" class="cite xref">RFC8693</a>]</span>;<a href="#section-1-4.1.1" class="pilcrow">¶</a></p>
+</li>
+        <li class="normal" id="section-1-4.2">
+          <p id="section-1-4.2.1">identity chaining across trust domains
+(<span>[<a href="#I-D.ietf-oauth-identity-chaining" class="cite xref">I-D.ietf-oauth-identity-chaining</a>]</span>);<a href="#section-1-4.2.1" class="pilcrow">¶</a></p>
+</li>
+        <li class="normal" id="section-1-4.3">
+          <p id="section-1-4.3.1">identity assertion authorization grants
+(<span>[<a href="#I-D.ietf-oauth-identity-assertion-authz-grant" class="cite xref">I-D.ietf-oauth-identity-assertion-authz-grant</a>]</span>), referred to here as
+ID-JAG;<a href="#section-1-4.3.1" class="pilcrow">¶</a></p>
+</li>
+        <li class="normal" id="section-1-4.4">
+          <p id="section-1-4.4.1">transaction tokens (<span>[<a href="#I-D.ietf-oauth-transaction-tokens" class="cite xref">I-D.ietf-oauth-transaction-tokens</a>]</span>), referred to
+here as Txn-Tokens.<a href="#section-1-4.4.1" class="pilcrow">¶</a></p>
+</li>
+      </ul>
+<p id="section-1-5">These are treated together because they are one grant with four sets of
+parameters. Each names a subject, a requesting party, a target, and a set of
+privileges, and each arrives at the same undefined decision.<a href="#section-1-5" class="pilcrow">¶</a></p>
+<div id="what-this-document-adds">
+<section id="section-1.1">
+        <h3 id="name-what-this-document-adds">
+<a href="#section-1.1" class="section-number selfRef">1.1. </a><a href="#name-what-this-document-adds" class="section-name selfRef">What This Document Adds</a>
+        </h3>
+<p id="section-1.1-1">The framework maps a generic issuance request onto AuthZEN's mandatory
+five-tuple. Token exchange adds one structural element the framework does
+not have: <strong>a second party</strong>. Every other issuance flow decides what a
+subject may obtain. A token exchange decides what a <em>requesting party</em> may
+obtain <em>as, or on behalf of,</em> a subject.<a href="#section-1.1-1" class="pilcrow">¶</a></p>
+<p id="section-1.1-2">That second party is not decoration. <span>[<a href="#RFC8693" class="cite xref">RFC8693</a>]</span> introduces <code>may_act</code>
+precisely because the authority to become another party's actor is a
+distinct privilege, and Section 4.4 identifies the party whose authority is
+in question as "the client (or party identified in the <code>actor_token</code>)".
+This document's central normative content is that this second privilege is
+evaluated as its own tuple, so that any conforming PDP - including a
+relationship-based engine in the style of <span>[<a href="#ZANZIBAR" class="cite xref">ZANZIBAR</a>]</span>, which reads it
+directly as an edge between two named entities - can adjudicate it
+(<a href="#actor-gate" class="auto internal xref">Section 4.3.2</a>).<a href="#section-1.1-2" class="pilcrow">¶</a></p>
+<p id="section-1.1-3">The remainder is the derivation of the framework's inputs from each
+specification's parameters, and the small number of invariants that each
+specification places beyond a PDP's reach.<a href="#section-1.1-3" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="requirements-language">
+<section id="section-1.2">
+        <h3 id="name-requirements-language">
+<a href="#section-1.2" class="section-number selfRef">1.2. </a><a href="#name-requirements-language" class="section-name selfRef">Requirements Language</a>
+        </h3>
+<p id="section-1.2-1">The key words "<span class="bcp14">MUST</span>", "<span class="bcp14">MUST NOT</span>", "<span class="bcp14">REQUIRED</span>", "<span class="bcp14">SHALL</span>", "<span class="bcp14">SHALL NOT</span>", "<span class="bcp14">SHOULD</span>", "<span class="bcp14">SHOULD NOT</span>", "<span class="bcp14">RECOMMENDED</span>", "<span class="bcp14">NOT RECOMMENDED</span>",
+"<span class="bcp14">MAY</span>", and "<span class="bcp14">OPTIONAL</span>" in this document are to be interpreted as
+described in BCP 14 <span>[<a href="#RFC2119" class="cite xref">RFC2119</a>]</span> <span>[<a href="#RFC8174" class="cite xref">RFC8174</a>]</span> when, and only when, they
+appear in all capitals, as shown here.<a href="#section-1.2-1" class="pilcrow">¶</a></p>
+</section>
+</div>
+</section>
+</div>
+<div id="terminology">
+<section id="section-2">
+      <h2 id="name-terminology">
+<a href="#section-2" class="section-number selfRef">2. </a><a href="#name-terminology" class="section-name selfRef">Terminology</a>
+      </h2>
+<p id="section-2-1">This document uses the terms of <span>[<a href="#RFC6749" class="cite xref">RFC6749</a>]</span>, <span>[<a href="#RFC8693" class="cite xref">RFC8693</a>]</span>, <span>[<a href="#AUTHZEN" class="cite xref">AUTHZEN</a>]</span>, and
+<span>[<a href="#ISSUANCE" class="cite xref">ISSUANCE</a>]</span>. In particular, <em>gate tuple</em> and <em>scope tuple</em> are used as
+defined in <span>[<a href="#ISSUANCE" class="cite xref">ISSUANCE</a>]</span>.<a href="#section-2-1" class="pilcrow">¶</a></p>
+<span class="break"></span><dl class="dlParallel" id="section-2-2">
+        <dt id="section-2-2.1">Exchange subject:</dt>
+        <dd style="margin-left: 1.5em" id="section-2-2.2">
+          <p id="section-2-2.2.1">The party the issued token will represent: the party whose identifier the
+AS intends to place in the issued token's subject claim. Derived in
+<a href="#subject" class="auto internal xref">Section 4.1</a>.<a href="#section-2-2.2.1" class="pilcrow">¶</a></p>
+</dd>
+        <dd class="break"></dd>
+<dt id="section-2-2.3">Requesting party:</dt>
+        <dd style="margin-left: 1.5em" id="section-2-2.4">
+          <p id="section-2-2.4.1">The party asking for the token, on whose own authority the exchange
+depends. This is the party identified by <code>actor_token</code> where one is
+present, and the authenticated client otherwise. Derived in
+<a href="#requesting-party" class="auto internal xref">Section 4.2</a>.<a href="#section-2-2.4.1" class="pilcrow">¶</a></p>
+</dd>
+        <dd class="break"></dd>
+<dt id="section-2-2.5">Issuance target:</dt>
+        <dd style="margin-left: 1.5em" id="section-2-2.6">
+          <p id="section-2-2.6.1">As in <span>[<a href="#ISSUANCE" class="cite xref">ISSUANCE</a>]</span>: the audience of the access being granted.<a href="#section-2-2.6.1" class="pilcrow">¶</a></p>
+</dd>
+      <dd class="break"></dd>
+</dl>
+</section>
+</div>
+<div id="applicability">
+<section id="section-3">
+      <h2 id="name-applicability">
+<a href="#section-3" class="section-number selfRef">3. </a><a href="#name-applicability" class="section-name selfRef">Applicability</a>
+      </h2>
+<p id="section-3-1">This binding applies to a request at the token endpoint whose <code>grant_type</code>
+is <code>urn:ietf:params:oauth:grant-type:token-exchange</code>, and to the assertion
+grants used to redeem an ID-JAG (<a href="#id-jag" class="auto internal xref">Section 5.3</a>).<a href="#section-3-1" class="pilcrow">¶</a></p>
+<p id="section-3-2">The AS performs the evaluation described here only after it has completed
+every validation the underlying specification requires: authenticating the
+client, validating the <code>subject_token</code> and any <code>actor_token</code> and confirming
+their issuers are trusted, and verifying any proof of possession. A permit
+from a PDP does not substitute for any of these. This restates
+<span>[<a href="#ISSUANCE" class="cite xref">ISSUANCE</a>]</span>'s architecture and is repeated because token exchange is the
+flow in which the temptation to conflate the two is greatest: the PDP is
+being asked whether a delegation is <em>permitted</em>, never whether the presented
+tokens are <em>valid</em>.<a href="#section-3-2" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="forming-the-evaluation-request">
+<section id="section-4">
+      <h2 id="name-forming-the-evaluation-requ">
+<a href="#section-4" class="section-number selfRef">4. </a><a href="#name-forming-the-evaluation-requ" class="section-name selfRef">Forming the Evaluation Request</a>
+      </h2>
+<div id="subject">
+<section id="section-4.1">
+        <h3 id="name-subject">
+<a href="#section-4.1" class="section-number selfRef">4.1. </a><a href="#name-subject" class="section-name selfRef">Subject</a>
+        </h3>
+<p id="section-4.1-1">The exchange subject is derived from <code>subject_token</code>, interpreted according
+to <code>subject_token_type</code>:<a href="#section-4.1-1" class="pilcrow">¶</a></p>
+<table class="center" id="table-1">
+          <caption><a href="#table-1" class="selfRef">Table 1</a></caption>
+<thead>
+            <tr>
+              <th class="text-left" rowspan="1" colspan="1">Value of subject_token_type</th>
+              <th class="text-left" rowspan="1" colspan="1">Exchange subject</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="text-left" rowspan="1" colspan="1">
+                <code>access_token</code>, <code>id_token</code>, <code>jwt</code>
+</td>
+              <td class="text-left" rowspan="1" colspan="1">The subject of the presented token</td>
+            </tr>
+            <tr>
+              <td class="text-left" rowspan="1" colspan="1">
+                <code>refresh_token</code>
+</td>
+              <td class="text-left" rowspan="1" colspan="1">The subject the refresh token was issued for</td>
+            </tr>
+            <tr>
+              <td class="text-left" rowspan="1" colspan="1">
+                <code>saml1</code>, <code>saml2</code>
+</td>
+              <td class="text-left" rowspan="1" colspan="1">The subject of the assertion</td>
+            </tr>
+            <tr>
+              <td class="text-left" rowspan="1" colspan="1">
+                <code>self_signed</code>, <code>unsigned_json</code>
+</td>
+              <td class="text-left" rowspan="1" colspan="1">See <a href="#txn-tokens" class="auto internal xref">Section 5.4</a>
+</td>
+            </tr>
+          </tbody>
+        </table>
+<p id="section-4.1-3"><code>subject.type</code> <span class="bcp14">MUST</span> be <code>user</code> where the exchange subject is a natural person
+and <code>workload</code> where it is a non-human software identity, per the registry
+established by <span>[<a href="#ISSUANCE" class="cite xref">ISSUANCE</a>]</span>.<a href="#section-4.1-3" class="pilcrow">¶</a></p>
+<p id="section-4.1-4"><code>subject.id</code> <span class="bcp14">MUST</span> be the identifier the AS intends to place in the issued
+token's subject claim, as <span>[<a href="#ISSUANCE" class="cite xref">ISSUANCE</a>]</span> requires. In token exchange this
+ordering constraint has teeth, because the subject identifier frequently
+changes during the exchange: an AS receiving a token from a peer trust
+domain resolves the foreign subject to a local account, and an AS issuing
+pairwise identifiers computes one per audience. Any such resolution <span class="bcp14">MUST</span> be
+performed <strong>before</strong> the evaluation request is constructed.<a href="#section-4.1-4" class="pilcrow">¶</a></p>
+<p id="section-4.1-5">An AS that evaluated against the incoming identifier and then issued a token
+bearing a resolved one would obtain a decision about a subject that does not
+appear in the token it mints.<a href="#section-4.1-5" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="requesting-party">
+<section id="section-4.2">
+        <h3 id="name-requesting-party">
+<a href="#section-4.2" class="section-number selfRef">4.2. </a><a href="#name-requesting-party" class="section-name selfRef">Requesting Party</a>
+        </h3>
+<p id="section-4.2-1">The requesting party is:<a href="#section-4.2-1" class="pilcrow">¶</a></p>
+<ol start="1" type="1" class="normal type-1" id="section-4.2-2">
+<li id="section-4.2-2.1">
+            <p id="section-4.2-2.1.1">the party identified by <code>actor_token</code>, interpreted according to
+<code>actor_token_type</code>, where an <code>actor_token</code> is present; otherwise<a href="#section-4.2-2.1.1" class="pilcrow">¶</a></p>
+</li>
+          <li id="section-4.2-2.2">
+            <p id="section-4.2-2.2.1">the authenticated client.<a href="#section-4.2-2.2.1" class="pilcrow">¶</a></p>
+</li>
+        </ol>
+<p id="section-4.2-3"><code>subject.type</code> for the requesting party <span class="bcp14">MUST</span> be <code>client</code> where it is an
+OAuth client identified by a client identifier, and <code>workload</code> where it is a
+software identity presenting a credential such as an X.509 certificate
+(<span>[<a href="#RFC8705" class="cite xref">RFC8705</a>]</span>) or a workload identity document.<a href="#section-4.2-3" class="pilcrow">¶</a></p>
+<p id="section-4.2-4">The requesting party is derived in both delegation and impersonation. It is
+in the impersonation case - where the issued token carries no <code>act</code> claim
+and the requesting party is therefore invisible in the result - that
+evaluating its authority matters most, because nothing downstream can
+recover it.<a href="#section-4.2-4" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="actions">
+<section id="section-4.3">
+        <h3 id="name-actions">
+<a href="#section-4.3" class="section-number selfRef">4.3. </a><a href="#name-actions" class="section-name selfRef">Actions</a>
+        </h3>
+<p id="section-4.3-1">A token exchange request produces gate tuples and scope tuples as defined in
+<span>[<a href="#ISSUANCE" class="cite xref">ISSUANCE</a>]</span>, which requires a gate tuple on every request. This binding
+produces <strong>two</strong>, because a token exchange has two parties whose authority
+is in question.<a href="#section-4.3-1" class="pilcrow">¶</a></p>
+<p id="section-4.3-2">Both carry the same <code>action.name</code>, of the form
+<code>issue:&lt;token-type&gt;:token_exchange</code>, where the token type short name is the
+one registered for the value of <code>requested_token_type</code> (<a href="#iana-actions" class="auto internal xref">Section 11.1</a>).
+The grant segment is <code>token_exchange</code> throughout, since that is the grant
+this binding applies to; it is what distinguishes these tuples from those a
+direct request by the same party for the same target would produce.<a href="#section-4.3-2" class="pilcrow">¶</a></p>
+<p id="section-4.3-3">Where <code>requested_token_type</code> is absent, <span>[<a href="#RFC8693" class="cite xref">RFC8693</a>]</span> directs the AS to its
+default, and the short name for that default type is used.<a href="#section-4.3-3" class="pilcrow">¶</a></p>
+<div id="subject-gate-tuple">
+<section id="section-4.3.1">
+          <h4 id="name-subject-gate-tuple">
+<a href="#section-4.3.1" class="section-number selfRef">4.3.1. </a><a href="#name-subject-gate-tuple" class="section-name selfRef">Subject Gate Tuple</a>
+          </h4>
+<p id="section-4.3.1-1">The AS <span class="bcp14">MUST</span> include a gate tuple whose subject is the exchange subject.<a href="#section-4.3.1-1" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="actor-gate">
+<section id="section-4.3.2">
+          <h4 id="name-requesting-party-gate-tuple">
+<a href="#section-4.3.2" class="section-number selfRef">4.3.2. </a><a href="#name-requesting-party-gate-tuple" class="section-name selfRef">Requesting Party Gate Tuple</a>
+          </h4>
+<p id="section-4.3.2-1">The AS <span class="bcp14">MUST</span> include a second gate tuple whose subject is the requesting
+party (<a href="#requesting-party" class="auto internal xref">Section 4.2</a>), with the same <code>action.name</code> and the same
+resource as the subject gate tuple.<a href="#section-4.3.2-1" class="pilcrow">¶</a></p>
+<p id="section-4.3.2-2">This tuple is the interoperable expression of the question <span>[<a href="#RFC8693" class="cite xref">RFC8693</a>]</span>
+Section 4.4 poses: whether the client, or the party named in the
+<code>actor_token</code>, is authorized to engage in the requested delegation or
+impersonation. Expressing it as a five-tuple rather than as a property of
+the subject's tuple is what puts it within reach of any conforming PDP: a
+relationship-based engine adjudicates it directly, as the relation between a
+named subject and a named object, without having to be told how to project a
+property bag into one.<a href="#section-4.3.2-2" class="pilcrow">¶</a></p>
+<p id="section-4.3.2-3">The two gate tuples ask different questions and both <span class="bcp14">MUST</span> be permitted:<a href="#section-4.3.2-3" class="pilcrow">¶</a></p>
+<ul class="normal">
+<li class="normal" id="section-4.3.2-4.1">
+              <p id="section-4.3.2-4.1.1">the subject gate asks whether a token of this kind may exist for this
+subject and this target at all;<a href="#section-4.3.2-4.1.1" class="pilcrow">¶</a></p>
+</li>
+            <li class="normal" id="section-4.3.2-4.2">
+              <p id="section-4.3.2-4.2.1">the requesting party gate asks whether this party may be the one to obtain
+it.<a href="#section-4.3.2-4.2.1" class="pilcrow">¶</a></p>
+</li>
+          </ul>
+<p id="section-4.3.2-5">Where the requesting party and the exchange subject are the same entity -
+a client exchanging a token it obtained for itself - the two gate tuples are
+identical, and the AS <span class="bcp14">MAY</span> include only one.<a href="#section-4.3.2-5" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="mayact-is-not-a-substitute">
+<section id="section-4.3.3">
+          <h4 id="name-may_act-is-not-a-substitute">
+<a href="#section-4.3.3" class="section-number selfRef">4.3.3. </a><a href="#name-may_act-is-not-a-substitute" class="section-name selfRef"><code>may_act</code> Is Not a Substitute</a>
+          </h4>
+<p id="section-4.3.3-1">Where the <code>subject_token</code> carries a <code>may_act</code> claim, the AS <span class="bcp14">MUST</span> convey it
+as advisory context (<a href="#context" class="auto internal xref">Section 4.5</a>) and <span class="bcp14">MUST NOT</span> treat its presence as
+satisfying the requesting party gate tuple, nor its absence as denying it.<a href="#section-4.3.3-1" class="pilcrow">¶</a></p>
+<p id="section-4.3.3-2"><code>may_act</code> is an assertion made by the issuer of the subject token at the
+time that token was minted. The gate tuple is a decision rendered by policy
+at the time of the exchange. Substituting the first for the second would
+reintroduce, one layer down, exactly the staleness that consulting a PDP at
+issuance exists to address. An ABAC-class PDP is free to consume <code>may_act</code>
+from context and require the requesting party to appear in it; that is a
+policy choice made at the PDP, which is where it belongs.<a href="#section-4.3.3-2" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="scope-tuples">
+<section id="section-4.3.4">
+          <h4 id="name-scope-tuples">
+<a href="#section-4.3.4" class="section-number selfRef">4.3.4. </a><a href="#name-scope-tuples" class="section-name selfRef">Scope Tuples</a>
+          </h4>
+<p id="section-4.3.4-1">Scope tuples are formed as in <span>[<a href="#ISSUANCE" class="cite xref">ISSUANCE</a>]</span>, one per requested scope value,
+carried verbatim.<a href="#section-4.3.4-1" class="pilcrow">¶</a></p>
+<p id="section-4.3.4-2">The subject of every scope tuple <span class="bcp14">MUST</span> be the exchange subject, not the
+requesting party. Scope expresses access authority, and in both delegation
+and impersonation the access being exercised is the subject's. A requesting
+party cannot acquire access the subject does not have by asking for it on
+the subject's behalf; its own privilege is the right to act as the subject
+at all, which the gate tuple decides.<a href="#section-4.3.4-2" class="pilcrow">¶</a></p>
+<p id="section-4.3.4-3"><a href="#txn-tokens" class="auto internal xref">Section 5.4</a> defines an additional requirement for Txn-Tokens, whose
+governing specification makes the requesting workload's authority
+scope-dependent.<a href="#section-4.3.4-3" class="pilcrow">¶</a></p>
+</section>
+</div>
+</section>
+</div>
+<div id="resource">
+<section id="section-4.4">
+        <h3 id="name-resource">
+<a href="#section-4.4" class="section-number selfRef">4.4. </a><a href="#name-resource" class="section-name selfRef">Resource</a>
+        </h3>
+<p id="section-4.4-1"><code>resource.type</code> <span class="bcp14">MUST</span> be <code>audience</code> and <code>resource.id</code> <span class="bcp14">MUST</span> be the issuance
+target, as in <span>[<a href="#ISSUANCE" class="cite xref">ISSUANCE</a>]</span>. Where the request carries an <code>audience</code>
+parameter, or a <code>resource</code> parameter in the sense of <span>[<a href="#RFC8707" class="cite xref">RFC8707</a>]</span>, that value
+determines the issuance target.<a href="#section-4.4-1" class="pilcrow">¶</a></p>
+<p id="section-4.4-2">Where the request names more than one target, the AS <span class="bcp14">MUST</span> fan the tuples out
+across targets: each gate tuple and each scope tuple is evaluated once per
+named target.<a href="#section-4.4-2" class="pilcrow">¶</a></p>
+<div id="two-level">
+<section id="section-4.4.1">
+          <h4 id="name-two-level-evaluation-for-ch">
+<a href="#section-4.4.1" class="section-number selfRef">4.4.1. </a><a href="#name-two-level-evaluation-for-ch" class="section-name selfRef">Two-Level Evaluation for Chained Grants</a>
+          </h4>
+<p id="section-4.4.1-1">Some members of this family issue an artifact that is consumed by one party
+in order to obtain access at another. An ID-JAG is presented to a peer
+authorization server, but the access it describes is at a resource behind
+that server. The artifact's own audience and the audience of the access
+being granted are different values, and both are decision-critical: the
+first governs delegation into a trust domain, the second governs reach
+within it.<a href="#section-4.4.1-1" class="pilcrow">¶</a></p>
+<p id="section-4.4.1-2">Where the two differ, the AS <span class="bcp14">MUST</span> perform a <strong>two-level evaluation</strong>,
+producing tuples at both:<a href="#section-4.4.1-2" class="pilcrow">¶</a></p>
+<ul class="normal">
+<li class="normal" id="section-4.4.1-3.1">
+              <p id="section-4.4.1-3.1.1"><strong>Level 1</strong>, with <code>resource.id</code> set to the consumer of the issued artifact<a href="#section-4.4.1-3.1.1" class="pilcrow">¶</a></p>
+<ul class="normal">
+<li class="normal" id="section-4.4.1-3.1.2.1">
+                  <p id="section-4.4.1-3.1.2.1.1">the peer authorization server. Gate tuples appear only at this level.<a href="#section-4.4.1-3.1.2.1.1" class="pilcrow">¶</a></p>
+</li>
+              </ul>
+</li>
+            <li class="normal" id="section-4.4.1-3.2">
+              <p id="section-4.4.1-3.2.1"><strong>Level 2</strong>, with <code>resource.id</code> set to each resource identifier named by
+the request under <span>[<a href="#RFC8707" class="cite xref">RFC8707</a>]</span>. Scope tuples are produced at both levels.<a href="#section-4.4.1-3.2.1" class="pilcrow">¶</a></p>
+</li>
+          </ul>
+<p id="section-4.4.1-4">A denial at level 1 is a refusal to delegate into that trust domain and is
+fatal. A denial at level 2 narrows the resource or scope set the issued
+artifact may name.<a href="#section-4.4.1-4" class="pilcrow">¶</a></p>
+<p id="section-4.4.1-5">Where the request names no <span>[<a href="#RFC8707" class="cite xref">RFC8707</a>]</span> resource, level 2 does not exist and
+the evaluation is single-level.<a href="#section-4.4.1-5" class="pilcrow">¶</a></p>
+</section>
+</div>
+</section>
+</div>
+<div id="context">
+<section id="section-4.5">
+        <h3 id="name-context">
+<a href="#section-4.5" class="section-number selfRef">4.5. </a><a href="#name-context" class="section-name selfRef">Context</a>
+        </h3>
+<p id="section-4.5-1">In addition to the keys defined by <span>[<a href="#ISSUANCE" class="cite xref">ISSUANCE</a>]</span>, an AS implementing this
+binding <span class="bcp14">SHOULD</span> convey the following in the request <code>context</code>. All are
+advisory: a PDP <span class="bcp14">MUST</span> be able to render a decision from the five-tuple alone.<a href="#section-4.5-1" class="pilcrow">¶</a></p>
+<table class="center" id="table-2">
+          <caption><a href="#table-2" class="selfRef">Table 2</a></caption>
+<thead>
+            <tr>
+              <th class="text-left" rowspan="1" colspan="1">Key</th>
+              <th class="text-left" rowspan="1" colspan="1">Type</th>
+              <th class="text-left" rowspan="1" colspan="1">Value</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="text-left" rowspan="1" colspan="1">
+                <code>subject_token_type</code>
+</td>
+              <td class="text-left" rowspan="1" colspan="1">string</td>
+              <td class="text-left" rowspan="1" colspan="1">The <code>subject_token_type</code> parameter, verbatim</td>
+            </tr>
+            <tr>
+              <td class="text-left" rowspan="1" colspan="1">
+                <code>actor_token_type</code>
+</td>
+              <td class="text-left" rowspan="1" colspan="1">string</td>
+              <td class="text-left" rowspan="1" colspan="1">The <code>actor_token_type</code> parameter, if present</td>
+            </tr>
+            <tr>
+              <td class="text-left" rowspan="1" colspan="1">
+                <code>subject_token</code>
+</td>
+              <td class="text-left" rowspan="1" colspan="1">object</td>
+              <td class="text-left" rowspan="1" colspan="1">Selected validated claims of the subject token, such as <code>iss</code>, <code>acr</code>, <code>amr</code>, and <code>auth_time</code>
+</td>
+            </tr>
+            <tr>
+              <td class="text-left" rowspan="1" colspan="1">
+                <code>act</code>
+</td>
+              <td class="text-left" rowspan="1" colspan="1">object</td>
+              <td class="text-left" rowspan="1" colspan="1">The <code>act</code> claim of the subject token, if present, conveying an existing delegation chain</td>
+            </tr>
+            <tr>
+              <td class="text-left" rowspan="1" colspan="1">
+                <code>may_act</code>
+</td>
+              <td class="text-left" rowspan="1" colspan="1">object</td>
+              <td class="text-left" rowspan="1" colspan="1">The <code>may_act</code> claim of the subject token, if present</td>
+            </tr>
+            <tr>
+              <td class="text-left" rowspan="1" colspan="1">
+                <code>cnf</code>
+</td>
+              <td class="text-left" rowspan="1" colspan="1">object</td>
+              <td class="text-left" rowspan="1" colspan="1">The confirmation method of the presented credential, where the exchange is sender-constrained under <span>[<a href="#RFC8705" class="cite xref">RFC8705</a>]</span> or <span>[<a href="#RFC9449" class="cite xref">RFC9449</a>]</span>
+</td>
+            </tr>
+          </tbody>
+        </table>
+<p id="section-4.5-3">Each key has one JSON type, as <span>[<a href="#ISSUANCE" class="cite xref">ISSUANCE</a>]</span> requires of context keys defined
+by a binding.<a href="#section-4.5-3" class="pilcrow">¶</a></p>
+<p id="section-4.5-4"><code>requested_token_type</code> is not among them. It determines the token type
+segment of the gate action name, so it is already in the five-tuple, and
+repeating it in <code>context</code> would give a PDP two places to read the same fact
+and a way for them to disagree. <code>subject_token_type</code> and <code>actor_token_type</code>
+describe the credentials presented, not the token requested, and remain
+advisory.<a href="#section-4.5-4" class="pilcrow">¶</a></p>
+<p id="section-4.5-5">An AS <span class="bcp14">MUST NOT</span> place raw token strings in <code>context</code>. Only claims the AS has
+already validated are conveyed, and only those a deployment's policies
+consume. The subject token may carry claims about a party that has not
+authorized their disclosure to the PDP.<a href="#section-4.5-5" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="composition">
+<section id="section-4.6">
+        <h3 id="name-batch-composition">
+<a href="#section-4.6" class="section-number selfRef">4.6. </a><a href="#name-batch-composition" class="section-name selfRef">Batch Composition</a>
+        </h3>
+<p id="section-4.6-1">Except where a request names no scopes and the two gate tuples coincide
+(<a href="#actor-gate" class="auto internal xref">Section 4.3.2</a>), the AS uses the Access Evaluations API of <span>[<a href="#AUTHZEN" class="cite xref">AUTHZEN</a>]</span> as
+<span>[<a href="#ISSUANCE" class="cite xref">ISSUANCE</a>]</span> specifies, with <code>options.evaluations_semantic</code> set to
+<code>execute_all</code>.<a href="#section-4.6-1" class="pilcrow">¶</a></p>
+<p id="section-4.6-2"><span>[<a href="#ISSUANCE" class="cite xref">ISSUANCE</a>]</span> requires gate tuples to occupy the leading indices of the
+<code>evaluations</code> array. Here that ordinarily means indices 0 and 1, in the order
+given in <a href="#actions" class="auto internal xref">Section 4.3</a>: the subject gate first, then the requesting party gate.
+Scope tuples follow. The AS <span class="bcp14">MUST</span> fail the request without issuing a token if
+either gate is denied.<a href="#section-4.6-2" class="pilcrow">¶</a></p>
+<p id="section-4.6-3">Narrowing is the ordinary outcome of a scope denial, and matches
+<span>[<a href="#I-D.ietf-oauth-identity-assertion-authz-grant" class="cite xref">I-D.ietf-oauth-identity-assertion-authz-grant</a>]</span>, which states that granted
+scopes may be a subset of those requested. Where a deployment instead intends
+the requested privileges to be granted whole, it does not vary the evaluations
+semantic to obtain that: it fails the request when any scope tuple is denied.<a href="#section-4.6-3" class="pilcrow">¶</a></p>
+<p id="section-4.6-4">A short-circuiting semantic is not used, because it may return a truncated
+<code>evaluations</code> array while the aggregation rules of <span>[<a href="#ISSUANCE" class="cite xref">ISSUANCE</a>]</span> are defined
+over the complete set of per-item results. Composing those results is the AS's
+work here in any case: <span>[<a href="#AUTHZEN" class="cite xref">AUTHZEN</a>]</span> selects the semantic per request rather
+than per item, so the fatality of a gate denial is enforced by the AS and not
+by the PDP. Retaining every per-item result also preserves the record of which
+privilege was refused, which is what an operator needs when a request fails.<a href="#section-4.6-4" class="pilcrow">¶</a></p>
+</section>
+</div>
+</section>
+</div>
+<div id="token-type-bindings">
+<section id="section-5">
+      <h2 id="name-token-type-bindings">
+<a href="#section-5" class="section-number selfRef">5. </a><a href="#name-token-type-bindings" class="section-name selfRef">Token Type Bindings</a>
+      </h2>
+<div id="access-tokens-and-refresh-tokens">
+<section id="section-5.1">
+        <h3 id="name-access-tokens-and-refresh-t">
+<a href="#section-5.1" class="section-number selfRef">5.1. </a><a href="#name-access-tokens-and-refresh-t" class="section-name selfRef">Access Tokens and Refresh Tokens</a>
+        </h3>
+<p id="section-5.1-1">No additional derivation is required. The mapping of <span>[<a href="#ISSUANCE" class="cite xref">ISSUANCE</a>]</span> and the
+preceding sections is complete for an exchange whose
+<code>requested_token_type</code> is <code>urn:ietf:params:oauth:token-type:access_token</code> or
+<code>urn:ietf:params:oauth:token-type:refresh_token</code>.<a href="#section-5.1-1" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="identity-chaining">
+<section id="section-5.2">
+        <h3 id="name-identity-chaining">
+<a href="#section-5.2" class="section-number selfRef">5.2. </a><a href="#name-identity-chaining" class="section-name selfRef">Identity Chaining</a>
+        </h3>
+<p id="section-5.2-1"><span>[<a href="#I-D.ietf-oauth-identity-chaining" class="cite xref">I-D.ietf-oauth-identity-chaining</a>]</span> composes two token endpoint requests:
+an exchange at the authorization server of trust domain A yielding an
+authorization grant for trust domain B, and the redemption of that grant at
+B's authorization server.<a href="#section-5.2-1" class="pilcrow">¶</a></p>
+<p id="section-5.2-2">Each leg is an independent issuance decision and is evaluated independently,
+against the PDP of the trust domain whose authorization server is
+performing it. Neither AS relies on the other's evaluation. This follows
+from the specification's own model, in which each domain remains
+authoritative for its own policy, and it is what the profile is for: the
+first leg decides whether authority may leave domain A, the second decides
+what authority it acquires in domain B.<a href="#section-5.2-2" class="pilcrow">¶</a></p>
+<p id="section-5.2-3">The first leg is a two-level evaluation under <a href="#two-level" class="auto internal xref">Section 4.4.1</a> where the
+request names <span>[<a href="#RFC8707" class="cite xref">RFC8707</a>]</span> resources. The second leg is an ordinary
+single-level evaluation whose exchange subject is the local account the
+foreign subject resolved to, per <a href="#subject" class="auto internal xref">Section 4.1</a>.<a href="#section-5.2-3" class="pilcrow">¶</a></p>
+<p id="section-5.2-4"><span>[<a href="#I-D.ietf-oauth-identity-chaining" class="cite xref">I-D.ietf-oauth-identity-chaining</a>]</span> notes that a request may be denied due
+to policy, for instance where a trust relationship is not established. Under
+this binding, the existence of the trust relationship remains a
+precondition the AS validates; the PDP decides what is permitted across a
+relationship that already exists.<a href="#section-5.2-4" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="id-jag">
+<section id="section-5.3">
+        <h3 id="name-identity-assertion-authoriz">
+<a href="#section-5.3" class="section-number selfRef">5.3. </a><a href="#name-identity-assertion-authoriz" class="section-name selfRef">Identity Assertion Authorization Grant</a>
+        </h3>
+<p id="section-5.3-1">An ID-JAG is issued by an identity provider's authorization server and
+redeemed at an application's authorization server.<a href="#section-5.3-1" class="pilcrow">¶</a></p>
+<p id="section-5.3-2"><strong>Issuance.</strong> The <code>requested_token_type</code> is
+<code>urn:ietf:params:oauth:token-type:id-jag</code>, so the gate tuples carry
+<code>action.name</code> of <code>issue:id_jag:token_exchange</code>. The issued grant's audience
+is the
+resource authorization server, while
+<span>[<a href="#I-D.ietf-oauth-identity-assertion-authz-grant" class="cite xref">I-D.ietf-oauth-identity-assertion-authz-grant</a>]</span> makes the <span>[<a href="#RFC8707" class="cite xref">RFC8707</a>]</span>
+          <code>resource</code> subset a policy decision in its own right. The AS <span class="bcp14">MUST</span> therefore
+perform a two-level evaluation under <a href="#two-level" class="auto internal xref">Section 4.4.1</a>.<a href="#section-5.3-2" class="pilcrow">¶</a></p>
+<p id="section-5.3-3"><code>scope</code> is <span class="bcp14">OPTIONAL</span> in an ID-JAG request. Where it is absent, the request
+produces gate tuples and no scope tuples, and a PDP that wishes to grant a
+specific set returns <code>granted_scope</code> in the response context, as
+<span>[<a href="#ISSUANCE" class="cite xref">ISSUANCE</a>]</span> defines. This is the case the framework's gate tuple exists
+for: without it, a scopeless ID-JAG request would produce no evaluation at
+all.<a href="#section-5.3-3" class="pilcrow">¶</a></p>
+<p id="section-5.3-4">The specification permits the authorization server to modify, filter, or
+omit the requested authorization details. Under this binding those
+operations have distinct sources: filtering follows from denied scope
+tuples, omission from an entry all of whose tuples are denied, and
+modification from the <code>authorization_details</code> shaping key of <span>[<a href="#ISSUANCE" class="cite xref">ISSUANCE</a>]</span>,
+subject to that key's structural narrowing checks.<a href="#section-5.3-4" class="pilcrow">¶</a></p>
+<p id="section-5.3-5"><strong>Redemption.</strong> The application's authorization server presents the ID-JAG
+as an assertion grant. This is an ordinary single-level evaluation. Its
+exchange subject is the local account produced by the subject resolution
+that <span>[<a href="#I-D.ietf-oauth-identity-assertion-authz-grant" class="cite xref">I-D.ietf-oauth-identity-assertion-authz-grant</a>]</span> requires, and its
+requesting party is the client authenticated at that endpoint - which is a
+different party from the client that obtained the grant. Evaluating it is
+the point: redemption is where an application's own authorization server
+decides what the asserted identity may do locally.<a href="#section-5.3-5" class="pilcrow">¶</a></p>
+<p id="section-5.3-6">Where a deployment is multi-tenant, the AS <span class="bcp14">SHOULD</span> convey the tenant
+identifier in <code>context</code>. A deployment whose decisions genuinely depend on
+tenancy <span class="bcp14">SHOULD</span> instead encode the tenant in <code>resource.id</code>, so that the
+dependency is visible in the five-tuple.<a href="#section-5.3-6" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="txn-tokens">
+<section id="section-5.4">
+        <h3 id="name-transaction-tokens">
+<a href="#section-5.4" class="section-number selfRef">5.4. </a><a href="#name-transaction-tokens" class="section-name selfRef">Transaction Tokens</a>
+        </h3>
+<p id="section-5.4-1"><span>[<a href="#I-D.ietf-oauth-transaction-tokens" class="cite xref">I-D.ietf-oauth-transaction-tokens</a>]</span> defines a Transaction Token Service
+(TTS) that mints short-lived tokens carrying a call chain's originating
+context. Its issuance decision is the one this profile addresses, and the
+specification states directly that the authorization policy determining
+issuance is out of scope for it.<a href="#section-5.4-1" class="pilcrow">¶</a></p>
+<p id="section-5.4-2">Txn-Tokens differ from the rest of the family in four ways that the binding
+must account for.<a href="#section-5.4-2" class="pilcrow">¶</a></p>
+<p id="section-5.4-3"><strong>There is no <code>actor_token</code>.</strong> The requesting party is the workload that
+authenticated to the TTS, typically with a credential under <span>[<a href="#RFC8705" class="cite xref">RFC8705</a>]</span> or
+a workload identity document. It is derived under rule 2 of
+<a href="#requesting-party" class="auto internal xref">Section 4.2</a> with <code>subject.type</code> of <code>workload</code>.<a href="#section-5.4-3" class="pilcrow">¶</a></p>
+<p id="section-5.4-4"><strong>The requesting workload's authority is scope-dependent.</strong> The
+specification requires the TTS to determine whether the requesting workload
+is authorized to obtain a Txn-Token <em>with the requested values</em>, not merely
+whether it may obtain one. For <code>requested_token_type</code> of
+<code>urn:ietf:params:oauth:token-type:txn_token</code>, the AS <span class="bcp14">MUST</span> therefore include
+scope tuples for the requesting party in addition to those for the exchange
+subject. Both sets <span class="bcp14">MUST</span> be permitted for the corresponding scope to be
+granted. This is the one place in this document where the requesting party
+is evaluated for access authority rather than only for issuance authority,
+and it is required because the governing specification asks for it.<a href="#section-5.4-4" class="pilcrow">¶</a></p>
+<p id="section-5.4-5"><strong>Subject derivation is ambiguous for self-signed and unsigned subject
+tokens.</strong> Where <code>subject_token_type</code> is
+<code>urn:ietf:params:oauth:token-type:self_signed</code> or
+<code>urn:ietf:params:oauth:token-type:unsigned_json</code>, the presented token is not
+an authority on identity. The AS <span class="bcp14">MUST</span> determine whether the request is on
+behalf of a user, in which case the exchange subject is that user and the
+AS <span class="bcp14">MUST</span> have an independent basis for believing the assertion, or on the
+workload's own behalf, in which case the exchange subject is the requesting
+workload itself and the two gate tuples coincide. An AS <span class="bcp14">MUST NOT</span> accept a
+user identity from an unsigned subject token without such a basis. The PDP
+cannot detect this error, because it sees only the identifier it is given.<a href="#section-5.4-5" class="pilcrow">¶</a></p>
+<p id="section-5.4-6"><strong>Transaction context may originate at the PDP.</strong> The specification makes
+the TTS authoritative for the transaction context of the token it mints, and
+permits that context to be derived from the request details. A PDP is a
+legitimate source for that derivation. Where a deployment uses one, the
+transaction context is carried as a member of the <code>claims</code> shaping key of
+<span>[<a href="#ISSUANCE" class="cite xref">ISSUANCE</a>]</span>, and the TTS remains authoritative: it <span class="bcp14">MUST</span> validate the
+returned value before minting, and its own determination prevails.<a href="#section-5.4-6" class="pilcrow">¶</a></p>
+<p id="section-5.4-7">A PDP that asserts a quantitative ceiling in transaction context is
+asserting a constraint that a downstream enforcement point is expected to
+apply, and dropping it would broaden what the token effectively authorizes.
+A PDP asserting such a value <span class="bcp14">MUST</span> name the claim in <code>crit</code>, per <span>[<a href="#ISSUANCE" class="cite xref">ISSUANCE</a>]</span>.<a href="#section-5.4-7" class="pilcrow">¶</a></p>
+<p id="section-5.4-8">Requests for replacement Txn-Tokens are a second issuance moment with the
+same tuple shape and require no additional machinery. The invariants that
+<span>[<a href="#I-D.ietf-oauth-transaction-tokens" class="cite xref">I-D.ietf-oauth-transaction-tokens</a>]</span> places on a replacement - that it <span class="bcp14">MUST NOT</span> expand scope, and <span class="bcp14">MUST NOT</span> modify the transaction identifier, subject,
+or audience - are preconditions the TTS enforces. <strong>A PDP cannot waive
+them.</strong> A permit authorizes a replacement within those bounds; it does not
+authorize one outside them.<a href="#section-5.4-8" class="pilcrow">¶</a></p>
+</section>
+</div>
+</section>
+</div>
+<div id="processing-the-response">
+<section id="section-6">
+      <h2 id="name-processing-the-response">
+<a href="#section-6" class="section-number selfRef">6. </a><a href="#name-processing-the-response" class="section-name selfRef">Processing the Response</a>
+      </h2>
+<p id="section-6-1">The response processing rules of <span>[<a href="#ISSUANCE" class="cite xref">ISSUANCE</a>]</span> apply without change,
+including the no-broadening rule, the mandatory-to-understand
+classification, the reserved claim list, and the aggregation rules for
+composing per-item shaping across a batch.<a href="#section-6-1" class="pilcrow">¶</a></p>
+<p id="section-6-2">Two consequences of that framework are worth restating here, because token
+exchange is where they bind hardest.<a href="#section-6-2" class="pilcrow">¶</a></p>
+<p id="section-6-3"><strong><code>sub</code> and <code>aud</code> are reserved.</strong> A PDP cannot rewrite the subject or the
+audience of the issued token. In a family of flows whose entire purpose is
+to produce a token for a different audience, or bearing a different subject
+identifier, than the one presented, the temptation to let the PDP perform
+that transformation is real. It must be resisted: re-subjecting a token is a
+fresh issuance rather than an attenuation of an existing one, and must be
+evaluated as such. The AS decides the transformation and evaluates the
+result, as <a href="#subject" class="auto internal xref">Section 4.1</a> requires.<a href="#section-6-3" class="pilcrow">¶</a></p>
+<p id="section-6-4"><strong><code>act</code> and <code>may_act</code> are reserved.</strong> The delegation chain of the issued
+token is constructed by the AS from parties it authenticated. A PDP that
+could write <code>act</code> could fabricate a delegation history; a PDP that could
+write <code>may_act</code> could confer delegation authority that no evaluation
+considered, which is broadening by construction.<a href="#section-6-4" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="error-mapping">
+<section id="section-7">
+      <h2 id="name-error-mapping">
+<a href="#section-7" class="section-number selfRef">7. </a><a href="#name-error-mapping" class="section-name selfRef">Error Mapping</a>
+      </h2>
+<p id="section-7-1">The mapping of <span>[<a href="#ISSUANCE" class="cite xref">ISSUANCE</a>]</span> applies, refined for the errors of <span>[<a href="#RFC8693" class="cite xref">RFC8693</a>]</span>:<a href="#section-7-1" class="pilcrow">¶</a></p>
+<table class="center" id="table-3">
+        <caption><a href="#table-3" class="selfRef">Table 3</a></caption>
+<thead>
+          <tr>
+            <th class="text-left" rowspan="1" colspan="1">Condition</th>
+            <th class="text-left" rowspan="1" colspan="1">Authorization server behavior</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="text-left" rowspan="1" colspan="1">Subject gate tuple denied</td>
+            <td class="text-left" rowspan="1" colspan="1">Fail; <code>invalid_request</code>
+</td>
+          </tr>
+          <tr>
+            <td class="text-left" rowspan="1" colspan="1">Requesting party gate tuple denied</td>
+            <td class="text-left" rowspan="1" colspan="1">Fail; <code>invalid_request</code>
+</td>
+          </tr>
+          <tr>
+            <td class="text-left" rowspan="1" colspan="1">All scope tuples denied</td>
+            <td class="text-left" rowspan="1" colspan="1">Fail; <code>invalid_scope</code>
+</td>
+          </tr>
+          <tr>
+            <td class="text-left" rowspan="1" colspan="1">Some scope tuples denied</td>
+            <td class="text-left" rowspan="1" colspan="1">Issue with the permitted subset; report via <code>scope</code>
+</td>
+          </tr>
+          <tr>
+            <td class="text-left" rowspan="1" colspan="1">Level 1 denied in a two-level evaluation</td>
+            <td class="text-left" rowspan="1" colspan="1">Fail; <code>invalid_target</code>
+</td>
+          </tr>
+          <tr>
+            <td class="text-left" rowspan="1" colspan="1">Every target denied, or shaping empties the target set</td>
+            <td class="text-left" rowspan="1" colspan="1">Fail; <code>invalid_target</code>
+</td>
+          </tr>
+          <tr>
+            <td class="text-left" rowspan="1" colspan="1">Requested token type not permitted</td>
+            <td class="text-left" rowspan="1" colspan="1">Fail; <code>invalid_request</code>
+</td>
+          </tr>
+          <tr>
+            <td class="text-left" rowspan="1" colspan="1">PDP unreachable or response malformed</td>
+            <td class="text-left" rowspan="1" colspan="1">Fail closed; do not issue</td>
+          </tr>
+        </tbody>
+      </table>
+<p id="section-7-3">An AS <span class="bcp14">MUST NOT</span> distinguish, in the error returned to the client, between a
+denial of the subject gate and a denial of the requesting party gate. The
+difference tells the requesting party whether its own authority or the
+subject's was lacking, which is information about the subject's authority
+that the requesting party has not been authorized to learn. Both are
+reported as <code>invalid_request</code>, and the distinction is recorded where
+<span>[<a href="#ISSUANCE" class="cite xref">ISSUANCE</a>]</span> directs PDP reason information: in the AS's own logs.<a href="#section-7-3" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="discovery">
+<section id="section-8">
+      <h2 id="name-discovery">
+<a href="#section-8" class="section-number selfRef">8. </a><a href="#name-discovery" class="section-name selfRef">Discovery</a>
+      </h2>
+<p id="section-8-1">This binding registers no capability URN of its own. A PDP advertises support
+for the URN of <span>[<a href="#ISSUANCE" class="cite xref">ISSUANCE</a>]</span>, and nothing further is negotiated.<a href="#section-8-1" class="pilcrow">¶</a></p>
+<p id="section-8-2">Nothing further is needed. A capability URN identifies response vocabulary,
+because an AS must understand what it is asked to enforce, and this binding
+adds none: it uses the shaping keys of <span>[<a href="#ISSUANCE" class="cite xref">ISSUANCE</a>]</span> unchanged. The context
+keys of <a href="#context" class="auto internal xref">Section 4.5</a> are advisory, and a PDP that does not recognize one
+ignores it. The gate action names registered in <a href="#iana-actions" class="auto internal xref">Section 11.1</a> are covered
+by <span>[<a href="#ISSUANCE" class="cite xref">ISSUANCE</a>]</span>'s rule that a PDP advertising the issuance capability renders
+a decision on any registered gate action, so an AS never has to discover
+which members of this family a deployment's policy anticipates.<a href="#section-8-2" class="pilcrow">¶</a></p>
+<p id="section-8-3">An operator enabling one of these grants for the first time - ID-JAG on an AS
+that previously performed only ordinary exchanges, say - can check whether
+policy anticipates the new gate action before turning it on, using the Action
+Search API of <span>[<a href="#AUTHZEN" class="cite xref">AUTHZEN</a>]</span> as <span>[<a href="#ISSUANCE" class="cite xref">ISSUANCE</a>]</span> describes.<a href="#section-8-3" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="examples">
+<section id="section-9">
+      <h2 id="name-examples">
+<a href="#section-9" class="section-number selfRef">9. </a><a href="#name-examples" class="section-name selfRef">Examples</a>
+      </h2>
+<p id="section-9-1">The first example below is shown in full, framed against the HTTPS JSON
+binding of <span>[<a href="#AUTHZEN" class="cite xref">AUTHZEN</a>]</span>; the second shows only the JSON payload. As
+<span>[<a href="#ISSUANCE" class="cite xref">ISSUANCE</a>]</span> notes, the transport is a property of the deployment, and where
+the HTTPS JSON binding is in use the request URL is the PDP's
+<code>access_evaluations_endpoint</code> where its metadata publishes one. Both requests
+here carry two gate tuples, so neither reduces to a single evaluation.<a href="#section-9-1" class="pilcrow">¶</a></p>
+<div id="delegation-with-an-actor-token">
+<section id="section-9.1">
+        <h3 id="name-delegation-with-an-actor-to">
+<a href="#section-9.1" class="section-number selfRef">9.1. </a><a href="#name-delegation-with-an-actor-to" class="section-name selfRef">Delegation With an Actor Token</a>
+        </h3>
+<p id="section-9.1-1">A gateway workload exchanges a user's access token for a token aimed at a
+partner API, acting on the user's behalf. Two gate tuples and one scope
+tuple result.<a href="#section-9.1-1" class="pilcrow">¶</a></p>
+<div class="lang-http-message sourcecode" id="section-9.1-2">
+<pre>
+POST /token HTTP/1.1
+Host: as.example
+Content-Type: application/x-www-form-urlencoded
+
+grant_type=urn:ietf:params:oauth:grant-type:token-exchange
+&amp;subject_token=eyJ...
+&amp;subject_token_type=urn:ietf:params:oauth:token-type:access_token
+&amp;actor_token=eyJ...
+&amp;actor_token_type=urn:ietf:params:oauth:token-type:jwt
+&amp;requested_token_type=urn:ietf:params:oauth:token-type:access_token
+&amp;audience=https%3A%2F%2Fapi.partner.example
+&amp;scope=read%3Adocs
+</pre><a href="#section-9.1-2" class="pilcrow">¶</a>
+</div>
+<div class="lang-http-message sourcecode" id="section-9.1-3">
+<pre>
+POST /access/v1/evaluations HTTP/1.1
+Host: pdp.example.com
+Content-Type: application/json
+Authorization: Bearer &lt;token&gt;
+
+{
+  "resource": {
+    "type": "audience",
+    "id": "https://api.partner.example"
+  },
+  "context": {
+    "client_id": "gateway-client",
+    "may_act": { "sub": "spiffe://cluster/ns/prod/sa/gateway" },
+    "issuance": {
+      "capabilities": [
+        "urn:ietf:params:authzen:token-issuance"
+      ]
+    }
+  },
+  "evaluations": [
+    {
+      "subject": { "type": "user", "id": "alice@example.com" },
+      "action":  {
+        "name": "issue:access_token:token_exchange"
+      }
+    },
+    {
+      "subject": {
+        "type": "workload",
+        "id": "spiffe://cluster/ns/prod/sa/gateway"
+      },
+      "action":  {
+        "name": "issue:access_token:token_exchange"
+      }
+    },
+    {
+      "subject": { "type": "user", "id": "alice@example.com" },
+      "action":  { "name": "read:docs" }
+    }
+  ],
+  "options": { "evaluations_semantic": "execute_all" }
+}
+</pre><a href="#section-9.1-3" class="pilcrow">¶</a>
+</div>
+<p id="section-9.1-4">A relationship-based PDP reads the second tuple as an edge between
+<code>workload:spiffe://cluster/ns/prod/sa/gateway</code> and
+<code>audience:https://api.partner.example</code> under the relation
+<code>issue_access_token_token_exchange</code>. No property bag is consulted, and the
+relation is distinct from the one that would govern the gateway obtaining a
+token for itself under the client credentials grant.<a href="#section-9.1-4" class="pilcrow">¶</a></p>
+<div class="lang-http-message sourcecode" id="section-9.1-5">
+<pre>
+HTTP/1.1 200 OK
+Content-Type: application/json
+
+{
+  "evaluations": [
+    { "decision": true },
+    { "decision": true },
+    {
+      "decision": true,
+      "context": {
+        "issuance": {
+          "token_lifetime": 300,
+          "claims": { "groups": ["eng", "sre"] }
+        }
+      }
+    }
+  ]
+}
+</pre><a href="#section-9.1-5" class="pilcrow">¶</a>
+</div>
+<p id="section-9.1-6">The AS issues an access token for <code>https://api.partner.example</code> bearing
+<code>scope</code> of <code>read:docs</code>, an <code>act</code> claim naming the gateway, a <code>groups</code> claim,
+and a lifetime no greater than 300 seconds.<a href="#section-9.1-6" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="scopeless-id-jag-two-levels">
+<section id="section-9.2">
+        <h3 id="name-scopeless-id-jag-two-levels">
+<a href="#section-9.2" class="section-number selfRef">9.2. </a><a href="#name-scopeless-id-jag-two-levels" class="section-name selfRef">Scopeless ID-JAG, Two Levels</a>
+        </h3>
+<p id="section-9.2-1">An ID-JAG request naming a resource but no scopes. Two gate tuples at level
+1, no scope tuples anywhere, and the PDP supplies the grantable set.<a href="#section-9.2-1" class="pilcrow">¶</a></p>
+<div class="lang-json sourcecode" id="section-9.2-2">
+<pre>
+{
+  "context": {
+    "client_id": "chatterbox-idp-7f3a",
+    "issuance": {
+      "capabilities": [
+        "urn:ietf:params:authzen:token-issuance"
+      ]
+    }
+  },
+  "evaluations": [
+    {
+      "subject":  { "type": "user", "id": "U0405936" },
+      "action":   { "name": "issue:id_jag:token_exchange" },
+      "resource": {
+        "type": "audience",
+        "id": "https://as.app.example"
+      }
+    },
+    {
+      "subject":  { "type": "client", "id": "chatterbox-idp-7f3a" },
+      "action":   { "name": "issue:id_jag:token_exchange" },
+      "resource": {
+        "type": "audience",
+        "id": "https://as.app.example"
+      }
+    }
+  ],
+  "options": { "evaluations_semantic": "execute_all" }
+}
+</pre><a href="#section-9.2-2" class="pilcrow">¶</a>
+</div>
+<div class="lang-json sourcecode" id="section-9.2-3">
+<pre>
+{
+  "evaluations": [
+    {
+      "decision": true,
+      "context": {
+        "issuance": {
+          "granted_scope": "files.read",
+          "token_lifetime": 300
+        }
+      }
+    },
+    { "decision": true }
+  ]
+}
+</pre><a href="#section-9.2-3" class="pilcrow">¶</a>
+</div>
+<p id="section-9.2-4">The AS mints an ID-JAG naming <code>files.read</code> and the requested resource. Had
+the PDP returned a bare permit, the AS would have fallen back to its own
+default scope set for that client and target, which is a safe degradation:
+a PDP unable to enumerate a grantable set is not thereby able to broaden
+one.<a href="#section-9.2-4" class="pilcrow">¶</a></p>
+</section>
+</div>
+</section>
+</div>
+<div id="security-considerations">
+<section id="section-10">
+      <h2 id="name-security-considerations">
+<a href="#section-10" class="section-number selfRef">10. </a><a href="#name-security-considerations" class="section-name selfRef">Security Considerations</a>
+      </h2>
+<p id="section-10-1">The considerations of <span>[<a href="#ISSUANCE" class="cite xref">ISSUANCE</a>]</span> apply in full, including fail-closed
+behavior, the treatment of the PDP as a trust dependency, and the privacy
+consequences of consulting a PDP on every issuance.<a href="#section-10-1" class="pilcrow">¶</a></p>
+<div id="impersonation-is-the-dangerous-case">
+<section id="section-10.1">
+        <h3 id="name-impersonation-is-the-danger">
+<a href="#section-10.1" class="section-number selfRef">10.1. </a><a href="#name-impersonation-is-the-danger" class="section-name selfRef">Impersonation Is the Dangerous Case</a>
+        </h3>
+<p id="section-10.1-1">An impersonation exchange produces a token indistinguishable from one issued
+to the subject directly. Nothing downstream can determine that a different
+party obtained it, which means no downstream enforcement point can apply
+policy to the requesting party's involvement. The requesting party gate
+tuple of <a href="#actor-gate" class="auto internal xref">Section 4.3.2</a> is the only point at which that party's authority is
+evaluated at all.<a href="#section-10.1-1" class="pilcrow">¶</a></p>
+<p id="section-10.1-2">An implementation that omitted it - reasoning that the client was already
+authenticated, or that <code>may_act</code> was present in the subject token - would
+externalize the delegation decision in name only. Client authentication
+establishes who is asking; it does not establish that they may ask for this.<a href="#section-10.1-2" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="chain-depth-and-repeated-exchange">
+<section id="section-10.2">
+        <h3 id="name-chain-depth-and-repeated-ex">
+<a href="#section-10.2" class="section-number selfRef">10.2. </a><a href="#name-chain-depth-and-repeated-ex" class="section-name selfRef">Chain Depth and Repeated Exchange</a>
+        </h3>
+<p id="section-10.2-1">A token obtained by exchange may itself be exchanged. Each exchange is an
+independent decision under this binding, so authority cannot be broadened by
+iteration: every step is gated, and the scope tuples at each step are
+bounded by what the AS would otherwise grant.<a href="#section-10.2-1" class="pilcrow">¶</a></p>
+<p id="section-10.2-2">What repetition can accumulate is <em>lifetime</em>. A chain of exchanges, each
+issuing a token whose lifetime is permitted at that moment, can keep
+authority alive well past the point at which the original grant would have
+expired. Deployments <span class="bcp14">SHOULD</span> convey the existing <code>act</code> chain in context so
+that policy can act on chain depth, and <span class="bcp14">SHOULD</span> bound the lifetime of an
+exchanged token by the remaining lifetime of the subject token. The second
+is an AS responsibility: a <code>token_lifetime</code> shaping value is a ceiling and
+never a floor, so a PDP cannot repair an AS that fails to apply it.<a href="#section-10.2-2" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="trust-in-the-subject-token-issuer">
+<section id="section-10.3">
+        <h3 id="name-trust-in-the-subject-token-">
+<a href="#section-10.3" class="section-number selfRef">10.3. </a><a href="#name-trust-in-the-subject-token-" class="section-name selfRef">Trust in the Subject Token Issuer</a>
+        </h3>
+<p id="section-10.3-1">In cross-domain flows the subject token is issued by a party in another
+trust domain, and the claims conveyed to the PDP as context originate there.
+A PDP whose policy depends on those claims has extended trust to that
+issuer. This is a further reason for the five-tuple rule: a decision that
+depends only on the resolved local subject identifier, the requesting party,
+the action, and the target depends on values the local AS established
+itself.<a href="#section-10.3-1" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="denial-information-disclosure">
+<section id="section-10.4">
+        <h3 id="name-denial-information-disclosu">
+<a href="#section-10.4" class="section-number selfRef">10.4. </a><a href="#name-denial-information-disclosu" class="section-name selfRef">Denial Information Disclosure</a>
+        </h3>
+<p id="section-10.4-1">Both the error mapping above and <span>[<a href="#ISSUANCE" class="cite xref">ISSUANCE</a>]</span>'s prohibition on relaying PDP
+reason strings exist to keep the requesting party from learning the shape of
+a policy that governs a subject it is merely acting for. Deployments adding
+diagnostics to token endpoint error responses should preserve this.<a href="#section-10.4-1" class="pilcrow">¶</a></p>
+</section>
+</div>
+</section>
+</div>
+<div id="iana-considerations">
+<section id="section-11">
+      <h2 id="name-iana-considerations">
+<a href="#section-11" class="section-number selfRef">11. </a><a href="#name-iana-considerations" class="section-name selfRef">IANA Considerations</a>
+      </h2>
+<div id="iana-actions">
+<section id="section-11.1">
+        <h3 id="name-issuance-authorization-acti">
+<a href="#section-11.1" class="section-number selfRef">11.1. </a><a href="#name-issuance-authorization-acti" class="section-name selfRef">Issuance Authorization Action Names</a>
+        </h3>
+<p id="section-11.1-1">IANA is requested to register the following token type short names in the
+"OAuth Token Issuance Authorization Action Names" registry established by
+<span>[<a href="#ISSUANCE" class="cite xref">ISSUANCE</a>]</span>, whose registration policy is Specification Required
+<span>[<a href="#RFC8126" class="cite xref">RFC8126</a>]</span>:<a href="#section-11.1-1" class="pilcrow">¶</a></p>
+<table class="center" id="table-4">
+          <caption><a href="#table-4" class="selfRef">Table 4</a></caption>
+<thead>
+            <tr>
+              <th class="text-left" rowspan="1" colspan="1">Short name</th>
+              <th class="text-left" rowspan="1" colspan="1">Token type</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="text-left" rowspan="1" colspan="1">
+                <code>id_jag</code>
+</td>
+              <td class="text-left" rowspan="1" colspan="1">
+                <code>urn:ietf:params:oauth:token-type:id-jag</code>
+</td>
+            </tr>
+            <tr>
+              <td class="text-left" rowspan="1" colspan="1">
+                <code>txn_token</code>
+</td>
+              <td class="text-left" rowspan="1" colspan="1">
+                <code>urn:ietf:params:oauth:token-type:txn_token</code>
+</td>
+            </tr>
+            <tr>
+              <td class="text-left" rowspan="1" colspan="1">
+                <code>jwt</code>
+</td>
+              <td class="text-left" rowspan="1" colspan="1">
+                <code>urn:ietf:params:oauth:token-type:jwt</code>
+</td>
+            </tr>
+            <tr>
+              <td class="text-left" rowspan="1" colspan="1">
+                <code>saml1</code>
+</td>
+              <td class="text-left" rowspan="1" colspan="1">
+                <code>urn:ietf:params:oauth:token-type:saml1</code>
+</td>
+            </tr>
+            <tr>
+              <td class="text-left" rowspan="1" colspan="1">
+                <code>saml2</code>
+</td>
+              <td class="text-left" rowspan="1" colspan="1">
+                <code>urn:ietf:params:oauth:token-type:saml2</code>
+</td>
+            </tr>
+          </tbody>
+        </table>
+<p id="section-11.1-3">The short names for <code>access_token</code>, <code>refresh_token</code>, and <code>id_token</code>, and the
+<code>token_exchange</code> grant type short name that pairs with all of the above, are
+registered by <span>[<a href="#ISSUANCE" class="cite xref">ISSUANCE</a>]</span>.<a href="#section-11.1-3" class="pilcrow">¶</a></p>
+<p id="section-11.1-4"><code>id_jag</code> uses an underscore where the token type URI uses a hyphen, as
+<span>[<a href="#ISSUANCE" class="cite xref">ISSUANCE</a>]</span> requires of every registered short name.<a href="#section-11.1-4" class="pilcrow">¶</a></p>
+<ul class="normal ulEmpty">
+<li class="normal ulEmpty" id="section-11.1-5.1">
+            <p id="section-11.1-5.1.1"><strong>Editor's note.</strong> These registrations depend on the corresponding token
+types being registered in the "OAuth URI" registry by their own
+specifications. <code>id-jag</code> and <code>txn_token</code> are requested by documents still
+in progress, and the short names above should be confirmed against the
+values those documents ultimately register.<a href="#section-11.1-5.1.1" class="pilcrow">¶</a></p>
+</li>
+        </ul>
+</section>
+</div>
+</section>
+</div>
+<div id="sec-combined-references">
+<section id="section-12">
+      <h2 id="name-references">
+<a href="#section-12" class="section-number selfRef">12. </a><a href="#name-references" class="section-name selfRef">References</a>
+      </h2>
+<div id="sec-normative-references">
+<section id="section-12.1">
+        <h3 id="name-normative-references">
+<a href="#section-12.1" class="section-number selfRef">12.1. </a><a href="#name-normative-references" class="section-name selfRef">Normative References</a>
+        </h3>
+<dl class="references">
+<dt id="AUTHZEN">[AUTHZEN]</dt>
+        <dd>
+<span class="refAuthor">OpenID Foundation AuthZEN Working Group</span>, <span class="refTitle">"Authorization API 1.0"</span>, <time datetime="2026-01-11" class="refDate">11 January 2026</time>, <span>&lt;<a href="https://openid.net/specs/authorization-api-1_0-final.html">https://openid.net/specs/authorization-api-1_0-final.html</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="ISSUANCE">[ISSUANCE]</dt>
+        <dd>
+<span class="refAuthor">Gazitt, O.</span>, <span class="refTitle">"AuthZEN Profile for OAuth 2.0 Token Issuance"</span>, <span class="refContent">Work in Progress</span>, <span class="seriesInfo">Internet-Draft, draft-gazitt-oauth-authzen-issuance-00</span>, <time datetime="2026-08-04" class="refDate">4 August 2026</time>, <span>&lt;<a href="https://datatracker.ietf.org/doc/html/draft-gazitt-oauth-authzen-issuance-00">https://datatracker.ietf.org/doc/html/draft-gazitt-oauth-authzen-issuance-00</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="RFC2119">[RFC2119]</dt>
+        <dd>
+<span class="refAuthor">Bradner, S.</span>, <span class="refTitle">"Key words for use in RFCs to Indicate Requirement Levels"</span>, <span class="seriesInfo">BCP 14</span>, <span class="seriesInfo">RFC 2119</span>, <span class="seriesInfo">DOI 10.17487/RFC2119</span>, <time datetime="1997-03" class="refDate">March 1997</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc2119">https://www.rfc-editor.org/rfc/rfc2119</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="RFC6749">[RFC6749]</dt>
+        <dd>
+<span class="refAuthor">Hardt, D., Ed.</span>, <span class="refTitle">"The OAuth 2.0 Authorization Framework"</span>, <span class="seriesInfo">RFC 6749</span>, <span class="seriesInfo">DOI 10.17487/RFC6749</span>, <time datetime="2012-10" class="refDate">October 2012</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc6749">https://www.rfc-editor.org/rfc/rfc6749</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="RFC8174">[RFC8174]</dt>
+        <dd>
+<span class="refAuthor">Leiba, B.</span>, <span class="refTitle">"Ambiguity of Uppercase vs Lowercase in RFC 2119 Key Words"</span>, <span class="seriesInfo">BCP 14</span>, <span class="seriesInfo">RFC 8174</span>, <span class="seriesInfo">DOI 10.17487/RFC8174</span>, <time datetime="2017-05" class="refDate">May 2017</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc8174">https://www.rfc-editor.org/rfc/rfc8174</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="RFC8693">[RFC8693]</dt>
+        <dd>
+<span class="refAuthor">Jones, M.</span>, <span class="refAuthor">Nadalin, A.</span>, <span class="refAuthor">Campbell, B., Ed.</span>, <span class="refAuthor">Bradley, J.</span>, and <span class="refAuthor">C. Mortimore</span>, <span class="refTitle">"OAuth 2.0 Token Exchange"</span>, <span class="seriesInfo">RFC 8693</span>, <span class="seriesInfo">DOI 10.17487/RFC8693</span>, <time datetime="2020-01" class="refDate">January 2020</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc8693">https://www.rfc-editor.org/rfc/rfc8693</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="RFC8707">[RFC8707]</dt>
+      <dd>
+<span class="refAuthor">Campbell, B.</span>, <span class="refAuthor">Bradley, J.</span>, and <span class="refAuthor">H. Tschofenig</span>, <span class="refTitle">"Resource Indicators for OAuth 2.0"</span>, <span class="seriesInfo">RFC 8707</span>, <span class="seriesInfo">DOI 10.17487/RFC8707</span>, <time datetime="2020-02" class="refDate">February 2020</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc8707">https://www.rfc-editor.org/rfc/rfc8707</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+</dl>
+</section>
+</div>
+<div id="sec-informative-references">
+<section id="section-12.2">
+        <h3 id="name-informative-references">
+<a href="#section-12.2" class="section-number selfRef">12.2. </a><a href="#name-informative-references" class="section-name selfRef">Informative References</a>
+        </h3>
+<dl class="references">
+<dt id="I-D.ietf-oauth-identity-assertion-authz-grant">[I-D.ietf-oauth-identity-assertion-authz-grant]</dt>
+        <dd>
+<span class="refAuthor">Parecki, A.</span>, <span class="refAuthor">McGuinness, K.</span>, and <span class="refAuthor">B. Campbell</span>, <span class="refTitle">"Identity Assertion JWT Authorization Grant"</span>, <span class="refContent">Work in Progress</span>, <span class="seriesInfo">Internet-Draft, draft-ietf-oauth-identity-assertion-authz-grant-04</span>, <time datetime="2026-05-21" class="refDate">21 May 2026</time>, <span>&lt;<a href="https://datatracker.ietf.org/doc/html/draft-ietf-oauth-identity-assertion-authz-grant-04">https://datatracker.ietf.org/doc/html/draft-ietf-oauth-identity-assertion-authz-grant-04</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="I-D.ietf-oauth-identity-chaining">[I-D.ietf-oauth-identity-chaining]</dt>
+        <dd>
+<span class="refAuthor">Schwenkschuster, A.</span>, <span class="refAuthor">Kasselman, P.</span>, <span class="refAuthor">Burgin, K.</span>, <span class="refAuthor">Jenkins, M. J.</span>, <span class="refAuthor">Campbell, B.</span>, and <span class="refAuthor">A. Parecki</span>, <span class="refTitle">"OAuth Identity and Authorization Chaining Across Domains"</span>, <span class="refContent">Work in Progress</span>, <span class="seriesInfo">Internet-Draft, draft-ietf-oauth-identity-chaining-17</span>, <time datetime="2026-07-19" class="refDate">19 July 2026</time>, <span>&lt;<a href="https://datatracker.ietf.org/doc/html/draft-ietf-oauth-identity-chaining-17">https://datatracker.ietf.org/doc/html/draft-ietf-oauth-identity-chaining-17</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="I-D.ietf-oauth-transaction-tokens">[I-D.ietf-oauth-transaction-tokens]</dt>
+        <dd>
+<span class="refAuthor">Tulshibagwale, A.</span>, <span class="refAuthor">Fletcher, G.</span>, and <span class="refAuthor">P. Kasselman</span>, <span class="refTitle">"Transaction Tokens"</span>, <span class="refContent">Work in Progress</span>, <span class="seriesInfo">Internet-Draft, draft-ietf-oauth-transaction-tokens-11</span>, <time datetime="2026-07-30" class="refDate">30 July 2026</time>, <span>&lt;<a href="https://datatracker.ietf.org/doc/html/draft-ietf-oauth-transaction-tokens-11">https://datatracker.ietf.org/doc/html/draft-ietf-oauth-transaction-tokens-11</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="RFC8126">[RFC8126]</dt>
+        <dd>
+<span class="refAuthor">Cotton, M.</span>, <span class="refAuthor">Leiba, B.</span>, and <span class="refAuthor">T. Narten</span>, <span class="refTitle">"Guidelines for Writing an IANA Considerations Section in RFCs"</span>, <span class="seriesInfo">BCP 26</span>, <span class="seriesInfo">RFC 8126</span>, <span class="seriesInfo">DOI 10.17487/RFC8126</span>, <time datetime="2017-06" class="refDate">June 2017</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc8126">https://www.rfc-editor.org/rfc/rfc8126</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="RFC8705">[RFC8705]</dt>
+        <dd>
+<span class="refAuthor">Campbell, B.</span>, <span class="refAuthor">Bradley, J.</span>, <span class="refAuthor">Sakimura, N.</span>, and <span class="refAuthor">T. Lodderstedt</span>, <span class="refTitle">"OAuth 2.0 Mutual-TLS Client Authentication and Certificate-Bound Access Tokens"</span>, <span class="seriesInfo">RFC 8705</span>, <span class="seriesInfo">DOI 10.17487/RFC8705</span>, <time datetime="2020-02" class="refDate">February 2020</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc8705">https://www.rfc-editor.org/rfc/rfc8705</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="RFC9449">[RFC9449]</dt>
+        <dd>
+<span class="refAuthor">Fett, D.</span>, <span class="refAuthor">Campbell, B.</span>, <span class="refAuthor">Bradley, J.</span>, <span class="refAuthor">Lodderstedt, T.</span>, <span class="refAuthor">Jones, M.</span>, and <span class="refAuthor">D. Waite</span>, <span class="refTitle">"OAuth 2.0 Demonstrating Proof of Possession (DPoP)"</span>, <span class="seriesInfo">RFC 9449</span>, <span class="seriesInfo">DOI 10.17487/RFC9449</span>, <time datetime="2023-09" class="refDate">September 2023</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc9449">https://www.rfc-editor.org/rfc/rfc9449</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="ZANZIBAR">[ZANZIBAR]</dt>
+      <dd>
+<span class="refAuthor">Pang, R.</span>, <span class="refAuthor">Caceres, R.</span>, and <span class="refAuthor">M. Burrows</span>, <span class="refTitle">"Zanzibar: Google's Consistent, Global Authorization System"</span>, <time datetime="2019" class="refDate">2019</time>, <span>&lt;<a href="https://www.usenix.org/conference/atc19/presentation/pang">https://www.usenix.org/conference/atc19/presentation/pang</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+</dl>
+</section>
+</div>
+</section>
+</div>
+<div id="acknowledgments">
+<section id="appendix-A">
+      <h2 id="name-acknowledgments">
+<a href="#name-acknowledgments" class="section-name selfRef">Acknowledgments</a>
+      </h2>
+<p id="appendix-A-1">The separation of issuance authority from access authority, which this
+document expresses as two gate tuples, was arrived at by working through the
+protocol messages of <span>[<a href="#I-D.ietf-oauth-identity-assertion-authz-grant" class="cite xref">I-D.ietf-oauth-identity-assertion-authz-grant</a>]</span> and
+<span>[<a href="#I-D.ietf-oauth-transaction-tokens" class="cite xref">I-D.ietf-oauth-transaction-tokens</a>]</span>, and the resulting shape owes a great
+deal to the care with which those documents model their inputs.<a href="#appendix-A-1" class="pilcrow">¶</a></p>
+<p id="appendix-A-2">Thanks to the members of the OAuth Working Group and the OpenID AuthZEN
+Working Group.<a href="#appendix-A-2" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="authors-addresses">
+<section id="appendix-B">
+      <h2 id="name-authors-address">
+<a href="#name-authors-address" class="section-name selfRef">Author's Address</a>
+      </h2>
+<address class="vcard">
+        <div dir="auto" class="left"><span class="fn nameRole">Omri Gazitt</span></div>
+<div dir="auto" class="left"><span class="org">Independent</span></div>
+<div class="email">
+<span>Email:</span>
+<a href="mailto:ogazitt@gmail.com" class="email">ogazitt@gmail.com</a>
+</div>
+</address>
+</section>
+</div>
+<script>const toc = document.getElementById("toc");
+toc.querySelector("h2").addEventListener("click", e => {
+  toc.classList.toggle("active");
+});
+toc.querySelector("nav").addEventListener("click", e => {
+  toc.classList.remove("active");
+});
+</script>
+</body>
+</html>
