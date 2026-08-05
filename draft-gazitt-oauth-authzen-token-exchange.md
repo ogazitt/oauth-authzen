@@ -40,13 +40,7 @@ normative:
     author:
       - ins: "OpenID Foundation AuthZEN Working Group"
         org: "OpenID Foundation"
-  ISSUANCE:
-    title: "AuthZEN Profile for OAuth 2.0 Token Issuance"
-    target: "https://ogazitt.github.io/oauth-authzen/draft-gazitt-oauth-authzen-issuance.html"
-    author:
-      - ins: O. Gazitt
-        name: "Omri Gazitt"
-        org: "Independent"
+  ISSUANCE: I-D.gazitt-oauth-authzen-issuance
 
 informative:
   RFC8126:
