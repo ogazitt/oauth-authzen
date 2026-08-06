@@ -18,9 +18,16 @@ This is the working area for individual Internet-Drafts.
 * [Individual Draft](https://datatracker.ietf.org/doc/html/draft-gazitt-oauth-authzen-token-exchange)
 * [Compare Editor's Copy to Individual Draft](https://ogazitt.github.io/oauth-authzen/#go.draft-gazitt-oauth-authzen-token-exchange.diff)
 
+## AuthZEN Profile for Authorization Claims in JWT Access Tokens
+
+Not yet submitted to the datatracker. Comments are welcome on the editor's
+copy before it is posted.
+
+* [Editor's Copy](https://ogazitt.github.io/oauth-authzen/#go.draft-gazitt-oauth-authzen-claims.html)
+
 ## Background
 
-Both drafts are motivated at length in the series *Policy at the token
+The drafts are motivated at length in the series *Policy at the token
 endpoint* at <https://notes.ogazitt.com>, which covers why an authorization
 server's issuance decision has been left undefined by every specification
 that depends on it, how a token request maps onto an authorization
