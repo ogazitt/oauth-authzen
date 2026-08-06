@@ -649,9 +649,16 @@ corresponding capability ({{discovery}}).
 
 An object whose members are claim names, in the sense of {{RFC7519}}, and
 the values to be included in the issued token. This is the mechanism by
-which policy-derived attributes reach the token - group memberships, roles,
-and entitlements of the kind {{RFC9068}} describes for JWT access tokens,
-drawn from the schema of {{RFC7643}}.
+which attributes computed during the decision itself reach the token: a
+ceiling the policy derived while evaluating a limit, a risk tier that
+determined the outcome, a structured result a binding defines.
+
+It is not the mechanism for enumerating what a subject holds. For the group
+memberships, roles, and entitlements that {{RFC9068}} describes for JWT
+access tokens, drawn from the schema of {{RFC7643}}, the search operations of
+{{AUTHZEN}} answer the question directly, and the companion profile in
+{{companions}} specifies how an AS calls them and composes the results. A PDP
+MAY return such a claim in `claims` where its policy computes one.
 
 Members of `claims` are advisory under {{mtu}}: an AS that drops them issues
 a less capable token. A PDP that requires a member to be honored MUST name
