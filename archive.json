@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2026-08-04T02:56:30.740525+00:00",
+  "timestamp": "2026-08-06T02:56:02.419797+00:00",
   "repo": "ogazitt/oauth-authzen",
   "labels": [
     {
@@ -47,8 +47,195 @@
       "name": "wontfix",
       "description": "This will not be worked on",
       "color": "ffffff"
+    },
+    {
+      "name": "design",
+      "description": "Open design question in the spec",
+      "color": "1d76db"
+    },
+    {
+      "name": "authzen-wg",
+      "description": "Needs coordination with the OpenID AuthZEN WG",
+      "color": "0e8a16"
+    },
+    {
+      "name": "iana",
+      "description": "IANA registry or namespace question",
+      "color": "5319e7"
+    },
+    {
+      "name": "error-handling",
+      "description": "Error codes and failure signalling",
+      "color": "d93f0b"
     }
   ],
-  "issues": [],
+  "issues": [
+    {
+      "number": 1,
+      "id": "I_kwDOTnp6ss8AAAABLecFcQ",
+      "title": "Step-up authentication has no carrier at the token endpoint",
+      "url": "https://github.com/ogazitt/oauth-authzen/issues/1",
+      "state": "OPEN",
+      "author": "ogazitt",
+      "authorAssociation": "OWNER",
+      "assignees": [],
+      "labels": [
+        "design",
+        "authzen-wg"
+      ],
+      "body": "A PDP that denies because the subject authenticated too weakly knows something\nthe client could act on: which `acr` and `amr` values would have permitted the\nrequest. Neither end of that is specified today.\n\n- AuthZEN carries `acr_values` / `amr_values` only in the **non-normative\n  example** of Section 5.5.2.3. The keys are never defined, so there is\n  nothing normative for this profile to reference.\n- `insufficient_user_authentication` (RFC 9470) is defined for resource\n  servers. The token endpoint has no equivalent.\n\nThe Error Mapping section currently says an AS SHOULD surface the requirement\nand declines to define how.\n\nClosing this needs work in both specifications, which is why it may deserve\nits own document rather than a paragraph here. The AuthZEN half should be\nraised with the AuthZEN WG.",
+      "createdAt": "2026-08-04T21:31:21Z",
+      "updatedAt": "2026-08-04T21:31:21Z",
+      "closedAt": null,
+      "comments": []
+    },
+    {
+      "number": 2,
+      "id": "I_kwDOTnp6ss8AAAABLecIkw",
+      "title": "No error code is named for a policy denial",
+      "url": "https://github.com/ogazitt/oauth-authzen/issues/2",
+      "state": "OPEN",
+      "author": "ogazitt",
+      "authorAssociation": "OWNER",
+      "assignees": [],
+      "labels": [
+        "design",
+        "error-handling"
+      ],
+      "body": "The Error Mapping table says \"fail the request; do not issue\" for a gate\ndenial without naming an OAuth error code. That reflects the state of the\nneighbouring specifications, which have no consensus:\n\n- **RFC 8693** Section 2.2.1 says the AS MUST use `invalid_request` when a\n  token is \"unacceptable based on policy\" - which contradicts RFC 6749\n  Section 5.2, where `invalid_request` means the request is *malformed*.\n- **Identity chaining** defers to RFC 7523 Section 3.1, i.e. `invalid_grant`.\n- **ID-JAG** and **Transaction Tokens** describe policy denial in detail and\n  name no error code at all.\n- `access_denied` is semantically exact (\"the resource owner or authorization\n  server denied the request\") but is defined at the authorization endpoint in\n  RFC 6749 Section 4.1.2.1. RFC 8628 Section 3.5 does use it at the token\n  endpoint, which weakens that objection.\n\nShould this profile name a code, or stay silent deliberately, so that a client\ncannot infer which gate failed?",
+      "createdAt": "2026-08-04T21:31:29Z",
+      "updatedAt": "2026-08-04T21:31:29Z",
+      "closedAt": null,
+      "comments": []
+    },
+    {
+      "number": 3,
+      "id": "I_kwDOTnp6ss8AAAABLecLXQ",
+      "title": "A partial grant has no signal beyond the scope parameter",
+      "url": "https://github.com/ogazitt/oauth-authzen/issues/3",
+      "state": "OPEN",
+      "author": "ogazitt",
+      "authorAssociation": "OWNER",
+      "assignees": [],
+      "labels": [
+        "design",
+        "error-handling"
+      ],
+      "body": "A scope tuple denial narrows the issued token rather than failing the request.\nThe scope case is covered: RFC 6749 Section 5.1 and RFC 8693 Section 2.2.1\nrequire the `scope` response parameter when the granted scope differs from the\nrequested scope, and ID-JAG states that granted scopes may be a subset of\nthose requested.\n\nNothing covers the rest of it. There is no signal for a narrowed `audience` or\nfor filtered `authorization_details`, and nothing conveys *why* a privilege\nwas dropped. A client that asked for three scopes and got two cannot tell\nwhether the third was refused by policy or was never recognized.\n\nRelated to #2, which is the same gap seen from the failure side.",
+      "createdAt": "2026-08-04T21:31:36Z",
+      "updatedAt": "2026-08-04T21:31:36Z",
+      "closedAt": null,
+      "comments": []
+    },
+    {
+      "number": 4,
+      "id": "I_kwDOTnp6ss8AAAABLecO_g",
+      "title": "Which URN namespace names the capability",
+      "url": "https://github.com/ogazitt/oauth-authzen/issues/4",
+      "state": "OPEN",
+      "author": "ogazitt",
+      "authorAssociation": "OWNER",
+      "assignees": [],
+      "labels": [
+        "iana",
+        "authzen-wg"
+      ],
+      "body": "Section 12.1 sets out three resolutions and leaves the choice to the working\ngroup:\n\n1. This document (or a companion) performs the RFC 3553 registration of the\n   `authzen` sub-namespace of `urn:ietf:params`, satisfying the IETF Review\n   policy that AuthZEN 1.0 Section 12 asks for and that a specification\n   published outside the IETF stream cannot satisfy on its own.\n2. Name the capability under `urn:openid:authzen` instead, requesting no IANA\n   action. ARAP already does this, so it is the scheme AuthZEN profiles use in\n   practice.\n3. Decline the dependency and register under `urn:ietf:params:oauth`\n   (RFC 6755), whose Specification Required policy is not blocked.\n\nA capability identifier is only useful if both parties compute the same\nstring, so one scheme for all AuthZEN capabilities is worth more than this\ndocument's independence from any of them. Options 1 and 2 both achieve that\nand differ only in which body assigns the name.\n\nNeeds to be settled jointly with the AuthZEN WG rather than here alone.",
+      "createdAt": "2026-08-04T21:31:45Z",
+      "updatedAt": "2026-08-04T21:31:45Z",
+      "closedAt": null,
+      "comments": []
+    },
+    {
+      "number": 5,
+      "id": "I_kwDOTnp6ss8AAAABLecSpA",
+      "title": "Is a new registry the right way to name gate actions?",
+      "url": "https://github.com/ogazitt/oauth-authzen/issues/5",
+      "state": "OPEN",
+      "author": "ogazitt",
+      "authorAssociation": "OWNER",
+      "assignees": [],
+      "labels": [
+        "design",
+        "iana"
+      ],
+      "body": "The gate action name is `issue:<token-type>:<grant-type>`, composed from short\nnames held in two registries this document creates, rather than from the\nexisting OAuth grant type URIs.\n\nThe reason is portability: relation identifiers in real policy engines have\nlength and character constraints that the URIs exceed, so a composed name\nbuilt from URIs could not be carried into a relationship-based engine without\nrewriting the policy.\n\nThe counter-argument is that inventing a parallel vocabulary for grants that\nalready have registered identifiers is a cost of its own, and that engines\ncould canonicalize instead. This is the kind of naming call the working group\nis better placed to make.",
+      "createdAt": "2026-08-04T21:31:52Z",
+      "updatedAt": "2026-08-04T21:31:52Z",
+      "closedAt": null,
+      "comments": []
+    },
+    {
+      "number": 6,
+      "id": "I_kwDOTnp6ss8AAAABLecVyA",
+      "title": "Batch size, latency budget and caching are unspecified",
+      "url": "https://github.com/ogazitt/oauth-authzen/issues/6",
+      "state": "OPEN",
+      "author": "ogazitt",
+      "authorAssociation": "OWNER",
+      "assignees": [],
+      "labels": [
+        "design"
+      ],
+      "body": "A request naming several scopes against several audiences produces a cross\nproduct of evaluations. Section 4.1 addresses colocation and the latency\nargument, but the document says nothing about:\n\n- an upper bound on the number of evaluations in one batch, or pagination\n- the latency budget an AS should assume on the token path\n- whether, and for how long, a decision may be cached\n\nThe third is the one with security consequences, since caching a permit is\nthe thing the whole framework is arguing against doing in a token.",
+      "createdAt": "2026-08-04T21:31:59Z",
+      "updatedAt": "2026-08-04T21:31:59Z",
+      "closedAt": null,
+      "comments": []
+    },
+    {
+      "number": 7,
+      "id": "I_kwDOTnp6ss8AAAABLecY6g",
+      "title": "Fail closed, but with what response?",
+      "url": "https://github.com/ogazitt/oauth-authzen/issues/7",
+      "state": "OPEN",
+      "author": "ogazitt",
+      "authorAssociation": "OWNER",
+      "assignees": [],
+      "labels": [
+        "design",
+        "error-handling"
+      ],
+      "body": "The draft says that an unreachable PDP, or a malformed decision response,\nmeans the AS fails closed and does not issue. It does not say what the client\nsees.\n\nRFC 6749 has no token endpoint equivalent of a 503. HTTP 503 with `Retry-After`\nmay be sufficient on its own, or `temporarily_unavailable` semantics may need\ndefining for this endpoint.\n\nThis interacts with `I-D.gerber-oauth-deferred-token-response` (cited in\nSection 4.2 as the escape hatch for decisions that cannot be made\nsynchronously): a PDP that is merely slow and a PDP that is down should\nprobably not look the same to a client.",
+      "createdAt": "2026-08-04T21:32:06Z",
+      "updatedAt": "2026-08-04T21:32:06Z",
+      "closedAt": null,
+      "comments": []
+    },
+    {
+      "number": 8,
+      "id": "I_kwDOTnp6ss8AAAABLecb4Q",
+      "title": "Two smaller questions on the response vocabulary",
+      "url": "https://github.com/ogazitt/oauth-authzen/issues/8",
+      "state": "OPEN",
+      "author": "ogazitt",
+      "authorAssociation": "OWNER",
+      "assignees": [],
+      "labels": [
+        "design"
+      ],
+      "body": "Both carried forward from the analysis that produced Section 6, neither\nblocking.\n\n**Refresh token lifetime.** Should `token_lifetime` have a companion key for\nthe refresh token, or is refresh issuance simply a separate decision with its\nown evaluation? The latter is cleaner but means an AS cannot express \"issue\nthis access token, but no refresh token\" in a single call.\n\n**Response signing with `crit`.** Should signing the decision response be\nREQUIRED when `crit` is used? Leaning no, on the grounds that an attacker who\ncan strip `crit` can equally flip `decision` to `true`, so `crit` adds no\nattack surface that transport security does not already have to cover. A\nsecurity area reviewer will ask, so the reasoning should probably be written\ndown either way.",
+      "createdAt": "2026-08-04T21:32:14Z",
+      "updatedAt": "2026-08-04T21:32:14Z",
+      "closedAt": null,
+      "comments": []
+    },
+    {
+      "number": 9,
+      "id": "I_kwDOTnp6ss8AAAABLnRRQw",
+      "title": "Requested authorization_details are not represented in the evaluation request",
+      "url": "https://github.com/ogazitt/oauth-authzen/issues/9",
+      "state": "OPEN",
+      "author": "mcguinness",
+      "authorAssociation": "NONE",
+      "assignees": [],
+      "labels": [],
+      "body": "**Document:** `draft-gazitt-oauth-authzen-issuance.md` (AuthZEN Profile for OAuth 2.0 Token Issuance). References use heading anchors, since section numbering is generated.\n\nForming the Evaluation Request (`#request`) surfaces the three request inputs to the PDP three different ways, and `authorization_details` is the odd one out:\n\n- **Scopes**: one scope tuple per requested scope, `action.name` set to the scope value verbatim (Scope Tuple, `#scope-tuple`), decided per item under `execute_all` (Batching and Result Composition, `#composition`).\n- **Resource indicators**: the RFC 8707 `resource` (or `audience`) parameter determines a single shared `resource.id` (Resource).\n- **`authorization_details`**: no request-side representation. Processing the Evaluation Response (`#shaping`) defines the `authorization_details` constraining key (replace not merge, structural subset per RFC 9396), but nothing carries the *requested* RAR into the evaluation request. The request-construction sections (Subject, Resource, Actions, Context, Batching) never mention it.\n\n**Consequence:** the PDP is required to narrow `authorization_details` and return a subset without ever receiving the requested details in the structured request. They have to be conveyed out of band, which is the shared evaluation-request construction that Related Work (`#related`) already flags as expected alignment work. It is also asymmetric with scopes (which get a real per-item decision), and it is an interop gap, since two PDPs behind one AS have no defined view of the requested RAR.\n\n**Options:**\n\n1. Per-detail tuple, analogous to the scope tuple. One evaluation per requested `authorization_detail`, decided under `execute_all`.\n2. Request-side context key carrying the requested `authorization_details` array, so the PDP sees them when computing the shaping key.\n3. Status quo, with explicit text that requested `authorization_details` are out of scope of the evaluation request and conveyed by deployment agreement.\n\nA weaker version of the same gap applies to resource indicators: a single `resource.id` on the shared evaluation cannot express multiple requested resources with per-resource narrowing, so `audience` narrows without a per-resource decision.\n\n**Related:** #3 is the response-side counterpart (signalling a partial grant). This issue is the request side, that the PDP never receives the requested `authorization_details` to decide on. Also affects `draft-gazitt-oauth-authzen-token-exchange.md`, which reuses this document's response processing including the `authorization_details` key.\n",
+      "createdAt": "2026-08-05T19:09:36Z",
+      "updatedAt": "2026-08-05T19:09:36Z",
+      "closedAt": null,
+      "comments": []
+    }
+  ],
   "pulls": []
 }
