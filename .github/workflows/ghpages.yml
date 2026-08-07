@@ -7,6 +7,11 @@ on:
   # retry short of an unrelated edit.
   workflow_dispatch:
   push:
+    # Submission tags would otherwise be published as "Preview for branch"
+    # sections in the index, one per version forever. The datatracker is the
+    # archive for submitted versions; publish.yml handles releases.
+    tags-ignore:
+    - '**'
     paths-ignore:
     - README.md
     - CONTRIBUTING.md
