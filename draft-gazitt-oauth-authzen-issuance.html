@@ -1072,7 +1072,7 @@ svg {
 </tr></thead>
 <tfoot><tr>
 <td class="left">Gazitt</td>
-<td class="center">Expires 6 February 2027</td>
+<td class="center">Expires 8 February 2027</td>
 <td class="right">[Page]</td>
 </tr></tfoot>
 </table>
@@ -1085,12 +1085,12 @@ svg {
 <dd class="internet-draft">draft-gazitt-oauth-authzen-issuance-latest</dd>
 <dt class="label-published">Published:</dt>
 <dd class="published">
-<time datetime="2026-08-05" class="published">5 August 2026</time>
+<time datetime="2026-08-07" class="published">7 August 2026</time>
     </dd>
 <dt class="label-intended-status">Intended Status:</dt>
 <dd class="intended-status">Standards Track</dd>
 <dt class="label-expires">Expires:</dt>
-<dd class="expires"><time datetime="2027-02-06">6 February 2027</time></dd>
+<dd class="expires"><time datetime="2027-02-08">8 February 2027</time></dd>
 <dt class="label-authors">Author:</dt>
 <dd class="authors">
 <div class="author">
@@ -1152,7 +1152,7 @@ document does not model, the token exchange family first among them.<a href="#se
         time. It is inappropriate to use Internet-Drafts as reference
         material or to cite them other than as "work in progress."<a href="#section-boilerplate.1-3" class="pilcrow">¶</a></p>
 <p id="section-boilerplate.1-4">
-        This Internet-Draft will expire on 6 February 2027.<a href="#section-boilerplate.1-4" class="pilcrow">¶</a></p>
+        This Internet-Draft will expire on 8 February 2027.<a href="#section-boilerplate.1-4" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="copyright">
@@ -2096,14 +2096,20 @@ corresponding capability (<a href="#discovery" class="auto internal xref">Sectio
           </h4>
 <p id="section-6.5.1-1">An object whose members are claim names, in the sense of <span>[<a href="#RFC7519" class="cite xref">RFC7519</a>]</span>, and
 the values to be included in the issued token. This is the mechanism by
-which policy-derived attributes reach the token - group memberships, roles,
-and entitlements of the kind <span>[<a href="#RFC9068" class="cite xref">RFC9068</a>]</span> describes for JWT access tokens,
-drawn from the schema of <span>[<a href="#RFC7643" class="cite xref">RFC7643</a>]</span>.<a href="#section-6.5.1-1" class="pilcrow">¶</a></p>
-<p id="section-6.5.1-2">Members of <code>claims</code> are advisory under <a href="#mtu" class="auto internal xref">Section 6.2</a>: an AS that drops them issues
+which attributes computed during the decision itself reach the token: a
+ceiling the policy derived while evaluating a limit, a risk tier that
+determined the outcome, a structured result a binding defines.<a href="#section-6.5.1-1" class="pilcrow">¶</a></p>
+<p id="section-6.5.1-2">It is not the mechanism for enumerating what a subject holds. For the group
+memberships, roles, and entitlements that <span>[<a href="#RFC9068" class="cite xref">RFC9068</a>]</span> describes for JWT
+access tokens, drawn from the schema of <span>[<a href="#RFC7643" class="cite xref">RFC7643</a>]</span>, the search operations of
+<span>[<a href="#AUTHZEN" class="cite xref">AUTHZEN</a>]</span> answer the question directly, and the companion profile in
+<a href="#companions" class="auto internal xref">Section 10</a> specifies how an AS calls them and composes the results. A PDP
+<span class="bcp14">MAY</span> return such a claim in <code>claims</code> where its policy computes one.<a href="#section-6.5.1-2" class="pilcrow">¶</a></p>
+<p id="section-6.5.1-3">Members of <code>claims</code> are advisory under <a href="#mtu" class="auto internal xref">Section 6.2</a>: an AS that drops them issues
 a less capable token. A PDP that requires a member to be honored <span class="bcp14">MUST</span> name
-it in <code>crit</code>.<a href="#section-6.5.1-2" class="pilcrow">¶</a></p>
-<p id="section-6.5.1-3">A PDP <span class="bcp14">MUST NOT</span> set, and an AS <span class="bcp14">MUST</span> reject a response that sets, any of the
-following claims:<a href="#section-6.5.1-3" class="pilcrow">¶</a></p>
+it in <code>crit</code>.<a href="#section-6.5.1-3" class="pilcrow">¶</a></p>
+<p id="section-6.5.1-4">A PDP <span class="bcp14">MUST NOT</span> set, and an AS <span class="bcp14">MUST</span> reject a response that sets, any of the
+following claims:<a href="#section-6.5.1-4" class="pilcrow">¶</a></p>
 <table class="center" id="table-2">
             <caption><a href="#table-2" class="selfRef">Table 2</a></caption>
 <thead>
@@ -2177,11 +2183,11 @@ following claims:<a href="#section-6.5.1-3" class="pilcrow">¶</a></p>
               </tr>
             </tbody>
           </table>
-<p id="section-6.5.1-5">The entries for <code>sub</code> and <code>aud</code> rest on stronger ground than the rest. Both
+<p id="section-6.5.1-6">The entries for <code>sub</code> and <code>aud</code> rest on stronger ground than the rest. Both
 are inputs to the five-tuple; a PDP that could rewrite either would cause the
 AS to issue a token corresponding to a decision that was never evaluated.
 Re-subjecting a token is a fresh issuance, not an attenuation of an existing
-one, and <span class="bcp14">MUST</span> be evaluated as such.<a href="#section-6.5.1-5" class="pilcrow">¶</a></p>
+one, and <span class="bcp14">MUST</span> be evaluated as such.<a href="#section-6.5.1-6" class="pilcrow">¶</a></p>
 </section>
 </div>
 </section>

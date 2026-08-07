@@ -4,8 +4,8 @@
 
 Web Authorization Protocol                                     O. Gazitt
 Internet-Draft                                               Independent
-Intended status: Standards Track                           5 August 2026
-Expires: 6 February 2027
+Intended status: Standards Track                           7 August 2026
+Expires: 8 February 2027
 
 
               AuthZEN Profile for OAuth 2.0 Token Issuance
@@ -63,7 +63,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 6 February 2027.
+   This Internet-Draft will expire on 8 February 2027.
 
 Copyright Notice
 
@@ -741,9 +741,18 @@ Table of Contents
 
    An object whose members are claim names, in the sense of [RFC7519],
    and the values to be included in the issued token.  This is the
-   mechanism by which policy-derived attributes reach the token - group
-   memberships, roles, and entitlements of the kind [RFC9068] describes
-   for JWT access tokens, drawn from the schema of [RFC7643].
+   mechanism by which attributes computed during the decision itself
+   reach the token: a ceiling the policy derived while evaluating a
+   limit, a risk tier that determined the outcome, a structured result a
+   binding defines.
+
+   It is not the mechanism for enumerating what a subject holds.  For
+   the group memberships, roles, and entitlements that [RFC9068]
+   describes for JWT access tokens, drawn from the schema of [RFC7643],
+   the search operations of [AUTHZEN] answer the question directly, and
+   the companion profile in Section 10 specifies how an AS calls them
+   and composes the results.  A PDP MAY return such a claim in claims
+   where its policy computes one.
 
    Members of claims are advisory under Section 6.2: an AS that drops
    them issues a less capable token.  A PDP that requires a member to be
