@@ -123,8 +123,7 @@ its issuance decision may still externalize claim enrichment, and for such an
 AS everything in this document applies unchanged; the decision to issue is
 simply its own.
 
-Where both are used, they compose as follows, and this is the whole of the
-relationship between them:
+Where both are used, they compose as follows:
 
 * The decision governs. A token is minted only if the gate of {{ISSUANCE}}
   permits it, and no search result contributes to that decision
@@ -219,7 +218,7 @@ and {{AUTHZEN}} defines no batch form for searches.
 ## Membership as an Action {#relations}
 
 A claim binding names an AuthZEN action. The names this document registers -
-`member`, `assignee`, `holder` - describe how a subject stands to a resource
+`member`, `assignee`, `holder` - describe how a subject relates to a resource
 rather than an operation the subject performs on it.
 
 Nothing in {{AUTHZEN}} requires otherwise. An action names something asserted
@@ -263,7 +262,7 @@ prefix, which {{ISSUANCE}} reserves for gate actions.
 
 ## Deployment Configuration {#configuration}
 
-A deployment whose graph uses relation names other than the registered ones
+A deployment that uses action names other than the registered ones
 configures the AS with the names it uses. The registered bindings are
 defaults, not constraints on a deployment's policy vocabulary.
 
@@ -411,7 +410,7 @@ single-member objects, conveying what an array of strings conveys, in a claim
 that is carried on every request the token is presented with.
 
 This document accordingly renders the array of identifiers directly. The
-recommendation in {{RFC9068}} is a SHOULD, and this is the deviation stated:
+recommendation in {{RFC9068}} is a SHOULD, and this document deviates from it:
 the profile emits the `value` sub-attribute of each SCIM value and omits an
 enclosing object that would have nothing else in it. An AS that must produce
 the complex form for a resource server that requires it is not prevented from
@@ -438,8 +437,8 @@ A JSON array is ordered and a set is not, so the order of the members carries
 no meaning. A resource server MUST NOT attribute any to it.
 
 An AS SHOULD nonetheless render members in an order that is stable across
-issuances, so that two tokens issued for the same subject against an
-unchanged graph differ only where the underlying facts differ. Sorting
+issuances, so that two tokens issued for the same subject against unchanged
+policy data differ only where the underlying facts differ. Sorting
 ascending by Unicode code point is one way; preserving the PDP's response
 order is another where the PDP's order is itself stable.
 
@@ -533,7 +532,7 @@ therefore already discoverable:
   which is what makes an unconfigured pairing interoperate.
 
 What remains is a question about the content of a deployment's policy: does
-this PDP's graph actually use `member` as a relation on resources of type
+this PDP actually recognize `member` as an action on resources of type
 `group`, or will a correctly formed search return nothing forever? As
 {{ISSUANCE}} argues for the analogous question about gate actions, that
 belongs on the authenticated evaluation surface rather than in an
