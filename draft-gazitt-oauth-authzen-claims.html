@@ -1382,8 +1382,7 @@ server.<a href="#section-1.1-3" class="pilcrow">¶</a></p>
 its issuance decision may still externalize claim enrichment, and for such an
 AS everything in this document applies unchanged; the decision to issue is
 simply its own.<a href="#section-1.2-1" class="pilcrow">¶</a></p>
-<p id="section-1.2-2">Where both are used, they compose as follows, and this is the whole of the
-relationship between them:<a href="#section-1.2-2" class="pilcrow">¶</a></p>
+<p id="section-1.2-2">Where both are used, they compose as follows:<a href="#section-1.2-2" class="pilcrow">¶</a></p>
 <ul class="normal">
 <li class="normal" id="section-1.2-3.1">
             <p id="section-1.2-3.1.1">The decision governs. A token is minted only if the gate of <span>[<a href="#ISSUANCE" class="cite xref">ISSUANCE</a>]</span>
@@ -1516,7 +1515,7 @@ and <span>[<a href="#AUTHZEN" class="cite xref">AUTHZEN</a>]</span> defines no b
 <a href="#section-5.1" class="section-number selfRef">5.1. </a><a href="#name-membership-as-an-action" class="section-name selfRef">Membership as an Action</a>
         </h3>
 <p id="section-5.1-1">A claim binding names an AuthZEN action. The names this document registers -
-<code>member</code>, <code>assignee</code>, <code>holder</code> - describe how a subject stands to a resource
+<code>member</code>, <code>assignee</code>, <code>holder</code> - describe how a subject relates to a resource
 rather than an operation the subject performs on it.<a href="#section-5.1-1" class="pilcrow">¶</a></p>
 <p id="section-5.1-2">Nothing in <span>[<a href="#AUTHZEN" class="cite xref">AUTHZEN</a>]</span> requires otherwise. An action names something asserted
 of a subject and a resource together, and "Alice is a member of engineering"
@@ -1606,7 +1605,7 @@ differ where the concepts do. Implementer feedback is invited.<a href="#section-
         <h3 id="name-deployment-configuration">
 <a href="#section-5.3" class="section-number selfRef">5.3. </a><a href="#name-deployment-configuration" class="section-name selfRef">Deployment Configuration</a>
         </h3>
-<p id="section-5.3-1">A deployment whose graph uses relation names other than the registered ones
+<p id="section-5.3-1">A deployment that uses action names other than the registered ones
 configures the AS with the names it uses. The registered bindings are
 defaults, not constraints on a deployment's policy vocabulary.<a href="#section-5.3-1" class="pilcrow">¶</a></p>
 <p id="section-5.3-2">They earn their place by being defaults. An AS and a PDP from different
@@ -1787,7 +1786,7 @@ define. A conforming complex rendering would therefore be an array of
 single-member objects, conveying what an array of strings conveys, in a claim
 that is carried on every request the token is presented with.<a href="#section-8.1-3" class="pilcrow">¶</a></p>
 <p id="section-8.1-4">This document accordingly renders the array of identifiers directly. The
-recommendation in <span>[<a href="#RFC9068" class="cite xref">RFC9068</a>]</span> is a <span class="bcp14">SHOULD</span>, and this is the deviation stated:
+recommendation in <span>[<a href="#RFC9068" class="cite xref">RFC9068</a>]</span> is a <span class="bcp14">SHOULD</span>, and this document deviates from it:
 the profile emits the <code>value</code> sub-attribute of each SCIM value and omits an
 enclosing object that would have nothing else in it. An AS that must produce
 the complex form for a resource server that requires it is not prevented from
@@ -1820,8 +1819,8 @@ may be returned twice, and pagination admits repetition on its own account
 <p id="section-8.3-2">A JSON array is ordered and a set is not, so the order of the members carries
 no meaning. A resource server <span class="bcp14">MUST NOT</span> attribute any to it.<a href="#section-8.3-2" class="pilcrow">¶</a></p>
 <p id="section-8.3-3">An AS <span class="bcp14">SHOULD</span> nonetheless render members in an order that is stable across
-issuances, so that two tokens issued for the same subject against an
-unchanged graph differ only where the underlying facts differ. Sorting
+issuances, so that two tokens issued for the same subject against unchanged
+policy data differ only where the underlying facts differ. Sorting
 ascending by Unicode code point is one way; preserving the PDP's response
 order is another where the PDP's order is itself stable.<a href="#section-8.3-3" class="pilcrow">¶</a></p>
 </section>
@@ -1933,7 +1932,7 @@ which is what makes an unconfigured pairing interoperate.<a href="#section-11-3.
 </li>
       </ul>
 <p id="section-11-4">What remains is a question about the content of a deployment's policy: does
-this PDP's graph actually use <code>member</code> as a relation on resources of type
+this PDP actually recognize <code>member</code> as an action on resources of type
 <code>group</code>, or will a correctly formed search return nothing forever? As
 <span>[<a href="#ISSUANCE" class="cite xref">ISSUANCE</a>]</span> argues for the analogous question about gate actions, that
 belongs on the authenticated evaluation surface rather than in an
