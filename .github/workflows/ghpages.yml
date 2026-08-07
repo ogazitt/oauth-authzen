@@ -1,6 +1,11 @@
 name: "Update Editor's Copy"
 
 on:
+  # Allows the editor's copy to be rebuilt by hand. The push trigger filters on
+  # paths, so an empty commit does not rebuild, and a push whose webhook was
+  # dropped (as in the 2026-08-06 Actions outage) otherwise leaves no way to
+  # retry short of an unrelated edit.
+  workflow_dispatch:
   push:
     paths-ignore:
     - README.md
