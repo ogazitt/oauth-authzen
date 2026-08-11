@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2026-08-09T02:04:31.187831+00:00",
+  "timestamp": "2026-08-11T02:03:47.731163+00:00",
   "repo": "ogazitt/oauth-authzen",
   "labels": [
     {
@@ -266,6 +266,22 @@
       "body": "Split out from #9, where @mcguinness raised it as a sub-point.\n\n5.2 says:\n\n> `resource.type` MUST be `audience`. `resource.id` MUST be the issuance target.\n> Where the request carries an explicit target - an `audience` parameter, or a\n> `resource` parameter in the sense of {{RFC8707}} - that value determines\n> `resource.id`.\n\nSingular throughout. But RFC 8707 \u00a72 permits the `resource` parameter to appear multiple times, and RFC 8693 \u00a72.1 does the same for `audience` and `resource` in a token exchange request. A request for three resource indicators has three issuance targets, and 5.2 gives no way to express that.\n\n6.4.3 already assumes the plural case on the response side:\n\n> Each value MUST appear among the `resource.id` values of the permitted evaluations.\n\n`resource.id` values, plural, across evaluations. So the response key is written to narrow a set that the request-construction rules can only ever populate with one member. The narrowing is unreachable.\n\nThe fix is presumably one evaluation per resource indicator, batched under `execute_all` the way scope tuples already are in 5.3.3, with 5.5 composing the permitted targets. That needs per-evaluation resource overrides, which the Evaluations API allows but 5.2's MUST currently forbids - the same constraint that #9 runs into.\n\nWorth deciding both at once, since they loosen the same rule.",
       "createdAt": "2026-08-07T22:02:53Z",
       "updatedAt": "2026-08-07T22:02:53Z",
+      "closedAt": null,
+      "comments": []
+    },
+    {
+      "number": 11,
+      "id": "I_kwDOTnp6ss8AAAABMOYx2g",
+      "title": "Related Work should cite Grant Management for OAuth 2.0",
+      "url": "https://github.com/ogazitt/oauth-authzen/issues/11",
+      "state": "OPEN",
+      "author": "ogazitt",
+      "authorAssociation": "OWNER",
+      "assignees": [],
+      "labels": [],
+      "body": "**Document:** `draft-gazitt-oauth-authzen-issuance.md`, Related Work (`#related`).\n\nGrant Management for OAuth 2.0 (OIDF FAPI WG, `oauth-v2-grant-management-03`, 9 May 2023) defines a grant query response whose members are `scopes`, `claims`, `authorization_details` and `expires_at`.\n\nThat is this document's constraining and decorating key set. Same vocabulary, two moments in a grant's life: this document specifies how a Policy Decision Point shapes a grant at issuance, Grant Management specifies how a client reads it back afterwards.\n\nIts `scopes` entries are also `{scope, resource}` pairs, where `resource` is an array of RFC 8707 resource indicators, which is convergent support for #10.\n\n**Action:** add a Related Work paragraph in `-01`. No normative effect.",
+      "createdAt": "2026-08-10T23:57:36Z",
+      "updatedAt": "2026-08-10T23:57:36Z",
       "closedAt": null,
       "comments": []
     }
