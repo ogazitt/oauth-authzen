@@ -20,10 +20,10 @@ This is the working area for individual Internet-Drafts.
 
 ## AuthZEN Profile for Authorization Claims in JWT Access Tokens
 
-Not yet submitted to the datatracker. Comments are welcome on the editor's
-copy before it is posted.
-
 * [Editor's Copy](https://ogazitt.github.io/oauth-authzen/#go.draft-gazitt-oauth-authzen-claims.html)
+* [Datatracker Page](https://datatracker.ietf.org/doc/draft-gazitt-oauth-authzen-claims)
+* [Individual Draft](https://datatracker.ietf.org/doc/html/draft-gazitt-oauth-authzen-claims)
+* [Compare Editor's Copy to Individual Draft](https://ogazitt.github.io/oauth-authzen/#go.draft-gazitt-oauth-authzen-claims.diff)
 
 ## Background
 
