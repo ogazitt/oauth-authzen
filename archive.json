@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2026-08-13T02:22:20.445904+00:00",
+  "timestamp": "2026-08-16T01:39:34.150732+00:00",
   "repo": "ogazitt/oauth-authzen",
   "labels": [
     {
@@ -282,6 +282,40 @@
       "body": "**Document:** `draft-gazitt-oauth-authzen-issuance.md`, Related Work (`#related`).\n\nGrant Management for OAuth 2.0 (OIDF FAPI WG, `oauth-v2-grant-management-03`, 9 May 2023) defines a grant query response whose members are `scopes`, `claims`, `authorization_details` and `expires_at`.\n\nThat is this document's constraining and decorating key set. Same vocabulary, two moments in a grant's life: this document specifies how a Policy Decision Point shapes a grant at issuance, Grant Management specifies how a client reads it back afterwards.\n\nIts `scopes` entries are also `{scope, resource}` pairs, where `resource` is an array of RFC 8707 resource indicators, which is convergent support for #10.\n\n**Action:** add a Related Work paragraph in `-01`. No normative effect.",
       "createdAt": "2026-08-10T23:57:36Z",
       "updatedAt": "2026-08-10T23:57:36Z",
+      "closedAt": null,
+      "comments": []
+    },
+    {
+      "number": 12,
+      "id": "I_kwDOTnp6ss8AAAABMsKe-A",
+      "title": "crit: \u00a76 MUST NOT contradicts the \u00a78 rationale and disarms crit against undeclared ASes",
+      "url": "https://github.com/ogazitt/oauth-authzen/issues/12",
+      "state": "OPEN",
+      "author": "ogazitt",
+      "authorAssociation": "OWNER",
+      "assignees": [],
+      "labels": [],
+      "body": "Two normative statements in the draft cannot both hold.\n\n**\u00a76, in the definition of `crit`:**\n\n> A PDP MUST NOT include `crit` unless the AS has declared support for the corresponding capability (\u00a78).\n\n**\u00a78, Policy Enforcement Point Capabilities:**\n\n> The declaration is an optimization, not a safety mechanism, and this is why it is OPTIONAL. Safety is already unilateral: a PDP that marks a key `crit` obliges any AS implementing this profile to fail closed if it does not understand it (\u00a75.1), and an AS that does not implement this profile ignores the `issuance` envelope entirely, `crit` included. Withholding `crit` from an undeclared AS therefore protects nothing.\n\nThe second paragraph argues that withholding `crit` from an undeclared AS accomplishes nothing. The first paragraph then requires exactly that, as a MUST NOT.\n\n## Why this is a real problem and not just untidy prose\n\nThe declaration is OPTIONAL. So there is a conforming population of authorization servers that implement this profile, would honour `crit` correctly under the mandatory-to-understand rule in \u00a75.1, and simply never sent a capability declaration because \u00a78 told them it was an optimization they could skip.\n\nAgainst that population the \u00a76 MUST NOT forbids a PDP from marking any key `crit`. The mechanism whose entire purpose is to prevent a silent broadening of the grant is disabled for implementations that declined an optimization. That is the opposite of failing safe, and \u00a78 already says the withholding buys nothing in exchange.\n\nIt also diverges from the mechanism the name was borrowed from. `crit` in RFC 7515 \u00a74.1.11 is unilateral: the producer marks a header critical and a recipient that does not understand it MUST reject the JWS. There is no handshake and no precondition on the producer.\n\n## Resolutions, in the order I currently prefer them\n\n1. **Drop the \u00a76 MUST NOT.** `crit` becomes unilateral, matching RFC 7515, matching the \u00a75.1 rule, and matching the reasoning already written in \u00a78. The capability declaration stays OPTIONAL and stays an optimization: a PDP that knows what the AS supports can choose a decision the AS can actually enforce, which is the benefit \u00a78 claims for it.\n2. **Downgrade to SHOULD NOT.** A PDP that has a declaration in hand and can see the capability is absent has a good reason not to send `crit`, since the permit will just turn into a denial. But absence of a declaration is not evidence of absence of support, so it should not be a hard bar.\n3. **Make the declaration REQUIRED and keep the MUST NOT.** Internally consistent, but it contradicts the \u00a78 rationale outright, adds a mandatory round trip to every deployment including those using only the keys defined here, and makes the profile harder to adopt incrementally.\n\n## Interaction with the AuthZEN extensibility work\n\nKarl McGuinness has proposed a `mandatory_extensions` signal by which a PEP asserts it will fail closed on named extensions, discussed on the WG mailing list on 2026-08-12 and on the agenda for the next call. That proposal is a generalized form of resolution 3, lifted out of this profile and into AuthZEN itself.\n\nWorth noting that the two mechanisms are not substitutes. `mandatory_extensions` would be per-request and static, declaring what the PEP is prepared to honour. `crit` is per-response and dynamic, naming which keys in this particular decision must be honoured. A general extensibility signal would be the precondition for `crit` rather than a replacement for it, so this issue needs resolving on its own terms whichever way that work goes.\n\n## Related\n\nThere is a second, separate problem with where the declaration lives, which will get its own issue: the declaration sits in `context`, and AuthZEN 1.0 specifies that a `context` supplied inside an individual evaluation object overrides the top-level default rather than merging with it.\n",
+      "createdAt": "2026-08-13T23:06:35Z",
+      "updatedAt": "2026-08-13T23:06:35Z",
+      "closedAt": null,
+      "comments": []
+    },
+    {
+      "number": 13,
+      "id": "I_kwDOTnp6ss8AAAABMz22tQ",
+      "title": "No way to correlate a PDP decision with the token the AS mints",
+      "url": "https://github.com/ogazitt/oauth-authzen/issues/13",
+      "state": "OPEN",
+      "author": "ogazitt",
+      "authorAssociation": "OWNER",
+      "assignees": [],
+      "labels": [
+        "design"
+      ],
+      "body": "Raised by Michael Schwartz (Gluu) on the OpenID AuthZEN mailing list,\n2026-08-13:\n\n> If you proceed with this for some reason, please ensure you send the token's\n> jti so we can correlate it in the logs.\n\n[Message 689](https://lists.openid.net/pipermail/openid-specs-authzen/2026-August/000689.html)\n\nAn operator running an AS and a PDP has two decision logs and no defined way to\njoin them. The draft says nothing about correlation: `jti` appears only in the\n\u00a75.4 provenance table, as a claim the PDP does not get to set, and there is no\ncorrelation identifier anywhere in the request direction.\n\nThe obvious fix - send the `jti` - has an ordering problem. At evaluation time\nthe token has not been minted, so there is no `jti` yet. An AS would have to\npre-allocate the identifier before the decision, and on a deny it would burn an\nidentifier for a token that is never issued. Pre-allocation is workable but it\nis a real constraint on AS implementations and should not be assumed silently.\n\nOptions:\n\n1. **Require the AS to pre-allocate `jti` and send it** in the evaluation\n   request context. Strongest join, highest implementation cost, awkward on\n   deny.\n2. **Define a separate request correlation identifier** that the AS also\n   records against the eventual `jti` in its own log. Cheap, no ordering\n   problem, works on deny, but the join needs both logs.\n3. **Say nothing normative and note it as an operational consideration.**\n\nPreference is (2), possibly with (1) as a MAY where the AS already\npre-allocates. Whichever way it lands, the Security or Operational\nConsiderations should say something, since today the answer is silence.\n\nApplies to both `draft-gazitt-oauth-authzen-issuance` and\n`draft-gazitt-oauth-authzen-token-exchange`, and to the claim enrichment call\nin `draft-gazitt-oauth-authzen-claims`.\n",
+      "createdAt": "2026-08-14T18:38:06Z",
+      "updatedAt": "2026-08-14T18:38:06Z",
       "closedAt": null,
       "comments": []
     }
