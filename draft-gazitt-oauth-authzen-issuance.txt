@@ -4,8 +4,8 @@
 
 Web Authorization Protocol                                     O. Gazitt
 Internet-Draft                                               Independent
-Intended status: Standards Track                           7 August 2026
-Expires: 8 February 2027
+Intended status: Standards Track                          17 August 2026
+Expires: 18 February 2027
 
 
               AuthZEN Profile for OAuth 2.0 Token Issuance
@@ -63,7 +63,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 8 February 2027.
+   This Internet-Draft will expire on 18 February 2027.
 
 Copyright Notice
 
@@ -100,6 +100,7 @@ Table of Contents
        5.3.3.  Scope Tuple
        5.3.4.  Gate Tuples Are Always Present
      5.4.  Context
+       5.4.1.  Correlation
      5.5.  Batching and Result Composition
    6.  Processing the Evaluation Response
      6.1.  The issuance Envelope
@@ -530,6 +531,9 @@ Table of Contents
       | cnf       | object   | Confirmation method of the          |
       |           |          | presented credential                |
       +-----------+----------+-------------------------------------+
+      | jti       | string   | Identifier of the token the AS      |
+      |           |          | intends to mint (Section 5.4.1)     |
+      +-----------+----------+-------------------------------------+
 
                                  Table 1
 
@@ -541,6 +545,26 @@ Table of Contents
    belongs in the five-tuple, not here.  The grant type is the worked
    example: it is decision-critical, so it is a segment of the gate
    action name (Section 5.3.1) and does not appear in context at all.
+
+5.4.1.  Correlation
+
+   An operator running an authorization server against a separately
+   operated policy decision point has two decision logs and no defined
+   way to join them.  An AS MAY include in context the jti of the token
+   it intends to mint, so that the record the PDP writes and the token
+   the AS issues carry the same identifier.
+
+   It is a MAY because of an ordering problem: at evaluation time the
+   token does not exist, so an AS that sends a jti has allocated it in
+   advance, and on a denial that identifier is spent on a token that is
+   never issued.  Whether to pre-allocate, and what to do with
+   identifiers spent on denied requests, is an implementation matter for
+   the AS and is outside the scope of this document.  An AS that does
+   not pre-allocate omits the key.
+
+   Supplying jti as an input does not disturb the reservation in
+   Section 6.5.1.  The AS remains authoritative for the claim, and a PDP
+   MUST NOT set it in the response.
 
 5.5.  Batching and Result Composition
 
