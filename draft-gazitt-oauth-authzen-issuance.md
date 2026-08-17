@@ -452,6 +452,7 @@ The following keys are defined by this document; bindings may define more:
 | `amr` | array of strings | Authentication methods, per {{RFC8176}} |
 | `auth_time` | integer | Time of authentication, as in {{RFC7519}} |
 | `cnf` | object | Confirmation method of the presented credential |
+| `jti` | string | Identifier of the token the AS intends to mint ({{correlation}}) |
 
 The single-type rule of {{envelope}} applies here as well: each key above has
 one JSON type, and bindings defining further context keys MUST state a type
@@ -461,6 +462,25 @@ Per {{design-goals}}, any input on which the decision genuinely depends
 belongs in the five-tuple, not here. The grant type is the worked example:
 it is decision-critical, so it is a segment of the gate action name
 ({{gate-tuple}}) and does not appear in `context` at all.
+
+### Correlation {#correlation}
+
+An operator running an authorization server against a separately operated
+policy decision point has two decision logs and no defined way to join them.
+An AS MAY include in `context` the `jti` of the token it intends to mint, so
+that the record the PDP writes and the token the AS issues carry the same
+identifier.
+
+It is a MAY because of an ordering problem: at evaluation time the token does
+not exist, so an AS that sends a `jti` has allocated it in advance, and on a
+denial that identifier is spent on a token that is never issued. Whether to
+pre-allocate, and what to do with identifiers spent on denied requests, is an
+implementation matter for the AS and is outside the scope of this document.
+An AS that does not pre-allocate omits the key.
+
+Supplying `jti` as an input does not disturb the reservation in {{claims}}.
+The AS remains authoritative for the claim, and a PDP MUST NOT set it in the
+response.
 
 ## Batching and Result Composition {#composition}
 
