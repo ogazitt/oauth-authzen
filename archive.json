@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2026-08-16T01:39:34.150732+00:00",
+  "timestamp": "2026-08-18T01:27:26.656291+00:00",
   "repo": "ogazitt/oauth-authzen",
   "labels": [
     {
@@ -306,18 +306,28 @@
       "id": "I_kwDOTnp6ss8AAAABMz22tQ",
       "title": "No way to correlate a PDP decision with the token the AS mints",
       "url": "https://github.com/ogazitt/oauth-authzen/issues/13",
-      "state": "OPEN",
+      "state": "CLOSED",
       "author": "ogazitt",
       "authorAssociation": "OWNER",
-      "assignees": [],
+      "assignees": [
+        "ogazitt"
+      ],
       "labels": [
         "design"
       ],
       "body": "Raised by Michael Schwartz (Gluu) on the OpenID AuthZEN mailing list,\n2026-08-13:\n\n> If you proceed with this for some reason, please ensure you send the token's\n> jti so we can correlate it in the logs.\n\n[Message 689](https://lists.openid.net/pipermail/openid-specs-authzen/2026-August/000689.html)\n\nAn operator running an AS and a PDP has two decision logs and no defined way to\njoin them. The draft says nothing about correlation: `jti` appears only in the\n\u00a75.4 provenance table, as a claim the PDP does not get to set, and there is no\ncorrelation identifier anywhere in the request direction.\n\nThe obvious fix - send the `jti` - has an ordering problem. At evaluation time\nthe token has not been minted, so there is no `jti` yet. An AS would have to\npre-allocate the identifier before the decision, and on a deny it would burn an\nidentifier for a token that is never issued. Pre-allocation is workable but it\nis a real constraint on AS implementations and should not be assumed silently.\n\nOptions:\n\n1. **Require the AS to pre-allocate `jti` and send it** in the evaluation\n   request context. Strongest join, highest implementation cost, awkward on\n   deny.\n2. **Define a separate request correlation identifier** that the AS also\n   records against the eventual `jti` in its own log. Cheap, no ordering\n   problem, works on deny, but the join needs both logs.\n3. **Say nothing normative and note it as an operational consideration.**\n\nPreference is (2), possibly with (1) as a MAY where the AS already\npre-allocates. Whichever way it lands, the Security or Operational\nConsiderations should say something, since today the answer is silence.\n\nApplies to both `draft-gazitt-oauth-authzen-issuance` and\n`draft-gazitt-oauth-authzen-token-exchange`, and to the claim enrichment call\nin `draft-gazitt-oauth-authzen-claims`.\n",
       "createdAt": "2026-08-14T18:38:06Z",
-      "updatedAt": "2026-08-14T18:38:06Z",
-      "closedAt": null,
-      "comments": []
+      "updatedAt": "2026-08-17T23:23:15Z",
+      "closedAt": "2026-08-17T23:22:33Z",
+      "comments": [
+        {
+          "author": "ogazitt",
+          "authorAssociation": "OWNER",
+          "body": "Resolved as **option 1, as a `MAY`**, in 5fe6950.\n\n`jti` is now a context key on the evaluation request, and \u00a75.4.1 Correlation\nexplains when to send it:\n\nhttps://ogazitt.github.io/oauth-authzen/draft-gazitt-oauth-authzen-issuance.html#name-correlation\n\nAn AS MAY include in `context` the `jti` of the token it intends to mint, so\nthat the record the PDP writes and the token the AS issues carry the same\nidentifier.\n\nIt is a `MAY` rather than a `SHOULD` because of the ordering problem this issue\nraised. The text names it and then hands it to the implementer: whether to\npre-allocate, and what to do with an identifier spent on a denial, is an\nimplementation matter for the AS and is outside the scope of the document. An\nAS that does not pre-allocate omits the key and pays nothing for the feature.\nThe text also states that supplying `jti` as an input does not disturb the \u00a76.5\nreservation - the AS remains authoritative for the claim, and a PDP still MUST\nNOT set it in the response.\n\n**Option 2 is rejected.** This issue stated a preference for a separate\ncorrelation identifier that the AS would record against the eventual `jti` in\nits own log. Michael Schwartz, who raised the original request, asked for\noption 1 as a MAY instead, in\n[message 691](https://lists.openid.net/pipermail/openid-specs-authzen/2026-August/000691.html):\n\n> my preference is optional \"jti\" and leave it up to the IDP to figure out how\n> to correlate that with the actual token.\n\nThat is the better answer. A second identifier is a new thing for both sides to\ncarry and to join on, in service of a case that option 1 already covers\nwhenever the AS can pre-allocate. Sending the real identifier when you have one\nis cheaper for everybody.\n\nThe accepted cost is that correlation is best-effort: an operator running an AS\nthat cannot pre-allocate gets no join from this specification. That is the price\nof imposing nothing on such an AS, and it is the right trade for a key on an\nadvisory context object.\n\nNo change is needed in the companion drafts. `draft-gazitt-oauth-authzen-token-exchange`\ninherits context keys from the framework, and `draft-gazitt-oauth-authzen-claims`\nalready directs the AS to convey the same context values on a search.\n\nThanks to Michael Schwartz (Gluu) for raising it.",
+          "createdAt": "2026-08-17T23:22:32Z",
+          "updatedAt": "2026-08-17T23:22:32Z"
+        }
+      ]
     }
   ],
   "pulls": []
