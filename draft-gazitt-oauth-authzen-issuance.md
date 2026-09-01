@@ -67,6 +67,20 @@ informative:
       - ins: K. McGuinness
         name: "Karl McGuinness"
         org: "Independent"
+  GRANTMGMT:
+    title: "Grant Management for OAuth 2.0"
+    target: "https://openid.bitbucket.io/fapi/oauth-v2-grant-management.html"
+    date: 2026-06-26
+    author:
+      - ins: T. Lodderstedt
+        name: "Torsten Lodderstedt"
+        org: "yes.com"
+      - ins: S. Low
+        name: "Stuart Low"
+        org: "Biza.io"
+      - ins: D. Postnikov
+        name: "Dima Postnikov"
+        org: "Independent"
   ZANZIBAR:
     title: "Zanzibar: Google's Consistent, Global Authorization System"
     target: "https://www.usenix.org/conference/atc19/presentation/pang"
@@ -1351,6 +1365,19 @@ request, that construction is shared surface, and its treatment in the
 approval profiles is deliberately brief, being incidental to their subject.
 Where the two overlap, this document is intended to supply the detail rather
 than to compete, and aligning the two is expected work.
+
+{{GRANTMGMT}} approaches the same authorization from the other end. Its
+grant query response reports a grant as `scopes`, `claims`, and
+`authorization_details`, which is the set of constraining keys of
+{{shaping}} seen after the fact: this document specifies how a
+Policy Decision Point shapes those at issuance, and grant management
+specifies how a client reads and manages them afterwards. Its `scopes`
+member pairs each scope value with the resource indicators it applies to,
+which is the same per-target scoping the scope tuple of {{scope-tuple}}
+produces. Section 8.2 of that document records that the addressibility of
+individual grant components is unresolved, and the decomposition of
+{{rar-tuple}} bears on it, since a cell of an authorization details entry is
+addressable by construction.
 
 # Security Considerations
 
