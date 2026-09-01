@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2026-08-30T04:44:37.155667+00:00",
+  "timestamp": "2026-09-01T04:28:01.828616+00:00",
   "repo": "ogazitt/oauth-authzen",
   "labels": [
     {
@@ -328,6 +328,24 @@
           "updatedAt": "2026-08-17T23:22:32Z"
         }
       ]
+    },
+    {
+      "number": 14,
+      "id": "I_kwDOTnp6ss8AAAABPDkR_Q",
+      "title": "Security Considerations should state the provenance and freshness limits of an enriched claim",
+      "url": "https://github.com/ogazitt/oauth-authzen/issues/14",
+      "state": "OPEN",
+      "author": "ogazitt",
+      "authorAssociation": "OWNER",
+      "assignees": [],
+      "labels": [
+        "design"
+      ],
+      "body": "Raised by Brian Vicente on `oauth@ietf.org`, [2026-08-26](https://mailarchive.ietf.org/arch/msg/oauth/pcvnOo4_pOe_uDNoAztlZm4KDPY/) and [2026-08-28](https://mailarchive.ietf.org/arch/msg/oauth/nbrpW4dPcabnT1p5jMf9vo8wZTo/), against `-claims`.\n\nTwo related properties that \u00a714 does not currently state.\n\n## 1. Provenance is not expressible on the wire\n\n> A resource server consuming a roles claim cannot today distinguish a value the AS read from an authoritative directory at authorization time from a value cached at session establishment or copied from an upstream token. Those have different revocation behavior and should not be indistinguishable on the wire.\n\nThis document improves on the status quo, since the value now comes from a named PDP through a specified API rather than from an unspecified directory, database or hook. But nothing in the token records that, and a resource server cannot tell an enriched claim from a copied one.\n\n## 2. The AS is not a witness to its own freshness\n\nThe sharper half of the argument:\n\n> that trust covers the AS's own assertions, not the AS's account of a third party's state at a past instant. When the AS says \"roles = [x, y] as of 14:02,\" it is making two different kinds of claim in one artifact. The first is authoritative because the AS issued it. The second is an assertion about what an upstream directory contained at a time only the AS observed, and the AS is the party whose caching, staleness, and propagation behavior the RS is trying to evaluate. Trusting the issuer does not make it a witness to its own freshness.\n\nThis is correct, and \u00a714.2 does not cover it. \u00a714.2 is about skew between the decision and the searches - two calls made by the same AS against data that may change between them. The point here is different: even a single search, rendered faithfully, gives the resource server no way to establish *when* the underlying state held, except by trusting the party whose caching behavior is the thing in question.\n\n## Scope\n\nThe property is not created by this document. It holds for every RFC 9068 authorization claim, and for `auth_time`, `acr` and `amr` in an ID Token: all are the issuer's account of a third-party event only the issuer observed. So the fix here is to state the limit, not to solve it.\n\nSpecifically **not** proposed:\n\n- a signed membership snapshot from the directory\n- an RFC 3161 timestamp token from a third-party TSA\n- any new trust model between the RS and the upstream source\n\nThose were Brian's illustration of what *meeting* the requirement would take. They require a signing-directory ecosystem that does not exist, and they put a third-party round trip in the AS call path - which runs straight into the concern Michiel Trimpe minuted at the 2026-08-27 AuthZEN WG call about multiple Search calls in that path.\n\nHis own conclusion is the narrower one, and it is the one to act on:\n\n> I would rather the document state the requirement and let deployments meet it incrementally than register a freshness claim that cannot carry the weight implementers will put on it.\n\n## Proposed\n\nA new subsection under \u00a714, after \u00a714.2, that:\n\n1. States that an authorization claim rendered by this profile carries no indication of its own provenance, and that a resource server cannot distinguish it from a value obtained any other way.\n2. States that the as-of instant of the underlying state is not establishable from the token, because the only party asserting it is the party whose caching behavior determines it.\n3. Says explicitly that this profile does not define a freshness or provenance claim, and why - a claim the AS asserts about itself would be relied on as though it were verifiable.\n4. Points at the complementary surface already named in \u00a714.3: a resource server that needs a decision against current state calls the PDP at request time rather than reading an enumeration minted earlier.\n\nOpen question: whether a deployment that wants to convey a snapshot cursor or ETag should be pointed at the property bags AuthZEN Search already carries on results and on the pagination object. That is the natural place for it, but those bags are advisory and this would be a resource server making a security decision on one. Possibly worth naming as a non-normative option with that caveat attached, possibly worth leaving out.\n\nAlso worth a cross-reference either way: the \"verifiable human mandates\" thread on `oauth@ietf.org` converged on the same requirement from the other end.\n",
+      "createdAt": "2026-08-31T22:01:53Z",
+      "updatedAt": "2026-08-31T23:01:56Z",
+      "closedAt": null,
+      "comments": []
     }
   ],
   "pulls": []
