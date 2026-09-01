@@ -329,8 +329,9 @@ PDP authorizes is the identifier the token carries.
 
 ## Resource {#resource}
 
-`resource.type` MUST be `audience`. Each `resource.id` MUST be an issuance
-target.
+For the gate and scope tuples of {{gate-and-scope}}, `resource.type` MUST be
+`audience` and each `resource.id` MUST be an issuance target. Authorization
+detail tuples name their resource differently, as {{rar-tuple}} sets out.
 
 A single registered type is used rather than a type per kind of target
 (service, trust domain, peer authorization server) because the type names
@@ -380,7 +381,7 @@ This is also what makes the `audience` constraining key of {{shaping}}
 reachable. That key narrows a *set* of targets, and a set can only be
 narrowed if the request was able to put more than one member in it.
 
-## Actions: Gate Tuples and Scope Tuples {#gate-and-scope}
+## Actions: Gate, Scope, and Authorization Detail Tuples {#gate-and-scope}
 
 Token issuance asks two questions that are frequently conflated:
 
@@ -399,6 +400,10 @@ minting a delegated grant aimed at that same API.
 Because AuthZEN's information model provides exactly one action per
 evaluation, these two questions MUST be expressed as separate evaluations
 rather than as two interpretations of one `action.name`.
+
+A request carrying `authorization_details` ({{RFC9396}}) asks the second
+question in a richer vocabulary than a scope string, and gets a third tuple
+shape ({{rar-tuple}}) rather than a reinterpretation of the second.
 
 ### Gate Tuple {#gate-tuple}
 
@@ -463,6 +468,90 @@ Scope values are not transformed into policy-engine relation names by the
 AS. Any such mapping is internal to the PDP. This keeps `action.name` a
 stable interface: the AS reports what the client asked for, and the PDP
 decides what that means in its own policy vocabulary.
+
+### Authorization Detail Tuple {#rar-tuple}
+
+Where the request carries `authorization_details` ({{RFC9396}}), each entry
+in the array yields one or more evaluations.
+
+An entry is a product, not a single permission. {{RFC9396}} Section 2.2:
+"When different common data fields are used in combination, the permissions
+the client requests are the product of all the values. The object represents
+a request for all `actions` values listed within the object to be used at all
+`locations` values listed within the object for all `datatypes` values listed
+within the object." Figure 6 of that document is the client's escape hatch: a
+client that does not want the whole product sends several entries instead.
+Asking the PDP one question per cell therefore asks exactly the questions the
+entry poses, and asking fewer answers a coarser question than the client
+asked.
+
+The AS forms one evaluation per cell:
+
+| RAR member | AuthZEN |
+|---|---|
+| `type` | `resource.type` |
+| each `locations` value | `resource.id` |
+| each `actions` value | `action.name`, leading segments |
+| each `datatypes` value | `action.name`, final segment |
+
+`action.name` is the `actions` value alone where the entry has no
+`datatypes`, and the `actions` value and the `datatypes` value joined by a
+colon otherwise, the datatype last:
+
+~~~
+<action>
+<action>:<datatype>
+~~~
+
+The datatype is recovered as the segment following the final colon. An AS
+MUST NOT form a compound name where the `datatypes` value itself contains a
+colon; such an entry is decomposed on `locations` and `actions` only, and its
+datatype axis is narrowed on the response side alone ({{rar-response}}).
+
+These names cannot be confused with the gate names of {{gate-tuple}}. A gate
+tuple always names a resource whose type is `audience`; an authorization
+detail tuple never does, because `resource.type` is the entry's own `type`.
+
+Only `type` is REQUIRED of an entry ({{RFC9396}} Section 2), so an axis may
+be absent:
+
+| Absent member | Substituted |
+|---|---|
+| `locations` | Each requested target of {{resource}} |
+| `actions` | The reserved name `authorization_detail` |
+| `datatypes` | No compounding; `action.name` is the action alone |
+
+Substituting the requested targets for an absent `locations` continues the
+audience restriction the member itself performs. {{RFC9396}} Section 12
+describes `locations` as preventing unintended client authorizations "through
+audience restriction", and Section 9.1 recommends that an AS minting a JWT
+access token filter the authorization details to the specific audience. Where
+an entry names no location, the request's own targets are the audience it is
+restricted to.
+
+`privileges` and `identifier` are not decomposed. Section 2.2's product
+sentence names actions, locations, and datatypes, so whether `privileges`
+multiplies is unstated, and `identifier` is a scalar with no multiplicity.
+
+Nor does the decomposition reach a type that carries its multiplicity in
+type-specific members rather than in the common data fields - a consent
+object enumerating individual permissions, for instance. Such an entry
+yields one evaluation per location. This is the prevailing shape in deployed
+open banking profiles, so it is not a corner case.
+
+An undecomposed member is not shown to the PDP, and a PDP cannot narrow
+against a value it was not sent. What it can still do is narrow by policy:
+knowing the subject, the type, and the location, it may return an entry
+whose `datatypes` or type-specific members are the most this subject may
+ever reach there. Such an entry is still subject to the structural check of
+{{rar-response}}, so a PDP that returns more than was requested has its
+decision rejected rather than trimmed. Narrowing against the request itself
+remains the AS's own obligation under {{RFC9396}} Section 6.
+
+Decomposing the entry is also what makes the structural check of
+{{rar-response}} derivable rather than asserted. An entry whose `locations`,
+`actions`, and `datatypes` are subsets of the request's is exactly an entry
+reassembled from cells the PDP permitted.
 
 ### Gate Tuples Are Always Present {#gate-required}
 
@@ -530,7 +619,9 @@ For each requested target ({{resource}}), the AS forms:
 - a gate tuple ({{gate-tuple}}), and
 - one scope tuple ({{scope-tuple}}) for each requested scope,
 
-each carrying that target as its `resource`.
+each carrying that target as its `resource`. Where the request carries
+`authorization_details`, the AS also forms the authorization detail tuples of
+{{rar-tuple}}, which carry a resource of their own.
 
 This document produces one gate tuple per target. Bindings may produce more:
 the token exchange family evaluates the authority of the requesting party
@@ -540,11 +631,12 @@ Where a request yields more than one tuple, the AS MUST use the Access
 Evaluations API of {{AUTHZEN}} with `options.evaluations_semantic` set to
 `execute_all`, and MUST place gate tuples at the leading indices of the
 `evaluations` array, beginning at index 0. The response lists decisions in
-request order ({{AUTHZEN}} Section 7.2), so the AS recovers which target and
-which scope each decision belongs to by position.
+request order ({{AUTHZEN}} Section 7.2), so the AS recovers which target,
+scope, or authorization detail cell each decision belongs to by position.
 
-A request reduces to a single evaluation only when it names one target and no
-scopes, in which case the gate tuple stands alone.
+A request reduces to a single evaluation only when it names one target, no
+scopes, and no authorization details, in which case the gate tuple stands
+alone.
 
 `execute_all` is required because a denial must be able to narrow the grant
 rather than fail it. {{AUTHZEN}} evaluation semantics are selected per request
@@ -556,7 +648,8 @@ AS is already interpreting per-item results in order to downscope.
 
 A gate tuple governs one target. Where its decision is `false`, that target
 is removed from the request: the AS MUST NOT name it in the audience of any
-token it issues, and MUST disregard the scope tuples formed for it.
+token it issues, and MUST disregard the scope tuples formed for it and any
+authorization detail tuple naming it as `resource.id`.
 
 Where every target is removed, the AS MUST fail the request and MUST NOT
 issue a token. For token exchange requests the appropriate error is
@@ -590,10 +683,30 @@ An AS that wants a scope to survive at one target and not another issues a
 token per target, which is the shape {{one-target}} prefers in the first
 place.
 
-Where the request named scopes and none survive, the AS MUST fail the request
-rather than issue a token with an empty scope set, even though the gate
-permitted it. A permitted gate authorizes a token of that kind to exist; it
-does not authorize an empty one.
+Where the request named scopes and none survive, and no authorization detail
+entry survives either, the AS MUST fail the request rather than issue an
+empty token, even though the gate permitted it. A permitted gate authorizes a
+token of that kind to exist; it does not authorize an empty one.
+
+### A Denied Cell Narrows an Entry {#rar-denial}
+
+An authorization detail tuple governs one cell of one entry. The AS
+reassembles each entry from the cells that were permitted, so that a denied
+cell narrows the entry rather than failing it.
+
+Where an entry's `locations` was absent and its tuples were therefore fanned
+across several targets, a cell survives only where it was permitted at every
+surviving target, for the reason given in {{scope-denial}}.
+
+An entry with no surviving cells is dropped. Where the request carried
+`authorization_details` and no entry survives, the AS MUST fail the request
+with `invalid_authorization_details`, which {{RFC9396}} Section 6 already
+defines for a token request whose authorization details the AS will not
+grant.
+
+Reassembly is what the AS does absent a `authorization_details` key in the
+response. Where the PDP returns one, it replaces the reassembled array and is
+checked against the request as {{rar-response}} requires.
 
 # Processing the Evaluation Response {#shaping}
 
@@ -712,10 +825,15 @@ The value is an array even when it names a single target, per the
 single-type rule above. An AS remains free to render a single-element set as
 a bare string in the token's own `aud` claim, where {{RFC7519}} permits it.
 
-### `authorization_details`
+### `authorization_details` {#rar-response}
 
 An array in the syntax of {{RFC9396}}, replacing - not merged with - the
 authorization details of the request.
+
+Where the PDP returns nothing, the AS reassembles the entries itself from the
+cells its authorization detail tuples ({{rar-tuple}}) permitted. The key
+exists for the narrowing the cells cannot express: within a type-specific
+member, or along an axis {{rar-tuple}} does not decompose.
 
 Replacement admits arbitrary structured narrowing, which is what a PDP
 filtering rich authorization requests needs, but "narrower" is not decidable
@@ -795,8 +913,8 @@ An Access Evaluations response in {{AUTHZEN}} carries no top-level context;
 each element of the `evaluations` array is a decision with its own optional
 context. Token shaping, however, is a property of the token: there is one
 lifetime, one claim set, one authorization details array for the token being
-minted, while this profile fans scopes and targets out across many
-evaluations.
+minted, while this profile fans scopes, targets, and authorization detail
+cells out across many evaluations.
 
 An AS MUST therefore compose per-item shaping as follows:
 
@@ -805,7 +923,7 @@ An AS MUST therefore compose per-item shaping as follows:
 | `token_lifetime` | Minimum over permitted items |
 | `granted_scope` | Union over permitted items, intersected with what the AS would otherwise grant and with the surviving scopes of {{scope-denial}} |
 | `audience` | The surviving targets of {{gate-denial}}, less any target whose item returned an empty array |
-| `authorization_details` | Union of entries, then the per-entry structural check |
+| `authorization_details` | Union of entries, then the per-entry structural check, intersected with the entries reassembled under {{rar-denial}} |
 | `claims` | Merge; see below |
 | `crit` | Union |
 
@@ -1160,7 +1278,10 @@ authorization server.
 inside `authorization_details`, placing the evaluation on the OAuth wire. It
 has expired. This document does not adopt that approach: the evaluation
 stays between the authorization server and its Policy Decision Point, and
-the client sees only an OAuth response.
+the client sees only an OAuth response. {{rar-tuple}} covers the same
+territory the other way round, deriving the evaluation from the
+authorization details the client already sends rather than asking the client
+to construct one.
 
 {{ARAP}} defines what happens when a Policy Decision Point denies a request
 but marks the denial as requestable: the enforcement point submits an access
@@ -1373,8 +1494,13 @@ Grant type short names, initially:
 
 Registrations MUST give the URI or parameter value the short name
 corresponds to, and MUST state which of the two vocabularies they join.
-Names outside the `issue:` prefix are not registered here, since scope
-values are carried verbatim and are not a registered vocabulary.
+Names outside the `issue:` prefix are not registered here, since scope values
+and the action names of {{rar-tuple}} are carried verbatim and are not
+registered vocabularies.
+
+This document reserves one further name outside the `issue:` prefix:
+`authorization_detail`, which {{rar-tuple}} substitutes for the action of an
+authorization details entry that names none.
 
 --- back
 
