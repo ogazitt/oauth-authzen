@@ -751,6 +751,13 @@ An authorization detail tuple governs one cell of one entry. The AS
 reassembles each entry from the cells that were permitted, so that a denied
 cell narrows the entry rather than failing it.
 
+The surviving cells of an entry need not be expressible as one entry, since
+an entry is a product and the survivors need not be a rectangle. Where they
+are not, the AS reassembles them as several entries of the same `type`, which
+is the shape Figure 6 of {{RFC9396}} defines for a client wanting exactly
+this. An AS MUST NOT instead widen the result to the smallest single entry
+containing the survivors, which would return a cell the PDP denied.
+
 Where an entry's `locations` was absent and its tuples were therefore fanned
 across several targets, a cell survives only where it was permitted at every
 surviving target, for the reason given in {{scope-denial}}.
@@ -1306,6 +1313,219 @@ Access Evaluations API: the payload is a bare evaluation with no
   }
 }
 ~~~
+
+## Authorization Details, One Entry
+
+The token request below carries one authorization details entry naming one
+location, one action, and one datatype. Line breaks in the request body are
+for display only, and the value of `authorization_details` is form encoded on
+the wire ({{RFC9396}} Section 2.1); it is shown decoded in the block that
+follows.
+
+~~~ http-message
+POST /token HTTP/1.1
+Host: as.example.com
+Content-Type: application/x-www-form-urlencoded
+
+grant_type=authorization_code
+&code=SplxlOBeZQQYbYS6WxSbIA
+&resource=https%3A%2F%2Fexample.com%2Fcustomers
+&authorization_details=...
+~~~
+
+~~~ json
+[
+  {
+    "type": "customer_information",
+    "locations": [ "https://example.com/customers" ],
+    "actions": [ "read" ],
+    "datatypes": [ "contacts" ]
+  }
+]
+~~~
+
+The entry has one cell, so the batch is the gate tuple and one authorization
+detail tuple. The two name the same URI and are still distinct evaluations:
+the gate asks whether a token may be issued for that audience, and the
+authorization detail tuple asks whether this subject may read contacts at
+that API. `resource.type` is what separates them.
+
+~~~ json
+{
+  "subject": { "type": "user", "id": "U0405936" },
+  "context": {
+    "client_id": "chatterbox",
+    "issuance": {
+      "capabilities": [
+        "urn:ietf:params:authzen:token-issuance"
+      ]
+    }
+  },
+  "evaluations": [
+    {
+      "action": {
+        "name": "issue:access_token:authorization_code"
+      },
+      "resource": {
+        "type": "audience",
+        "id": "https://example.com/customers"
+      }
+    },
+    {
+      "action": { "name": "read:contacts" },
+      "resource": {
+        "type": "customer_information",
+        "id": "https://example.com/customers"
+      }
+    }
+  ],
+  "options": { "evaluations_semantic": "execute_all" }
+}
+~~~
+
+~~~ json
+{
+  "evaluations": [
+    { "decision": true },
+    { "decision": true }
+  ]
+}
+~~~
+
+Every cell was permitted, so the entry reassembles to itself and the AS
+issues a token carrying the requested `authorization_details` unchanged.
+
+## Authorization Details Across Two Targets
+
+Here the request names two issuance targets, and its single entry names two
+locations and two datatypes. One action across two locations and two
+datatypes is four cells, and two targets is two gate tuples, so the batch is
+six evaluations. Gate tuples lead, per {{batch}}.
+
+~~~ json
+[
+  {
+    "type": "customer_information",
+    "locations": [
+      "https://example.com/customers",
+      "https://eu.example.com/customers"
+    ],
+    "actions": [ "read" ],
+    "datatypes": [ "contacts", "photos" ]
+  }
+]
+~~~
+
+No top-level `resource` is shown, because no one resource is shared: each
+evaluation carries its own.
+
+~~~ json
+{
+  "subject": { "type": "user", "id": "U0405936" },
+  "context": {
+    "client_id": "chatterbox",
+    "issuance": {
+      "capabilities": [
+        "urn:ietf:params:authzen:token-issuance"
+      ]
+    }
+  },
+  "evaluations": [
+    {
+      "action": {
+        "name": "issue:access_token:authorization_code"
+      },
+      "resource": {
+        "type": "audience",
+        "id": "https://example.com/customers"
+      }
+    },
+    {
+      "action": {
+        "name": "issue:access_token:authorization_code"
+      },
+      "resource": {
+        "type": "audience",
+        "id": "https://eu.example.com/customers"
+      }
+    },
+    {
+      "action": { "name": "read:contacts" },
+      "resource": {
+        "type": "customer_information",
+        "id": "https://example.com/customers"
+      }
+    },
+    {
+      "action": { "name": "read:photos" },
+      "resource": {
+        "type": "customer_information",
+        "id": "https://example.com/customers"
+      }
+    },
+    {
+      "action": { "name": "read:contacts" },
+      "resource": {
+        "type": "customer_information",
+        "id": "https://eu.example.com/customers"
+      }
+    },
+    {
+      "action": { "name": "read:photos" },
+      "resource": {
+        "type": "customer_information",
+        "id": "https://eu.example.com/customers"
+      }
+    }
+  ],
+  "options": { "evaluations_semantic": "execute_all" }
+}
+~~~
+
+The PDP permits both gates and denies one cell, photos at the European
+location.
+
+~~~ json
+{
+  "evaluations": [
+    { "decision": true },
+    { "decision": true },
+    { "decision": true },
+    { "decision": true },
+    { "decision": true },
+    {
+      "decision": false,
+      "context": { "reason_admin": { "403": "residency R-4" } }
+    }
+  ]
+}
+~~~
+
+Three of the four cells survive, and three cells are not a product, so the
+entry cannot reassemble into one. The AS returns two entries of the same
+type, as {{rar-denial}} requires:
+
+~~~ json
+[
+  {
+    "type": "customer_information",
+    "locations": [ "https://example.com/customers" ],
+    "actions": [ "read" ],
+    "datatypes": [ "contacts", "photos" ]
+  },
+  {
+    "type": "customer_information",
+    "locations": [ "https://eu.example.com/customers" ],
+    "actions": [ "read" ],
+    "datatypes": [ "contacts" ]
+  }
+]
+~~~
+
+Both gates permitted, so both targets remain in the audience. Had the second
+gate been denied instead, {{gate-denial}} would have removed that target and
+the AS would have disregarded both evaluations naming it, denied or not,
+leaving the first entry alone and no second entry at all.
 
 # Relationship to Companion Documents {#companions}
 
