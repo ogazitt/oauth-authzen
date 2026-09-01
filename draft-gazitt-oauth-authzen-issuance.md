@@ -48,6 +48,7 @@ informative:
   RFC8707:
   RFC9068:
   RFC9470:
+  RFC9700:
   RFC8126:
   RFC3553:
   RFC6755:
@@ -88,10 +89,10 @@ how the inputs to a token issuance request map onto AuthZEN's mandatory
 five-tuple, how a Policy Decision Point response may shape the issued token,
 and how the two parties discover each other's capabilities.
 
-The mapping is complete for grants whose request names a single party and a
-single target, including the authorization code and client credentials
-grants. Companion documents bind the grant families that add structure this
-document does not model, the token exchange family first among them.
+The mapping is complete for grants whose request names a single party,
+including the authorization code and client credentials grants. Companion
+documents bind the grant families that add structure this document does not
+model, the token exchange family first among them.
 
 --- middle
 
@@ -326,9 +327,9 @@ external identity to a local account - that transformation MUST be applied
 *before* the evaluation request is constructed, so that the identifier the
 PDP authorizes is the identifier the token carries.
 
-## Resource
+## Resource {#resource}
 
-`resource.type` MUST be `audience`. `resource.id` MUST be the issuance
+`resource.type` MUST be `audience`. Each `resource.id` MUST be an issuance
 target.
 
 A single registered type is used rather than a type per kind of target
@@ -337,10 +338,47 @@ the *protocol role* the target plays, not a guess at its nature. Policies
 written against `audience` port across deployments; policies written against
 locally invented type names do not.
 
-Where the request carries an explicit target - an `audience` parameter, or a
-`resource` parameter in the sense of {{RFC8707}} - that value determines
-`resource.id`. Where it does not, the AS's default audience for the grant
-determines it.
+The **requested targets** of a request are the values it carries in a
+`resource` parameter in the sense of {{RFC8707}}, in an `audience` parameter
+where the binding defines one, or in both. Where the request carries neither,
+the AS's default audience for the grant is the sole requested target.
+
+### One Target Is the Preferred Shape {#one-target}
+
+A request SHOULD name a single target.
+
+This profile does not introduce that preference; it inherits it.
+{{RFC8707}} Section 5 encourages using only a single `resource` parameter,
+observing that a token valid at several protected resources "can be used by
+any one of those resources to access any of the others", so that multiple
+audiences presuppose a high degree of trust among the recipients.
+{{RFC9700}} Section 4.10.2 describes the same practice from the other
+direction: an access token is bound to a specific resource server, so a
+client reaching several obtains a token for each.
+
+An AS MAY reject a request naming more than one target. {{RFC8707}} Section 5
+anticipates this, noting that an authorization server may be unwilling or
+unable to fulfill such a request. Where the AS does reject one, the
+requirements of {{composition}} do not arise.
+
+### Several Targets {#several-targets}
+
+A request may nonetheless name more than one: {{RFC8707}} Section 2 permits
+the `resource` parameter to appear multiple times, and {{RFC8693}} Section 2.1
+permits the same of `audience` and `resource` in a token exchange request. An
+AS that accepts such a request has more than one issuance target, and whether
+the subject may reach each of them is a separate question.
+
+Because the information model of {{AUTHZEN}} carries exactly one resource per
+evaluation, a request naming several targets MUST be expressed as several
+evaluations rather than as one evaluation naming a compound target. The
+tuples of {{gate-and-scope}} are formed once for each requested target, and
+`resource` is carried on the individual evaluation object, overriding the
+top-level default as {{AUTHZEN}} Section 7.1.1 provides.
+
+This is also what makes the `audience` constraining key of {{shaping}}
+reachable. That key narrows a *set* of targets, and a set can only be
+narrowed if the request was able to put more than one member in it.
 
 ## Actions: Gate Tuples and Scope Tuples {#gate-and-scope}
 
@@ -431,8 +469,9 @@ decides what that means in its own policy vocabulary.
 An AS MUST include a gate tuple in every evaluation request it forms under
 this profile. A binding MAY require more than one ({{composition}}).
 
-The floor is therefore two evaluations for a request naming scopes, and one
-for a request naming none. Deployments are expected to write issuance policy
+The floor is therefore two evaluations for a single-target request naming
+scopes, and one for a single-target request naming none. Deployments are
+expected to write issuance policy
 for every token type and grant combination their AS can produce; a PDP that
 advertises support for this profile renders a decision on any registered gate
 action it is sent ({{pdp-capabilities}}), so an AS never has to predict which
@@ -484,36 +523,77 @@ response.
 
 ## Batching and Result Composition {#composition}
 
+### Forming the Batch {#batch}
+
+For each requested target ({{resource}}), the AS forms:
+
+- a gate tuple ({{gate-tuple}}), and
+- one scope tuple ({{scope-tuple}}) for each requested scope,
+
+each carrying that target as its `resource`.
+
+This document produces one gate tuple per target. Bindings may produce more:
+the token exchange family evaluates the authority of the requesting party
+separately from that of the subject, and so produces two per target.
+
 Where a request yields more than one tuple, the AS MUST use the Access
 Evaluations API of {{AUTHZEN}} with `options.evaluations_semantic` set to
 `execute_all`, and MUST place gate tuples at the leading indices of the
-`evaluations` array, beginning at index 0.
+`evaluations` array, beginning at index 0. The response lists decisions in
+request order ({{AUTHZEN}} Section 7.2), so the AS recovers which target and
+which scope each decision belongs to by position.
 
-A request reduces to a single evaluation only when it names no scopes, in
-which case the gate tuple stands alone.
+A request reduces to a single evaluation only when it names one target and no
+scopes, in which case the gate tuple stands alone.
 
-This document produces exactly one gate tuple. Bindings may produce more:
-the token exchange family evaluates the authority of the requesting party
-separately from that of the subject, and so produces two.
+`execute_all` is required because a denial must be able to narrow the grant
+rather than fail it. {{AUTHZEN}} evaluation semantics are selected per request
+and cannot mark an individual batch item as a precondition, so the composition
+rules below are enforced by the AS. This is well within the PEP's role - the
+AS is already interpreting per-item results in order to downscope.
 
-`execute_all` is required because scope denials must be able to narrow the
-grant rather than fail it: an AS that requested three scopes and received
-two permits issues a token bearing two scopes, and reports the reduced set
-in the `scope` response parameter as {{RFC6749}} already requires.
+### A Denied Gate Removes a Target {#gate-denial}
 
-A gate denial, by contrast, is fatal. If any leading gate tuple has a
-decision of `false`, the AS MUST fail the request and MUST NOT issue a
-token, irrespective of the other results.
+A gate tuple governs one target. Where its decision is `false`, that target
+is removed from the request: the AS MUST NOT name it in the audience of any
+token it issues, and MUST disregard the scope tuples formed for it.
 
-{{AUTHZEN}} evaluation semantics are selected per request and cannot mark an
-individual batch item as a precondition, so this composition rule is
-enforced by the AS. This is well within the PEP's role - the AS is already
-interpreting per-item results in order to downscope.
+Where every target is removed, the AS MUST fail the request and MUST NOT
+issue a token. For token exchange requests the appropriate error is
+`invalid_target` ({{RFC8693}}).
 
-Where the request named scopes and every scope tuple is denied, the AS MUST
-fail the request rather than issue a token with an empty scope set, even
-though the gate permitted it. A permitted gate authorizes a token of that
-kind to exist; it does not authorize an empty one.
+An AS MAY instead fail the whole request when any gate is denied.
+{{one-target}} already permits it to refuse a multi-target request outright,
+and an AS unwilling to issue a token for a subset of what was asked for is
+exercising the same discretion later.
+
+Where one target was requested, both rules coincide: a denied gate fails the
+request.
+
+### A Denied Scope Must Narrow Every Target {#scope-denial}
+
+A scope tuple governs one scope at one target. A scope is carried in the
+issued token only where it was permitted at *every* surviving target. The AS
+reports the reduced set in the `scope` response parameter, as {{RFC6749}}
+already requires.
+
+This intersection is not introduced here. {{RFC9068}} Section 2.2.3 requires
+that "all the individual scope strings in the `scope` claim MUST have meaning
+for the resources indicated in the `aud` claim"; the plural is the operative
+part. Section 3 of the same document requires that an AS "MUST NOT issue a
+JWT access token if the authorization granted by the token would be
+ambiguous". A scope permitted at one audience and denied at another, carried
+in a token naming both, is that ambiguity exactly: no recipient can determine
+whether the scope was granted for itself or for the other.
+
+An AS that wants a scope to survive at one target and not another issues a
+token per target, which is the shape {{one-target}} prefers in the first
+place.
+
+Where the request named scopes and none survive, the AS MUST fail the request
+rather than issue a token with an empty scope set, even though the gate
+permitted it. A permitted gate authorizes a token of that kind to exist; it
+does not authorize an empty one.
 
 # Processing the Evaluation Response {#shaping}
 
@@ -617,17 +697,20 @@ mint an already-expired token.
 ### `audience`
 
 An array of strings, narrowing the set of targets for which the token may be
-issued. Each value MUST appear among the `resource.id` values of the
-permitted evaluations.
+issued. Every value MUST be the `resource.id` of the evaluation on which it
+was returned, so the array is either that single target or empty. An
+evaluation is a decision about one target, and this key lets a PDP withhold
+that target while still permitting the request; it does not let one
+evaluation speak for another.
 
-The value is an array even when it names a single target. This is the key
-where the single-type rule above is most visible, and where it also makes
-the aggregation rule of {{aggregation}} state plainly: intersection is an
-operation over sets. An AS remains free to render a single-element set as a
-bare string in the token's own `aud` claim, where {{RFC7519}} permits it.
+An empty array therefore withdraws the target that evaluation was about,
+with the same effect as the denied gate of {{gate-denial}}. Where no target
+survives, the AS MUST fail the request; for token exchange requests the
+appropriate error is `invalid_target` ({{RFC8693}}).
 
-Where the resulting set is empty, the AS MUST fail the request; for token
-exchange requests the appropriate error is `invalid_target` ({{RFC8693}}).
+The value is an array even when it names a single target, per the
+single-type rule above. An AS remains free to render a single-element set as
+a bare string in the token's own `aud` claim, where {{RFC7519}} permits it.
 
 ### `authorization_details`
 
@@ -720,8 +803,8 @@ An AS MUST therefore compose per-item shaping as follows:
 | Key | Aggregation |
 |---|---|
 | `token_lifetime` | Minimum over permitted items |
-| `granted_scope` | Union over permitted items, intersected with what the AS would otherwise grant |
-| `audience` | Intersection over permitted items |
+| `granted_scope` | Union over permitted items, intersected with what the AS would otherwise grant and with the surviving scopes of {{scope-denial}} |
+| `audience` | The surviving targets of {{gate-denial}}, less any target whose item returned an empty array |
 | `authorization_details` | Union of entries, then the per-entry structural check |
 | `claims` | Merge; see below |
 | `crit` | Union |
@@ -1051,9 +1134,9 @@ Access Evaluations API: the payload is a bare evaluation with no
 
 This document defines the mapping and the shaping vocabulary, and registers
 short names for the grant types listed in {{iana-actions}}. For a grant whose
-request names a single party and a single target, that is everything an AS
-needs; the client credentials and authorization code examples above are
-complete, and no companion document is required to implement them.
+request names a single party, that is everything an AS needs; the client
+credentials and authorization code examples above are complete, and no
+companion document is required to implement them.
 
 A binding is required where a grant family adds structure this document does
 not model. The token exchange family adds two such things: a request names a
