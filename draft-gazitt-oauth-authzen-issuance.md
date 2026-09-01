@@ -644,6 +644,29 @@ and cannot mark an individual batch item as a precondition, so the composition
 rules below are enforced by the AS. This is well within the PEP's role - the
 AS is already interpreting per-item results in order to downscope.
 
+### The Batch Carries Only the Residue {#residue}
+
+Before forming the batch, an AS MUST apply the reductions it is itself
+authoritative for, and MUST form tuples only for what survives them.
+
+Those reductions already exist. {{RFC6749}} Section 3.3 permits an AS to
+issue a token whose scope is narrower than the one requested. {{RFC9396}}
+Section 6 is stronger still: the AS "checks whether the underlying grant ...
+or the client's policy ... allows the issuance of an access token with the
+requested authorization details", and refuses with
+`invalid_authorization_details` where it does not. Neither is introduced
+here; this profile only fixes their order relative to the PDP call.
+
+The reason to fix that order is {{no-broadening}}. A PDP may narrow what is
+issued and may not broaden it, so a permit on something the AS had already
+decided to refuse cannot change the outcome. Asking anyway writes a decision
+into the PDP's record that corresponds to no issued authority, which is
+worse than not asking: the two logs the profile is otherwise careful to let
+an operator join ({{correlation}}) stop agreeing.
+
+The batch therefore expresses the request as the AS is prepared to grant it,
+and the PDP narrows from there.
+
 ### A Denied Gate Removes a Target {#gate-denial}
 
 A gate tuple governs one target. Where its decision is `false`, that target
