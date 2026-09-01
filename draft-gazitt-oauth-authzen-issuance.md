@@ -47,6 +47,7 @@ informative:
   RFC8176:
   RFC8707:
   RFC9068:
+  RFC9126:
   RFC9470:
   RFC9700:
   RFC8126:
@@ -667,6 +668,25 @@ an operator join ({{correlation}}) stop agreeing.
 The batch therefore expresses the request as the AS is prepared to grant it,
 and the PDP narrows from there.
 
+### The Batch Is Bounded {#bounded}
+
+What remains after that reduction is still sized by the client. An AS MUST
+bound the number of evaluations it will form for a single token request, and
+MUST reject a request that would exceed the bound.
+
+This document does not specify the value. {{RFC9126}} Section 2.3 is the
+precedent: it directs an AS to answer an oversized pushed request with 413
+and an over-frequent client with 429, and names no number for either. The
+bound that is right for a deployment depends on its PDP, and a number written
+here would be wrong somewhere.
+
+The error is the one belonging to the parameter that overran the bound:
+`invalid_authorization_details` ({{RFC9396}} Section 6), `invalid_scope`
+({{RFC6749}}), or, for token exchange requests, `invalid_target`
+({{RFC8693}}). Where more than one contributed, any of them is correct.
+`invalid_request` is not, because it does not tell the client what to
+shorten.
+
 ### A Denied Gate Removes a Target {#gate-denial}
 
 A gate tuple governs one target. Where its decision is `false`, that target
@@ -1082,6 +1102,8 @@ allowing a property of the enforcement point to influence policy.
 | All scope tuples denied | Fail the request; `invalid_scope` |
 | Some scope tuples denied | Issue with the permitted subset; report via `scope` |
 | Target denied or empty audience set | `invalid_target` ({{RFC8693}}) |
+| No authorization detail entry survives | `invalid_authorization_details` ({{RFC9396}}) |
+| Batch would exceed the bound of {{bounded}} | The error of the parameter that overran it |
 | Shaping key violates {{no-broadening}} | Treat as denial; fail the request |
 | Unknown `crit` member | Treat as denial; fail the request |
 | PDP unreachable or malformed response | Fail closed; do not issue |
@@ -1332,7 +1354,7 @@ than to compete, and aligning the two is expected work.
 
 # Security Considerations
 
-## Fail Closed
+## Fail Closed {#fail-closed}
 
 Every failure of the profile - an unreachable PDP, a malformed response, a
 shaping value that violates {{no-broadening}}, an unrecognized `crit`
@@ -1343,6 +1365,31 @@ Because the PDP is on the token issuance path, its availability becomes the
 AS's availability. Deployments should consider caching of decisions, local
 policy fallback that is explicitly configured rather than implicit, and the
 latency budget of the token endpoint.
+
+## Request Amplification {#amplification}
+
+One token request becomes many evaluations. A client controls the scopes it
+asks for, the targets it names, and the size of every `authorization_details`
+entry, and {{rar-tuple}} turns each entry into the product of its common data
+fields. That product is the legitimate meaning of a RAR entry, not an abuse of
+it; the feature becomes a burden only when it is used to excess. An AS that
+does not bound the fan-out lets an authenticated but unprivileged client
+impose disproportionate work on the PDP, and through the PDP on every other
+tenant of it.
+
+{{residue}} and {{bounded}} are the two controls, and they are independent of
+each other. The first removes what the AS was never going to grant; the second
+caps what remains. An AS SHOULD also track fan-out per client over time. A
+per-request cap does not bound the rate at which maximum-size requests can be
+submitted, and a rate limit does not bound the cost of a single request;
+neither substitutes for the other.
+
+{{AUTHZEN}} Section 11.7 places a matching obligation on the PDP, which
+"SHOULD apply reasonable protections to avoid common attacks tied to request
+payload size, the number of requests ... or memory consumption". An AS MUST
+NOT rely on it. Those protections take the form of the PDP shedding requests,
+and a request the PDP sheds is one the AS must fail closed on ({{fail-closed}}),
+so leaning on them converts an amplification attack into an outage.
 
 ## The Policy Decision Point as a Trust Dependency
 
