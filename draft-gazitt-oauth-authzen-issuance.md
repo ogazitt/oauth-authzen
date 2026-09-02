@@ -921,10 +921,17 @@ Replacement admits arbitrary structured narrowing, which is what a PDP
 filtering rich authorization requests needs, but "narrower" is not decidable
 for arbitrary authorization detail types. This profile therefore requires:
 
-* **Structural check, always.** Every returned entry MUST have a `type`
-  present in the request, and its `locations`, `actions`, and `datatypes`
-  members MUST be subsets of the corresponding members of the request entry
-  of that type. The AS MUST reject the decision otherwise.
+* **Structural check, always.** Every returned entry MUST be covered by a
+  single entry of the request: there MUST exist a request entry with the same
+  `type` whose `locations`, `actions`, and `datatypes` members are supersets
+  of the returned entry's. Several returned entries MAY be covered by the same
+  request entry, which is the shape {{rar-denial}} produces. The AS MUST
+  reject the decision if any returned entry is covered by no request entry, or
+  is covered only by several of them taken together. Where a request carries
+  `read` on `contacts` in one entry and `write` on `photos` in another, as
+  Figure 6 of {{RFC9396}} does, an entry returning `read` on `photos` is
+  within the union of the two and within neither, and names a permission the
+  client did not request.
 * **Type-specific members.** For members beyond those defined in
   {{RFC9396}}, the AS MUST either apply a validator specific to that
   authorization details type or reject the decision. An AS MUST NOT pass
