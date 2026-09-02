@@ -637,12 +637,7 @@ Authorization: Bearer <token>
   },
   "context": {
     "client_id": "gateway-client",
-    "may_act": { "sub": "spiffe://cluster/ns/prod/sa/gateway" },
-    "issuance": {
-      "capabilities": [
-        "urn:ietf:params:authzen:token-issuance"
-      ]
-    }
+    "may_act": { "sub": "spiffe://cluster/ns/prod/sa/gateway" }
   },
   "evaluations": [
     {
@@ -708,14 +703,7 @@ An ID-JAG request naming a resource but no scopes. Two gate tuples at level
 
 ~~~ json
 {
-  "context": {
-    "client_id": "chatterbox-idp-7f3a",
-    "issuance": {
-      "capabilities": [
-        "urn:ietf:params:authzen:token-issuance"
-      ]
-    }
-  },
+  "context": { "client_id": "chatterbox-idp-7f3a" },
   "evaluations": [
     {
       "subject":  { "type": "user", "id": "U0405936" },

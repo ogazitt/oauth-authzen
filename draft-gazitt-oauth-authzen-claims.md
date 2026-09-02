@@ -310,9 +310,7 @@ being searched for is omitted, and is ignored if present.
 ## Context {#search-context}
 
 An AS SHOULD convey in the search `context` the same values it conveys on the
-evaluation request under {{ISSUANCE}}, other than the capability declaration
-of that document, which concerns response shaping and has no meaning on a
-search. It MAY additionally convey:
+evaluation request under {{ISSUANCE}}. It MAY additionally convey:
 
 | Key | Type | Value |
 |---|---|---|
@@ -592,12 +590,7 @@ send them concurrently. The evaluation:
   },
   "context": {
     "client_id": "chatterbox",
-    "acr": "urn:example:loa:2",
-    "issuance": {
-      "capabilities": [
-        "urn:ietf:params:authzen:token-issuance"
-      ]
-    }
+    "acr": "urn:example:loa:2"
   },
   "evaluations": [
     {
