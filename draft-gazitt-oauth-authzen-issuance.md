@@ -102,7 +102,7 @@ This document defines a profile for using the OpenID AuthZEN Authorization
 API to externalize that decision to a Policy Decision Point. It specifies
 how the inputs to a token issuance request map onto AuthZEN's mandatory
 five-tuple, how a Policy Decision Point response may shape the issued token,
-and how the two parties discover each other's capabilities.
+and how a Policy Decision Point advertises support for the profile.
 
 The mapping is complete for grants whose request names a single party,
 including the authorization code and client credentials grants. Companion
@@ -588,7 +588,7 @@ scopes, and one for a single-target request naming none. Deployments are
 expected to write issuance policy
 for every token type and grant combination their AS can produce; a PDP that
 advertises support for this profile renders a decision on any registered gate
-action it is sent ({{pdp-capabilities}}), so an AS never has to predict which
+action it is sent ({{discovery}}), so an AS never has to predict which
 combinations a given PDP has policy for.
 
 ## Context
@@ -938,13 +938,36 @@ the `crit` header parameter of {{RFC7515}}: an AS that does not understand
 and apply a named member MUST treat the permit as a denial.
 
 `crit` exists because the static classification in this section is
-incomplete. An additive claim is normally safe to ignore, except where the
-claim *is* a constraint that a downstream enforcement point is expected to
-apply - a ceiling asserted by policy, for instance. Dropping such a claim
-broadens what the token effectively authorizes.
+incomplete. A member of `claims` is normally safe to drop, and is
+occasionally the constraint that made the permit safe.
 
-A PDP MUST NOT include `crit` unless the AS has declared support for the
-corresponding capability ({{discovery}}).
+Consider a PDP that permits a payment and returns:
+
+~~~ json
+{
+  "decision": true,
+  "context": {
+    "issuance": {
+      "claims": { "max_transfer_eur": 500 },
+      "crit": [ "max_transfer_eur" ]
+    }
+  }
+}
+~~~
+
+The ceiling is enforced by the resource server, which reads it from the
+token. An AS that drops the claim issues a token that says nothing about a
+limit: the resource server has nothing to enforce, and a decision that
+authorized 500 euros has become an authorization for any amount. No
+statically classified key catches this, because the scope, lifetime,
+audience, and authorization details are all exactly what the PDP allowed and
+the claim is the only thing that made them safe.
+
+An AS may drop a claim for ordinary reasons, most often because it emits only
+claim names on an allowlist. The vocabulary is domain-specific, so neither
+party can settle the question in advance, and the AS learns at response time
+that it cannot carry the claim. `crit` is what makes that a denial rather
+than a silent broadening.
 
 ## Decorating Keys
 
@@ -1019,8 +1042,6 @@ token-level shaping on a single item to avoid the situation.
 
 # Discovery {#discovery}
 
-## Policy Decision Point Capabilities {#pdp-capabilities}
-
 A PDP supporting this profile MUST advertise the capability URN registered
 in {{iana-capability}} in the `capabilities` member of its metadata document,
 retrievable at `/.well-known/authzen-configuration`:
@@ -1084,54 +1105,6 @@ representative subject and an `audience` resource returns the action names
 policy would permit, and gate actions among them indicate the issuances the
 deployment is prepared for. This is a deployment-time check, not a
 per-request one, and nothing in this profile requires it.
-
-## Policy Enforcement Point Capabilities
-
-An AS MAY declare the capabilities it understands in the request context,
-using the same URNs:
-
-~~~ json
-{
-  "subject":  { "type": "user", "id": "U0405936" },
-  "action":   { "name": "issue:access_token:authorization_code" },
-  "resource": {
-    "type": "audience",
-    "id": "https://api.example/files"
-  },
-  "context": {
-    "issuance": {
-      "capabilities": [
-        "urn:ietf:params:authzen:token-issuance"
-      ]
-    }
-  }
-}
-~~~
-
-Capability URNs are reused on both legs rather than introducing a list of
-key names, so that extensions obtain granularity from the registry rather
-than from a second, parallel mechanism.
-
-The declaration is an optimization, not a safety mechanism, and this is why
-it is OPTIONAL. Safety is already unilateral: a PDP that marks a key `crit`
-obliges any AS implementing this profile to fail closed if it does not
-understand it ({{mtu}}), and an AS that does not implement this profile
-ignores the `issuance` envelope entirely, `crit` included. Withholding `crit`
-from an undeclared AS therefore protects nothing. What the declaration buys a
-PDP is the ability to choose a decision the AS can actually enforce -
-denying, say, rather than permitting subject to a constraint it knows will be
-discarded. That is worth having as extensions add vocabulary, and worth
-nothing in a deployment using only the keys defined here.
-
-An AS is not otherwise required to announce itself. The behaviors this
-profile depends on - treating a gate denial as fatal, narrowing to the
-permitted scope subset - are constitutive of implementing it rather than
-features an AS might separately lack, and {{AUTHZEN}} already assumes a PDP
-trusts its PEP to enforce what it decides.
-
-The declaration describes the AS's implementation and MUST NOT be treated as
-an authorization input. A PDP that varied its decision based on it would be
-allowing a property of the enforcement point to influence policy.
 
 # Error Mapping
 
@@ -1198,14 +1171,7 @@ Authorization: Bearer <token>
     "type": "audience",
     "id": "https://telemetry.example"
   },
-  "context": {
-    "client_id": "svc-reporting",
-    "issuance": {
-      "capabilities": [
-        "urn:ietf:params:authzen:token-issuance"
-      ]
-    }
-  },
+  "context": { "client_id": "svc-reporting" },
   "evaluations": [
     {
       "action": {
@@ -1248,12 +1214,7 @@ allows the AS to issue the permitted subset of the rest, per
   },
   "context": {
     "client_id": "chatterbox",
-    "acr": "urn:example:loa:2",
-    "issuance": {
-      "capabilities": [
-        "urn:ietf:params:authzen:token-issuance"
-      ]
-    }
+    "acr": "urn:example:loa:2"
   },
   "evaluations": [
     {
@@ -1315,13 +1276,7 @@ Access Evaluations API: the payload is a bare evaluation with no
     "type": "audience",
     "id": "https://telemetry.example"
   },
-  "context": {
-    "issuance": {
-      "capabilities": [
-        "urn:ietf:params:authzen:token-issuance"
-      ]
-    }
-  }
+  "context": { "client_id": "svc-reporting" }
 }
 ~~~
 
@@ -1377,12 +1332,7 @@ that API. `resource.type` is what separates them.
 {
   "subject": { "type": "user", "id": "U0405936" },
   "context": {
-    "client_id": "chatterbox",
-    "issuance": {
-      "capabilities": [
-        "urn:ietf:params:authzen:token-issuance"
-      ]
-    }
+    "client_id": "chatterbox"
   },
   "evaluations": [
     {
@@ -1446,12 +1396,7 @@ evaluation carries its own.
 {
   "subject": { "type": "user", "id": "U0405936" },
   "context": {
-    "client_id": "chatterbox",
-    "issuance": {
-      "capabilities": [
-        "urn:ietf:params:authzen:token-issuance"
-      ]
-    }
+    "client_id": "chatterbox"
   },
   "evaluations": [
     {
