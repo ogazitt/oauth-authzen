@@ -729,6 +729,38 @@ and claims computed against another. An AS keeps the window narrow by
 issuing the calls concurrently ({{ordering}}) and by bounding any cache
 lifetime to the lifetime of the tokens the results are rendered into.
 
+## Provenance and Freshness {#provenance}
+
+A claim rendered by this profile carries no indication that it was rendered
+by this profile. A resource server reading `groups` cannot distinguish a value
+the AS obtained from a PDP at issuance from one cached at session
+establishment or copied from an upstream token, and those have different
+revocation behavior. What the profile improves is the AS's side of it: the
+value now comes from a named PDP through a specified API rather than from an
+unspecified directory, database, or hook. The token records none of that.
+
+Nor is the instant at which the underlying state held establishable from the
+token. An AS asserting that these were the subject's groups at 14:02 is making
+two claims of different kinds in one artifact. The first, that it issued the
+token, is authoritative because it issued it. The second is an account of what
+a third party's state contained at a moment only the AS observed, and the AS
+is the party whose caching and propagation behavior a resource server would be
+trying to evaluate. Trusting an issuer does not make it a witness to its own
+freshness.
+
+This document therefore defines no provenance or freshness claim. A value the
+AS asserts about its own timeliness would be relied on as though it were
+verifiable, and it would not be. Meeting the requirement takes an attestation
+from the party that holds the state, which is a signing relationship between
+that party and the resource server rather than a claim an AS can mint.
+
+The property is not created here. It holds for every authorization claim in an
+{{RFC9068}} access token, and for `auth_time`, `acr`, and `amr` in an ID
+Token, all of which are the issuer's account of an event only the issuer
+observed. Where a resource server needs a decision against current state
+rather than an account of past state, the surface for it is the one named in
+{{token-size}}: call the PDP at request time, with the resource in hand.
+
 ## Token Size {#token-size}
 
 A claim with thousands of members produces a token that may exceed the
