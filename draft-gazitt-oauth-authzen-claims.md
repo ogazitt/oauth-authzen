@@ -862,3 +862,16 @@ Thanks to the participants in the OpenID AuthZEN interoperability events,
 whose December 2025 identity provider scenario demonstrated AuthZEN search
 operations populating token claims, and to the members of the AuthZEN Working
 Group and the OAuth Working Group.
+
+# Document History
+{:numbered="false" removeinrfc="true"}
+
+## Since -00
+{:numbered="false"}
+
+* Added {{provenance}}, stating that an enriched claim carries no indication
+  of its own provenance and that the instant at which the underlying state
+  held is not establishable from the token.
+* Removed the search context's carve-out for the enforcement point capability
+  declaration, and the declaration itself from the example, neither of which
+  {{ISSUANCE}} defines any longer.

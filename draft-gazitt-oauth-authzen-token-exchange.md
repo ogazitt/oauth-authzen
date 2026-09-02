@@ -872,3 +872,19 @@ deal to the care with which those documents model their inputs.
 
 Thanks to the members of the OAuth Working Group and the OpenID AuthZEN
 Working Group.
+
+# Document History
+{:numbered="false" removeinrfc="true"}
+
+## Since -00
+{:numbered="false"}
+
+* Authorization details are narrowed by the cell rather than by the scope
+  tuple, following the authorization detail tuple {{ISSUANCE}} now defines.
+* {{two-level}} places authorization detail tuples at level 2 and says which
+  targets are substituted for an entry that omits `locations`.
+* A denied scope tuple at level 2 and a denied authorization detail cell at
+  level 2 narrow different things, and the scope intersection is justified by
+  what an ID-JAG loses at redemption rather than by {{RFC9068}}.
+* Removed the enforcement point capability declaration from the examples,
+  which {{ISSUANCE}} no longer defines.
