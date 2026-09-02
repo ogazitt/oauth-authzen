@@ -45,6 +45,7 @@ normative:
 informative:
   RFC8126:
   RFC8705:
+  RFC9068:
   RFC9449:
   I-D.ietf-oauth-identity-chaining:
   I-D.ietf-oauth-identity-assertion-authz-grant:
@@ -331,8 +332,26 @@ producing tuples at both:
   level-2 resources.
 
 A denial at level 1 is a refusal to delegate into that trust domain and is
-fatal. A denial at level 2 narrows the resource or scope set the issued
-artifact may name.
+fatal.
+
+A denial at level 2 narrows what the issued artifact may name, and how
+depends on which tuple was denied. A denied scope tuple removes that scope
+from the artifact entirely, even where other level-2 resources permitted it,
+which is the intersection {{ISSUANCE}} requires. A denied authorization
+detail cell narrows only its own entry at its own location, because a cell
+names the location it applies to.
+
+The intersection is forced here by redemption rather than by {{RFC9068}}. An
+ID-JAG carries the level-2 resources in a `resource` claim and its scopes in
+a flat `scope` claim, with no pairing between them, and
+{{I-D.ietf-oauth-identity-assertion-authz-grant}} has the resource
+authorization server process both and grant any subset it decides on. A
+scope the identity provider's PDP permitted at one resource and denied at
+another would therefore reach redemption with the denial no longer visible,
+and could be granted for the resource that denied it. An AS whose deployment
+needs a scope to survive at one level-2 resource and not another issues one
+ID-JAG per resource, or expresses the distinction in
+`authorization_details`, where the location is part of the cell.
 
 Where the request names no {{RFC8707}} resource, level 2 does not exist and
 the evaluation is single-level.
