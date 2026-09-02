@@ -4,8 +4,8 @@
 
 Web Authorization Protocol                                     O. Gazitt
 Internet-Draft                                               Independent
-Intended status: Standards Track                          17 August 2026
-Expires: 18 February 2027
+Intended status: Standards Track                        2 September 2026
+Expires: 6 March 2027
 
 
               AuthZEN Profile for OAuth 2.0 Token Issuance
@@ -23,13 +23,13 @@ Abstract
    Authorization API to externalize that decision to a Policy Decision
    Point.  It specifies how the inputs to a token issuance request map
    onto AuthZEN's mandatory five-tuple, how a Policy Decision Point
-   response may shape the issued token, and how the two parties discover
-   each other's capabilities.
+   response may shape the issued token, and how a Policy Decision Point
+   advertises support for the profile.
 
-   The mapping is complete for grants whose request names a single party
-   and a single target, including the authorization code and client
-   credentials grants.  Companion documents bind the grant families that
-   add structure this document does not model, the token exchange family
+   The mapping is complete for grants whose request names a single
+   party, including the authorization code and client credentials
+   grants.  Companion documents bind the grant families that add
+   structure this document does not model, the token exchange family
    first among them.
 
 About This Document
@@ -63,7 +63,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 18 February 2027.
+   This Internet-Draft will expire on 6 March 2027.
 
 Copyright Notice
 
@@ -94,14 +94,23 @@ Table of Contents
    5.  Forming the Evaluation Request
      5.1.  Subject
      5.2.  Resource
-     5.3.  Actions: Gate Tuples and Scope Tuples
+       5.2.1.  One Target Is the Preferred Shape
+       5.2.2.  Several Targets
+     5.3.  Actions: Gate, Scope, and Authorization Detail Tuples
        5.3.1.  Gate Tuple
        5.3.2.  Action Name Portability
        5.3.3.  Scope Tuple
-       5.3.4.  Gate Tuples Are Always Present
+       5.3.4.  Authorization Detail Tuple
+       5.3.5.  Gate Tuples Are Always Present
      5.4.  Context
        5.4.1.  Correlation
      5.5.  Batching and Result Composition
+       5.5.1.  Forming the Batch
+       5.5.2.  The Batch Carries Only the Residue
+       5.5.3.  The Batch Is Bounded
+       5.5.4.  A Denied Gate Removes a Target
+       5.5.5.  A Denied Scope Must Narrow Every Target
+       5.5.6.  A Denied Cell Narrows an Entry
    6.  Processing the Evaluation Response
      6.1.  The issuance Envelope
      6.2.  Mandatory-to-Understand
@@ -116,20 +125,21 @@ Table of Contents
        6.5.1.  claims
      6.6.  Aggregation Across a Batch
    7.  Discovery
-     7.1.  Policy Decision Point Capabilities
-     7.2.  Policy Enforcement Point Capabilities
    8.  Error Mapping
    9.  Examples
      9.1.  Client Credentials, One Scope
      9.2.  Authorization Code, Downscoping
      9.3.  No Scopes Requested
+     9.4.  Authorization Details, One Entry
+     9.5.  Authorization Details Across Two Targets
    10. Relationship to Companion Documents
      10.1.  Related Work
    11. Security Considerations
      11.1.  Fail Closed
-     11.2.  The Policy Decision Point as a Trust Dependency
-     11.3.  Integrity of the Decision Response
-     11.4.  Privacy
+     11.2.  Request Amplification
+     11.3.  The Policy Decision Point as a Trust Dependency
+     11.4.  Integrity of the Decision Response
+     11.5.  Privacy
    12. IANA Considerations
      12.1.  Registration Dependencies
      12.2.  AuthZEN Policy Decision Point Capability
@@ -139,6 +149,8 @@ Table of Contents
      13.1.  Normative References
      13.2.  Informative References
    Acknowledgments
+   Document History
+     Since -00
    Author's Address
 
 1.  Introduction
@@ -389,8 +401,10 @@ Table of Contents
 
 5.2.  Resource
 
-   resource.type MUST be audience. resource.id MUST be the issuance
-   target.
+   For the gate and scope tuples of Section 5.3, resource.type MUST be
+   audience and each resource.id MUST be an issuance target.
+   Authorization detail tuples name their resource differently, as
+   Section 5.3.4 sets out.
 
    A single registered type is used rather than a type per kind of
    target (service, trust domain, peer authorization server) because the
@@ -398,12 +412,56 @@ Table of Contents
    nature.  Policies written against audience port across deployments;
    policies written against locally invented type names do not.
 
-   Where the request carries an explicit target - an audience parameter,
-   or a resource parameter in the sense of [RFC8707] - that value
-   determines resource.id.  Where it does not, the AS's default audience
-   for the grant determines it.
+   The *requested targets* of a request are the values it carries in a
+   resource parameter in the sense of [RFC8707], in an audience
+   parameter where the binding defines one, or in both.  Where the
+   request carries neither, the AS's default audience for the grant is
+   the sole requested target.
 
-5.3.  Actions: Gate Tuples and Scope Tuples
+5.2.1.  One Target Is the Preferred Shape
+
+   A request SHOULD name a single target.
+
+   This profile does not introduce that preference; it inherits it.
+   [RFC8707] Section 5 encourages using only a single resource
+   parameter, observing that a token valid at several protected
+   resources "can be used by any one of those resources to access any of
+   the others", so that multiple audiences presuppose a high degree of
+   trust among the recipients.  [RFC9700] Section 4.10.2 describes the
+   same practice from the other direction: an access token is bound to a
+   specific resource server, so a client reaching several obtains a
+   token for each.
+
+   An AS MAY reject a request naming more than one target.  [RFC8707]
+   Section 5 anticipates this, noting that an authorization server may
+   be unwilling or unable to fulfill such a request.  Where the AS does
+   reject one, the requirements of Section 5.5 do not arise.
+
+5.2.2.  Several Targets
+
+   A request may nonetheless name more than one: [RFC8707] Section 2
+   permits the resource parameter to appear multiple times, and
+   [RFC8693] Section 2.1 permits the same of audience and resource in a
+   token exchange request.  An AS that accepts such a request has more
+   than one issuance target, and whether the subject may reach each of
+   them is a separate question.
+
+   Because the information model of [AUTHZEN] carries exactly one
+   resource per evaluation, a request naming several targets MUST be
+   expressed as several evaluations rather than as one evaluation naming
+   a compound target.  The tuples of Section 5.3 are formed once for
+   each requested target, and resource is carried on the individual
+   evaluation object, overriding the top-level default as [AUTHZEN]
+   Section 7.1.1 provides.
+
+   This is also what makes the audience constraining key of Section 6
+   reachable.  That key narrows a _set_ of targets, and a set can only
+   be narrowed if the request was able to put more than one member in
+   it.
+
+   Section 9.5 shows a two-target request on the wire.
+
+5.3.  Actions: Gate, Scope, and Authorization Detail Tuples
 
    Token issuance asks two questions that are frequently conflated:
 
@@ -425,6 +483,11 @@ Table of Contents
    evaluation, these two questions MUST be expressed as separate
    evaluations rather than as two interpretations of one action.name.
 
+   A request carrying authorization_details ([RFC9396]) asks the second
+   question in a richer vocabulary than a scope string, and gets a third
+   tuple shape (Section 5.3.4) rather than a reinterpretation of the
+   second.
+
 5.3.1.  Gate Tuple
 
    A gate tuple is an evaluation whose action.name has three colon-
@@ -438,7 +501,8 @@ Table of Contents
    issue:refresh_token:token_exchange.
 
    The issue: prefix is reserved.  A deployment MUST NOT use a scope
-   value beginning with issue: as a scope tuple action.
+   value beginning with issue: as a scope tuple action.  Section 9.1
+   shows a gate tuple in a request.
 
    The grant is part of the action because it is not recoverable from
    the rest of the tuple and it is not implied by the token type.  The
@@ -492,19 +556,128 @@ Table of Contents
    for, and the PDP decides what that means in its own policy
    vocabulary.
 
-5.3.4.  Gate Tuples Are Always Present
+   Section 9.2 shows three scope tuples behind a gate, one of them
+   denied.
+
+5.3.4.  Authorization Detail Tuple
+
+   Where the request carries authorization_details ([RFC9396]), each
+   entry in the array yields one or more evaluations.
+
+   An entry is a product, not a single permission.  [RFC9396]
+   Section 2.2: "When different common data fields are used in
+   combination, the permissions the client requests are the product of
+   all the values.  The object represents a request for all actions
+   values listed within the object to be used at all locations values
+   listed within the object for all datatypes values listed within the
+   object."  Figure 6 of that document is the client's escape hatch: a
+   client that does not want the whole product sends several entries
+   instead.  Asking the PDP one question per cell therefore asks exactly
+   the questions the entry poses, and asking fewer answers a coarser
+   question than the client asked.
+
+   The AS forms one evaluation per cell:
+
+         +======================+===============================+
+         | RAR member           | AuthZEN                       |
+         +======================+===============================+
+         | type                 | resource.type                 |
+         +----------------------+-------------------------------+
+         | each locations value | resource.id                   |
+         +----------------------+-------------------------------+
+         | each actions value   | action.name, leading segments |
+         +----------------------+-------------------------------+
+         | each datatypes value | action.name, final segment    |
+         +----------------------+-------------------------------+
+
+                                 Table 1
+
+   action.name is the actions value alone where the entry has no
+   datatypes, and the actions value and the datatypes value joined by a
+   colon otherwise, the datatype last:
+
+   <action>
+   <action>:<datatype>
+
+   The datatype is recovered as the segment following the final colon.
+   An AS MUST NOT form a compound name where the datatypes value itself
+   contains a colon; such an entry is decomposed on locations and
+   actions only, and its datatype axis is narrowed on the response side
+   alone (Section 6.4.4).
+
+   These names cannot be confused with the gate names of Section 5.3.1.
+   A gate tuple always names a resource whose type is audience; an
+   authorization detail tuple never does, because resource.type is the
+   entry's own type.  The two may name the same resource.id and remain
+   distinct questions, which Section 9.4 shows.
+
+   Section 9.5 shows an entry decomposing into the four cells of a two
+   by two product, and one of them denied.
+
+   Only type is REQUIRED of an entry ([RFC9396] Section 2), so an axis
+   may be absent:
+
+    +===============+=================================================+
+    | Absent member | Substituted                                     |
+    +===============+=================================================+
+    | locations     | Each requested target of Section 5.2            |
+    +---------------+-------------------------------------------------+
+    | actions       | The reserved name authorization_detail          |
+    +---------------+-------------------------------------------------+
+    | datatypes     | No compounding; action.name is the action alone |
+    +---------------+-------------------------------------------------+
+
+                                  Table 2
+
+   Substituting the requested targets for an absent locations continues
+   the audience restriction the member itself performs.  [RFC9396]
+   Section 12 describes locations as preventing unintended client
+   authorizations "through audience restriction", and Section 9.1
+   recommends that an AS minting a JWT access token filter the
+   authorization details to the specific audience.  Where an entry names
+   no location, the request's own targets are the audience it is
+   restricted to.
+
+   privileges and identifier are not decomposed.  Section 2.2's product
+   sentence names actions, locations, and datatypes, so whether
+   privileges multiplies is unstated, and identifier is a scalar with no
+   multiplicity.
+
+   Nor does the decomposition reach a type that carries its multiplicity
+   in type-specific members rather than in the common data fields - a
+   consent object enumerating individual permissions, for instance.
+   Such an entry yields one evaluation per location.  This is the
+   prevailing shape in deployed open banking profiles, so it is not a
+   corner case.
+
+   An undecomposed member is not shown to the PDP, and a PDP cannot
+   narrow against a value it was not sent.  What it can still do is
+   narrow by policy: knowing the subject, the type, and the location, it
+   may return an entry whose datatypes or type-specific members are the
+   most this subject may ever reach there.  Such an entry is still
+   subject to the structural check of Section 6.4.4, so a PDP that
+   returns more than was requested has its decision rejected rather than
+   trimmed.  Narrowing against the request itself remains the AS's own
+   obligation under [RFC9396] Section 6.
+
+   Decomposing the entry is also what makes the structural check of
+   Section 6.4.4 derivable rather than asserted.  An entry whose
+   locations, actions, and datatypes are subsets of the request's is
+   exactly an entry reassembled from cells the PDP permitted.
+
+5.3.5.  Gate Tuples Are Always Present
 
    An AS MUST include a gate tuple in every evaluation request it forms
    under this profile.  A binding MAY require more than one
    (Section 5.5).
 
-   The floor is therefore two evaluations for a request naming scopes,
-   and one for a request naming none.  Deployments are expected to write
-   issuance policy for every token type and grant combination their AS
-   can produce; a PDP that advertises support for this profile renders a
-   decision on any registered gate action it is sent (Section 7.1), so
-   an AS never has to predict which combinations a given PDP has policy
-   for.
+   The floor is therefore two evaluations for a single-target request
+   naming scopes, and one for a single-target request naming none.
+   Deployments are expected to write issuance policy for every token
+   type and grant combination their AS can produce; a PDP that
+   advertises support for this profile renders a decision on any
+   registered gate action it is sent (Section 7), so an AS never has to
+   predict which combinations a given PDP has policy for.
 
 5.4.  Context
 
@@ -535,7 +708,7 @@ Table of Contents
       |           |          | intends to mint (Section 5.4.1)     |
       +-----------+----------+-------------------------------------+
 
-                                 Table 1
+                                 Table 3
 
    The single-type rule of Section 6.1 applies here as well: each key
    above has one JSON type, and bindings defining further context keys
@@ -568,39 +741,168 @@ Table of Contents
 
 5.5.  Batching and Result Composition
 
+5.5.1.  Forming the Batch
+
+   For each requested target (Section 5.2), the AS forms:
+
+   *  a gate tuple (Section 5.3.1), and
+
+   *  one scope tuple (Section 5.3.3) for each requested scope,
+
+   each carrying that target as its resource.  Where the request carries
+   authorization_details, the AS also forms the authorization detail
+   tuples of Section 5.3.4, which carry a resource of their own.
+
+   This document produces one gate tuple per target.  Bindings may
+   produce more: the token exchange family evaluates the authority of
+   the requesting party separately from that of the subject, and so
+   produces two per target.
+
    Where a request yields more than one tuple, the AS MUST use the
    Access Evaluations API of [AUTHZEN] with options.evaluations_semantic
    set to execute_all, and MUST place gate tuples at the leading indices
-   of the evaluations array, beginning at index 0.
+   of the evaluations array, beginning at index 0.  The response lists
+   decisions in request order ([AUTHZEN] Section 7.2), so the AS
+   recovers which target, scope, or authorization detail cell each
+   decision belongs to by position.
 
-   A request reduces to a single evaluation only when it names no
-   scopes, in which case the gate tuple stands alone.
+   A request reduces to a single evaluation only when it names one
+   target, no scopes, and no authorization details, in which case the
+   gate tuple stands alone.  Section 9.3 is that case, and Section 9.1
+   the smallest batch.
 
-   This document produces exactly one gate tuple.  Bindings may produce
-   more: the token exchange family evaluates the authority of the
-   requesting party separately from that of the subject, and so produces
-   two.
+   execute_all is required because a denial must be able to narrow the
+   grant rather than fail it.  [AUTHZEN] evaluation semantics are
+   selected per request and cannot mark an individual batch item as a
+   precondition, so the composition rules below are enforced by the AS.
+   This is well within the PEP's role - the AS is already interpreting
+   per-item results in order to downscope.
 
-   execute_all is required because scope denials must be able to narrow
-   the grant rather than fail it: an AS that requested three scopes and
-   received two permits issues a token bearing two scopes, and reports
-   the reduced set in the scope response parameter as [RFC6749] already
-   requires.
+5.5.2.  The Batch Carries Only the Residue
 
-   A gate denial, by contrast, is fatal.  If any leading gate tuple has
-   a decision of false, the AS MUST fail the request and MUST NOT issue
-   a token, irrespective of the other results.
+   Before forming the batch, an AS MUST apply the reductions it is
+   itself authoritative for, and MUST form tuples only for what survives
+   them.
 
-   [AUTHZEN] evaluation semantics are selected per request and cannot
-   mark an individual batch item as a precondition, so this composition
-   rule is enforced by the AS.  This is well within the PEP's role - the
-   AS is already interpreting per-item results in order to downscope.
+   Those reductions already exist.  [RFC6749] Section 3.3 permits an AS
+   to issue a token whose scope is narrower than the one requested.
+   [RFC9396] Section 6 is stronger still: the AS "checks whether the
+   underlying grant ... or the client's policy ... allows the issuance
+   of an access token with the requested authorization details", and
+   refuses with invalid_authorization_details where it does not.
+   Neither is introduced here; this profile only fixes their order
+   relative to the PDP call.
 
-   Where the request named scopes and every scope tuple is denied, the
-   AS MUST fail the request rather than issue a token with an empty
-   scope set, even though the gate permitted it.  A permitted gate
-   authorizes a token of that kind to exist; it does not authorize an
-   empty one.
+   The reason to fix that order is Section 6.3.  A PDP may narrow what
+   is issued and may not broaden it, so a permit on something the AS had
+   already decided to refuse cannot change the outcome.  Asking anyway
+   writes a decision into the PDP's record that corresponds to no issued
+   authority, which is worse than not asking: the two logs the profile
+   is otherwise careful to let an operator join (Section 5.4.1) stop
+   agreeing.
+
+   The batch therefore expresses the request as the AS is prepared to
+   grant it, and the PDP narrows from there.
+
+5.5.3.  The Batch Is Bounded
+
+   What remains after that reduction is still sized by the client.  An
+   AS MUST bound the number of evaluations it will form for a single
+   token request, and MUST reject a request that would exceed the bound.
+
+   This document does not specify the value.  [RFC9126] Section 2.3 is
+   the precedent: it directs an AS to answer an oversized pushed request
+   with 413 and an over-frequent client with 429, and names no number
+   for either.  The bound that is right for a deployment depends on its
+   PDP, and a number written here would be wrong somewhere.
+
+   The error is the one belonging to the parameter that overran the
+   bound: invalid_authorization_details ([RFC9396] Section 6),
+   invalid_scope ([RFC6749]), or, for token exchange requests,
+   invalid_target ([RFC8693]).  Where more than one contributed, any of
+   them is correct. invalid_request is not, because it does not tell the
+   client what to shorten.
+
+5.5.4.  A Denied Gate Removes a Target
+
+   A gate tuple governs one target.  Where its decision is false, that
+   target is removed from the request: the AS MUST NOT name it in the
+   audience of any token it issues, and MUST disregard the scope tuples
+   formed for it and any authorization detail tuple naming it as
+   resource.id.
+
+   Where every target is removed, the AS MUST fail the request and MUST
+   NOT issue a token.  For token exchange requests the appropriate error
+   is invalid_target ([RFC8693]).
+
+   An AS MAY instead fail the whole request when any gate is denied.
+   Section 5.2.1 already permits it to refuse a multi-target request
+   outright, and an AS unwilling to issue a token for a subset of what
+   was asked for is exercising the same discretion later.  Section 9.5
+   closes on what a denied gate would have removed from the batch shown
+   there.
+
+   Where one target was requested, both rules coincide: a denied gate
+   fails the request.
+
+5.5.5.  A Denied Scope Must Narrow Every Target
+
+   A scope tuple governs one scope at one target.  A scope is carried in
+   the issued token only where it was permitted at _every_ surviving
+   target.  The AS reports the reduced set in the scope response
+   parameter, as [RFC6749] already requires.
+
+   This intersection is not introduced here.  [RFC9068] Section 2.2.3
+   requires that "all the individual scope strings in the scope claim
+   MUST have meaning for the resources indicated in the aud claim"; the
+   plural is the operative part.  Section 3 of the same document
+   requires that an AS "MUST NOT issue a JWT access token if the
+   authorization granted by the token would be ambiguous".  A scope
+   permitted at one audience and denied at another, carried in a token
+   naming both, is that ambiguity exactly: no recipient can determine
+   whether the scope was granted for itself or for the other.
+
+   An AS that wants a scope to survive at one target and not another
+   issues a token per target, which is the shape Section 5.2.1 prefers
+   in the first place.
+
+   Where the request named scopes and none survive, and no authorization
+   detail entry survives either, the AS MUST fail the request rather
+   than issue an empty token, even though the gate permitted it.  A
+   permitted gate authorizes a token of that kind to exist; it does not
+   authorize an empty one.
+
+   Section 9.2 shows a partial denial narrowing a single-target request.
+
+5.5.6.  A Denied Cell Narrows an Entry
+
+   An authorization detail tuple governs one cell of one entry.  The AS
+   reassembles each entry from the cells that were permitted, so that a
+   denied cell narrows the entry rather than failing it.
+
+   The surviving cells of an entry need not be expressible as one entry,
+   since an entry is a product and the survivors need not be a
+   rectangle.  Where they are not, the AS reassembles them as several
+   entries of the same type, which is the shape Figure 6 of [RFC9396]
+   defines for a client wanting exactly this.  An AS MUST NOT instead
+   widen the result to the smallest single entry containing the
+   survivors, which would return a cell the PDP denied.  Section 9.5
+   works through such a split.
+
+   Where an entry's locations was absent and its tuples were therefore
+   fanned across several targets, a cell survives only where it was
+   permitted at every surviving target, for the reason given in
+   Section 5.5.5.
+
+   An entry with no surviving cells is dropped.  Where the request
+   carried authorization_details and no entry survives, the AS MUST fail
+   the request with invalid_authorization_details, which [RFC9396]
+   Section 6 already defines for a token request whose authorization
+   details the AS will not grant.
+
+   Reassembly is what the AS does absent a authorization_details key in
+   the response.  Where the PDP returns one, it replaces the reassembled
+   array and is checked against the request as Section 6.4.4 requires.
 
 6.  Processing the Evaluation Response
 
@@ -626,6 +928,10 @@ Table of Contents
    An AS implementing this profile MUST process context.issuance and
    MUST ignore unrecognized members outside it, preserving the advisory
    character that [AUTHZEN] gives response context generally.
+
+   The examples of Section 9 carry the envelope on live responses:
+   token_lifetime in Section 9.1, claims in Section 9.2, and
+   granted_scope in Section 9.3.
 
    Every key defined below has exactly one JSON type, and bindings that
    define further keys MUST do the same.  Where the corresponding OAuth
@@ -707,35 +1013,61 @@ Table of Contents
 6.4.3.  audience
 
    An array of strings, narrowing the set of targets for which the token
-   may be issued.  Each value MUST appear among the resource.id values
-   of the permitted evaluations.
+   may be issued.  Every value MUST be the resource.id of the evaluation
+   on which it was returned, so the array is either that single target
+   or empty.  An evaluation is a decision about one target, and this key
+   lets a PDP withhold that target while still permitting the request;
+   it does not let one evaluation speak for another.
 
-   The value is an array even when it names a single target.  This is
-   the key where the single-type rule above is most visible, and where
-   it also makes the aggregation rule of Section 6.6 state plainly:
-   intersection is an operation over sets.  An AS remains free to render
-   a single-element set as a bare string in the token's own aud claim,
-   where [RFC7519] permits it.
-
-   Where the resulting set is empty, the AS MUST fail the request; for
-   token exchange requests the appropriate error is invalid_target
+   An empty array therefore withdraws the target that evaluation was
+   about, with the same effect as the denied gate of Section 5.5.4.
+   Where no target survives, the AS MUST fail the request; for token
+   exchange requests the appropriate error is invalid_target
    ([RFC8693]).
+
+   The value is an array even when it names a single target, per the
+   single-type rule above.  An AS remains free to render a single-
+   element set as a bare string in the token's own aud claim, where
+   [RFC7519] permits it.
 
 6.4.4.  authorization_details
 
    An array in the syntax of [RFC9396], replacing - not merged with -
    the authorization details of the request.
 
+   Where the PDP returns nothing, the AS reassembles the entries itself
+   from the cells its authorization detail tuples (Section 5.3.4)
+   permitted.  The key exists for the narrowing the cells cannot
+   express: within a type-specific member, or along an axis
+   Section 5.3.4 does not decompose.
+
    Replacement admits arbitrary structured narrowing, which is what a
    PDP filtering rich authorization requests needs, but "narrower" is
    not decidable for arbitrary authorization detail types.  This profile
    therefore requires:
 
-   *  *Structural check, always.* Every returned entry MUST have a type
-      present in the request, and its locations, actions, and datatypes
-      members MUST be subsets of the corresponding members of the
-      request entry of that type.  The AS MUST reject the decision
-      otherwise.
+   *  *Structural check, always.* Every returned entry MUST be covered
+      by a single entry of the request: there MUST exist a request entry
+      with the same type whose locations, actions, and datatypes members
+      are supersets of the returned entry's.  Several returned entries
+      MAY be covered by the same request entry, which is the shape
+      Section 5.5.6 produces.  The AS MUST reject the decision if any
+      returned entry is covered by no request entry, or is covered only
+      by several of them taken together.  Where a request carries read
+      on contacts in one entry and write on photos in another, as
+      Figure 6 of [RFC9396] does, an entry returning read on photos is
+      within the union of the two and within neither, and names a
+      permission the client did not request.
+
+   *  *Absent members.* A member absent from the covering request entry
+      constrains nothing, and a returned entry MAY carry a member the
+      request omitted: the client asked for the entry unrestricted along
+      that axis, so any value the PDP supplies narrows it, which is the
+      policy narrowing Section 5.3.4 describes. locations is the
+      exception, since Section 5.3.4 substitutes the requested targets
+      where it is absent.  A returned entry MUST NOT name a location
+      that is neither in the covering request entry nor a requested
+      target of Section 5.2.
 
    *  *Type-specific members.* For members beyond those defined in
       [RFC9396], the AS MUST either apply a validator specific to that
@@ -751,13 +1083,35 @@ Table of Contents
    denial.
 
    crit exists because the static classification in this section is
-   incomplete.  An additive claim is normally safe to ignore, except
-   where the claim _is_ a constraint that a downstream enforcement point
-   is expected to apply - a ceiling asserted by policy, for instance.
-   Dropping such a claim broadens what the token effectively authorizes.
+   incomplete.  A member of claims is normally safe to drop, and is
+   occasionally the constraint that made the permit safe.
 
-   A PDP MUST NOT include crit unless the AS has declared support for
-   the corresponding capability (Section 7).
+   Consider a PDP that permits a payment and returns:
+
+   {
+     "decision": true,
+     "context": {
+       "issuance": {
+         "claims": { "max_transfer_eur": 500 },
+         "crit": [ "max_transfer_eur" ]
+       }
+     }
+   }
+
+   The ceiling is enforced by the resource server, which reads it from
+   the token.  An AS that drops the claim issues a token that says
+   nothing about a limit: the resource server has nothing to enforce,
+   and a decision that authorized 500 euros has become an authorization
+   for any amount.  No statically classified key catches this, because
+   the scope, lifetime, audience, and authorization details are all
+   exactly what the PDP allowed and the claim is the only thing that
+   made them safe.
+
+   An AS may drop a claim for ordinary reasons, most often because it
+   emits only claim names on an allowlist.  The vocabulary is domain-
+   specific, so neither party can settle the question in advance, and
+   the AS learns at response time that it cannot carry the claim. crit
+   is what makes that a denial rather than a silent broadening.
 
 6.5.  Decorating Keys
 
@@ -815,7 +1169,7 @@ Table of Contents
      |                       | broadening by construction           |
      +-----------------------+--------------------------------------+
 
-                                 Table 2
+                                 Table 4
 
    The entries for sub and aud rest on stronger ground than the rest.
    Both are inputs to the five-tuple; a PDP that could rewrite either
@@ -830,29 +1184,36 @@ Table of Contents
    own optional context.  Token shaping, however, is a property of the
    token: there is one lifetime, one claim set, one authorization
    details array for the token being minted, while this profile fans
-   scopes and targets out across many evaluations.
+   scopes, targets, and authorization detail cells out across many
+   evaluations.
 
    An AS MUST therefore compose per-item shaping as follows:
 
-    +=======================+=========================================+
-    | Key                   | Aggregation                             |
-    +=======================+=========================================+
-    | token_lifetime        | Minimum over permitted items            |
-    +-----------------------+-----------------------------------------+
-    | granted_scope         | Union over permitted items, intersected |
-    |                       | with what the AS would otherwise grant  |
-    +-----------------------+-----------------------------------------+
-    | audience              | Intersection over permitted items       |
-    +-----------------------+-----------------------------------------+
-    | authorization_details | Union of entries, then the per-entry    |
-    |                       | structural check                        |
-    +-----------------------+-----------------------------------------+
-    | claims                | Merge; see below                        |
-    +-----------------------+-----------------------------------------+
-    | crit                  | Union                                   |
-    +-----------------------+-----------------------------------------+
+      +=======================+====================================+
+      | Key                   | Aggregation                        |
+      +=======================+====================================+
+      | token_lifetime        | Minimum over permitted items       |
+      +-----------------------+------------------------------------+
+      | granted_scope         | Union over permitted items,        |
+      |                       | intersected with what the AS would |
+      |                       | otherwise grant and with the       |
+      |                       | surviving scopes of Section 5.5.5  |
+      +-----------------------+------------------------------------+
+      | audience              | The surviving targets of           |
+      |                       | Section 5.5.4, less any target     |
+      |                       | whose item returned an empty array |
+      +-----------------------+------------------------------------+
+      | authorization_details | Union of entries, then the per-    |
+      |                       | entry structural check,            |
+      |                       | intersected with the entries       |
+      |                       | reassembled under Section 5.5.6    |
+      +-----------------------+------------------------------------+
+      | claims                | Merge; see below                   |
+      +-----------------------+------------------------------------+
+      | crit                  | Union                              |
+      +-----------------------+------------------------------------+
 
-                                  Table 3
+                                 Table 5
 
    Shaping keys appearing in the context of a *denied* item MUST be
    ignored.
@@ -865,8 +1226,6 @@ Table of Contents
    to avoid the situation.
 
 7.  Discovery
-
-7.1.  Policy Decision Point Capabilities
 
    A PDP supporting this profile MUST advertise the capability URN
    registered in Section 12.2 in the capabilities member of its metadata
@@ -933,54 +1292,6 @@ Table of Contents
    deployment is prepared for.  This is a deployment-time check, not a
    per-request one, and nothing in this profile requires it.
 
-7.2.  Policy Enforcement Point Capabilities
-
-   An AS MAY declare the capabilities it understands in the request
-   context, using the same URNs:
-
-   {
-     "subject":  { "type": "user", "id": "U0405936" },
-     "action":   { "name": "issue:access_token:authorization_code" },
-     "resource": {
-       "type": "audience",
-       "id": "https://api.example/files"
-     },
-     "context": {
-       "issuance": {
-         "capabilities": [
-           "urn:ietf:params:authzen:token-issuance"
-         ]
-       }
-     }
-   }
-
-   Capability URNs are reused on both legs rather than introducing a
-   list of key names, so that extensions obtain granularity from the
-   registry rather than from a second, parallel mechanism.
-
-   The declaration is an optimization, not a safety mechanism, and this
-   is why it is OPTIONAL.  Safety is already unilateral: a PDP that
-   marks a key crit obliges any AS implementing this profile to fail
-   closed if it does not understand it (Section 6.2), and an AS that
-   does not implement this profile ignores the issuance envelope
-   entirely, crit included.  Withholding crit from an undeclared AS
-   therefore protects nothing.  What the declaration buys a PDP is the
-   ability to choose a decision the AS can actually enforce - denying,
-   say, rather than permitting subject to a constraint it knows will be
-   discarded.  That is worth having as extensions add vocabulary, and
-   worth nothing in a deployment using only the keys defined here.
-
-   An AS is not otherwise required to announce itself.  The behaviors
-   this profile depends on - treating a gate denial as fatal, narrowing
-   to the permitted scope subset - are constitutive of implementing it
-   rather than features an AS might separately lack, and [AUTHZEN]
-   already assumes a PDP trusts its PEP to enforce what it decides.
-
-   The declaration describes the AS's implementation and MUST NOT be
-   treated as an authorization input.  A PDP that varied its decision
-   based on it would be allowing a property of the enforcement point to
-   influence policy.
-
 8.  Error Mapping
 
       +==========================+=================================+
@@ -996,6 +1307,12 @@ Table of Contents
       | Target denied or empty   | invalid_target ([RFC8693])      |
       | audience set             |                                 |
       +--------------------------+---------------------------------+
+      | No authorization detail  | invalid_authorization_details   |
+      | entry survives           | ([RFC9396])                     |
+      +--------------------------+---------------------------------+
+      | Batch would exceed the   | The error of the parameter that |
+      | bound of Section 5.5.3   | overran it                      |
+      +--------------------------+---------------------------------+
       | Shaping key violates     | Treat as denial; fail the       |
       | Section 6.3              | request                         |
       +--------------------------+---------------------------------+
@@ -1006,7 +1323,7 @@ Table of Contents
       | malformed response       |                                 |
       +--------------------------+---------------------------------+
 
-                                 Table 4
+                                 Table 6
 
    Reason information returned by a PDP is diagnostic and intended for
    the operator of the AS.  An AS MUST NOT relay PDP reason strings to
@@ -1030,7 +1347,8 @@ Table of Contents
 
    The first example below is shown in full, framed against the HTTPS
    JSON binding of [AUTHZEN].  The remaining examples show only the JSON
-   payload.
+   payload.  Each is referenced from the section that specifies the rule
+   it exercises.
 
    The transport is a property of the deployment, not of this profile:
    an evaluation carrying the mapping defined here is the same
@@ -1042,9 +1360,12 @@ Table of Contents
 
 9.1.  Client Credentials, One Scope
 
-   One scope is requested, so the request is the gate tuple and one
-   scope tuple.  This is the floor: two evaluations, so the Access
-   Evaluations API.
+   One scope is requested, so the request is one gate tuple
+   (Section 5.3.1) and one scope tuple (Section 5.3.3).  This is the
+   floor: two evaluations, so the Access Evaluations API.  One target is
+   shared by both, so resource is carried once at the top level; the
+   examples below that need a resource per evaluation carry it there
+   instead, as Section 5.2.2 provides.
 
    POST /access/v1/evaluations HTTP/1.1
    Host: pdp.example.com
@@ -1057,14 +1378,7 @@ Table of Contents
        "type": "audience",
        "id": "https://telemetry.example"
      },
-     "context": {
-       "client_id": "svc-reporting",
-       "issuance": {
-         "capabilities": [
-           "urn:ietf:params:authzen:token-issuance"
-         ]
-       }
-     },
+     "context": { "client_id": "svc-reporting" },
      "evaluations": [
        {
          "action": {
@@ -1092,7 +1406,8 @@ Table of Contents
 9.2.  Authorization Code, Downscoping
 
    Three scopes are requested.  The gate leads at index 0 and
-   execute_all allows the AS to issue the permitted subset of the rest.
+   execute_all allows the AS to issue the permitted subset of the rest,
+   per Section 5.5.5.
 
    {
      "subject":  { "type": "user", "id": "U0405936" },
@@ -1102,12 +1417,7 @@ Table of Contents
      },
      "context": {
        "client_id": "chatterbox",
-       "acr": "urn:example:loa:2",
-       "issuance": {
-         "capabilities": [
-           "urn:ietf:params:authzen:token-issuance"
-         ]
-       }
+       "acr": "urn:example:loa:2"
      },
      "evaluations": [
        {
@@ -1150,12 +1460,12 @@ Table of Contents
 
 9.3.  No Scopes Requested
 
-   No scopes and no default set, so the gate tuple stands alone.  This
-   is the only shape this document produces that is a single evaluation,
-   and it is therefore the only one sent to the Access Evaluation API
-   rather than the Access Evaluations API: the payload is a bare
-   evaluation with no evaluations array, and under the HTTPS JSON
-   binding it is a POST to /access/v1/evaluation.
+   No scopes and no default set, so the gate tuple stands alone
+   (Section 5.5.1).  This is the only shape this document produces that
+   is a single evaluation, and it is therefore the only one sent to the
+   Access Evaluation API rather than the Access Evaluations API: the
+   payload is a bare evaluation with no evaluations array, and under the
+   HTTPS JSON binding it is a POST to /access/v1/evaluation.
 
    {
      "subject":  { "type": "client", "id": "svc-reporting" },
@@ -1166,13 +1476,7 @@ Table of Contents
        "type": "audience",
        "id": "https://telemetry.example"
      },
-     "context": {
-       "issuance": {
-         "capabilities": [
-           "urn:ietf:params:authzen:token-issuance"
-         ]
-       }
-     }
+     "context": { "client_id": "svc-reporting" }
    }
 
    {
@@ -1185,14 +1489,205 @@ Table of Contents
      }
    }
 
+9.4.  Authorization Details, One Entry
+
+   The token request below carries one authorization details entry
+   naming one location, one action, and one datatype.  Line breaks in
+   the request body are for display only, and the value of
+   authorization_details is form encoded on the wire ([RFC9396]
+   Section 2.1); it is shown decoded in the block that follows.
+
+   POST /token HTTP/1.1
+   Host: as.example.com
+   Content-Type: application/x-www-form-urlencoded
+
+   grant_type=authorization_code
+   &code=SplxlOBeZQQYbYS6WxSbIA
+   &resource=https%3A%2F%2Fexample.com%2Fcustomers
+   &authorization_details=...
+
+   [
+     {
+       "type": "customer_information",
+       "locations": [ "https://example.com/customers" ],
+       "actions": [ "read" ],
+       "datatypes": [ "contacts" ]
+     }
+   ]
+
+   The entry has one cell, so the batch is the gate tuple and one
+   authorization detail tuple.  The two name the same URI and are still
+   distinct evaluations: the gate asks whether a token may be issued for
+   that audience, and the authorization detail tuple asks whether this
+   subject may read contacts at that API. resource.type is what
+   separates them.
+
+   {
+     "subject": { "type": "user", "id": "U0405936" },
+     "context": {
+       "client_id": "chatterbox"
+     },
+     "evaluations": [
+       {
+         "action": {
+           "name": "issue:access_token:authorization_code"
+         },
+         "resource": {
+           "type": "audience",
+           "id": "https://example.com/customers"
+         }
+       },
+       {
+         "action": { "name": "read:contacts" },
+         "resource": {
+           "type": "customer_information",
+           "id": "https://example.com/customers"
+         }
+       }
+     ],
+     "options": { "evaluations_semantic": "execute_all" }
+   }
+
+   {
+     "evaluations": [
+       { "decision": true },
+       { "decision": true }
+     ]
+   }
+
+   Every cell was permitted, so the entry reassembles to itself and the
+   AS issues a token carrying the requested authorization_details
+   unchanged.
+
+9.5.  Authorization Details Across Two Targets
+
+   Here the request names two issuance targets, and its single entry
+   names two locations and two datatypes.  One action across two
+   locations and two datatypes is four cells, and two targets is two
+   gate tuples, so the batch is six evaluations.  Gate tuples lead, per
+   Section 5.5.1.
+
+   [
+     {
+       "type": "customer_information",
+       "locations": [
+         "https://example.com/customers",
+         "https://eu.example.com/customers"
+       ],
+       "actions": [ "read" ],
+       "datatypes": [ "contacts", "photos" ]
+     }
+   ]
+
+   No top-level resource is shown, because no one resource is shared:
+   each evaluation carries its own.
+
+   {
+     "subject": { "type": "user", "id": "U0405936" },
+     "context": {
+       "client_id": "chatterbox"
+     },
+     "evaluations": [
+       {
+         "action": {
+           "name": "issue:access_token:authorization_code"
+         },
+         "resource": {
+           "type": "audience",
+           "id": "https://example.com/customers"
+         }
+       },
+       {
+         "action": {
+           "name": "issue:access_token:authorization_code"
+         },
+         "resource": {
+           "type": "audience",
+           "id": "https://eu.example.com/customers"
+         }
+       },
+       {
+         "action": { "name": "read:contacts" },
+         "resource": {
+           "type": "customer_information",
+           "id": "https://example.com/customers"
+         }
+       },
+       {
+         "action": { "name": "read:photos" },
+         "resource": {
+           "type": "customer_information",
+           "id": "https://example.com/customers"
+         }
+       },
+       {
+         "action": { "name": "read:contacts" },
+         "resource": {
+           "type": "customer_information",
+           "id": "https://eu.example.com/customers"
+         }
+       },
+       {
+         "action": { "name": "read:photos" },
+         "resource": {
+           "type": "customer_information",
+           "id": "https://eu.example.com/customers"
+         }
+       }
+     ],
+     "options": { "evaluations_semantic": "execute_all" }
+   }
+
+   The PDP permits both gates and denies one cell, photos at the
+   European location.
+
+   {
+     "evaluations": [
+       { "decision": true },
+       { "decision": true },
+       { "decision": true },
+       { "decision": true },
+       { "decision": true },
+       {
+         "decision": false,
+         "context": { "reason_admin": { "403": "residency R-4" } }
+       }
+     ]
+   }
+
+   Three of the four cells survive, and three cells are not a product,
+   so the entry cannot reassemble into one.  The AS returns two entries
+   of the same type, as Section 5.5.6 requires:
+
+   [
+     {
+       "type": "customer_information",
+       "locations": [ "https://example.com/customers" ],
+       "actions": [ "read" ],
+       "datatypes": [ "contacts", "photos" ]
+     },
+     {
+       "type": "customer_information",
+       "locations": [ "https://eu.example.com/customers" ],
+       "actions": [ "read" ],
+       "datatypes": [ "contacts" ]
+     }
+   ]
+
+   Both gates permitted, so both targets remain in the audience.  Had
+   the second gate been denied instead, Section 5.5.4 would have removed
+   that target and the AS would have disregarded both evaluations naming
+   it, denied or not, leaving the first entry alone and no second entry
+   at all.
+
 10.  Relationship to Companion Documents
 
    This document defines the mapping and the shaping vocabulary, and
    registers short names for the grant types listed in Section 12.4.
-   For a grant whose request names a single party and a single target,
-   that is everything an AS needs; the client credentials and
-   authorization code examples above are complete, and no companion
-   document is required to implement them.
+   For a grant whose request names a single party, that is everything an
+   AS needs; the client credentials and authorization code examples
+   above are complete, and no companion document is required to
+   implement them.
 
    A binding is required where a grant family adds structure this
    document does not model.  The token exchange family adds two such
@@ -1218,7 +1713,9 @@ Table of Contents
    OAuth wire.  It has expired.  This document does not adopt that
    approach: the evaluation stays between the authorization server and
    its Policy Decision Point, and the client sees only an OAuth
-   response.
+   response.  Section 5.3.4 covers the same territory the other way
+   round, deriving the evaluation from the authorization details the
+   client already sends rather than asking the client to construct one.
 
    [ARAP] defines what happens when a Policy Decision Point denies a
    request but marks the denial as requestable: the enforcement point
@@ -1246,6 +1743,19 @@ Table of Contents
    supply the detail rather than to compete, and aligning the two is
    expected work.
 
+   [GRANTMGMT] approaches the same authorization from the other end.
+   Its grant query response reports a grant as scopes, claims, and
+   authorization_details, which is the set of constraining keys of
+   Section 6 seen after the fact: this document specifies how a Policy
+   Decision Point shapes those at issuance, and grant management
+   specifies how a client reads and manages them afterwards.  Its scopes
+   member pairs each scope value with the resource indicators it applies
+   to, which is the same per-target scoping the scope tuple of
+   Section 5.3.3 produces.  Section 8.2 of that document records that
+   the addressibility of individual grant components is unresolved, and
+   the decomposition of Section 5.3.4 bears on it, since a cell of an
+   authorization details entry is addressable by construction.
+
 11.  Security Considerations
 
 11.1.  Fail Closed
@@ -1260,7 +1770,35 @@ Table of Contents
    of decisions, local policy fallback that is explicitly configured
    rather than implicit, and the latency budget of the token endpoint.
 
-11.2.  The Policy Decision Point as a Trust Dependency
+11.2.  Request Amplification
+
+   One token request becomes many evaluations.  A client controls the
+   scopes it asks for, the targets it names, and the size of every
+   authorization_details entry, and Section 5.3.4 turns each entry into
+   the product of its common data fields.  That product is the
+   legitimate meaning of a RAR entry, not an abuse of it; the feature
+   becomes a burden only when it is used to excess.  An AS that does not
+   bound the fan-out lets an authenticated but unprivileged client
+   impose disproportionate work on the PDP, and through the PDP on every
+   other tenant of it.
+
+   Section 5.5.2 and Section 5.5.3 are the two controls, and they are
+   independent of each other.  The first removes what the AS was never
+   going to grant; the second caps what remains.  An AS SHOULD also
+   track fan-out per client over time.  A per-request cap does not bound
+   the rate at which maximum-size requests can be submitted, and a rate
+   limit does not bound the cost of a single request; neither
+   substitutes for the other.
+
+   [AUTHZEN] Section 11.7 places a matching obligation on the PDP, which
+   "SHOULD apply reasonable protections to avoid common attacks tied to
+   request payload size, the number of requests ... or memory
+   consumption".  An AS MUST NOT rely on it.  Those protections take the
+   form of the PDP shedding requests, and a request the PDP sheds is one
+   the AS must fail closed on (Section 11.1), so leaning on them
+   converts an amplification attack into an outage.
+
+11.3.  The Policy Decision Point as a Trust Dependency
 
    A PDP that can shape tokens can narrow every grant an AS issues, and
    a compromised PDP can deny service.  The constraints in this document
@@ -1276,7 +1814,7 @@ Table of Contents
    into a token without checking them against that list would give the
    PDP the ability to mint arbitrary identities.
 
-11.3.  Integrity of the Decision Response
+11.4.  Integrity of the Decision Response
 
    The crit mechanism relies on the response arriving intact.  An
    attacker able to strip crit from a response is also able to change
@@ -1286,7 +1824,7 @@ Table of Contents
    requiring non-repudiation of decisions should use the response
    signing mechanisms of [AUTHZEN].
 
-11.4.  Privacy
+11.5.  Privacy
 
    Evaluation requests carry subject identifiers, client identifiers,
    targets, and authentication context to the PDP, and do so on every
@@ -1402,7 +1940,7 @@ Table of Contents
    | audience | resource   | The audience of the access being granted |
    +----------+------------+------------------------------------------+
 
-                                 Table 5
+                                 Table 7
 
 12.4.  Issuance Authorization Action Names Registry
 
@@ -1437,7 +1975,7 @@ Table of Contents
     | id_token      | urn:ietf:params:oauth:token-type:id_token      |
     +---------------+------------------------------------------------+
 
-                                 Table 6
+                                 Table 8
 
    Grant type short names, initially:
 
@@ -1459,13 +1997,17 @@ Table of Contents
    |saml2_bearer      |urn:ietf:params:oauth:grant-type:saml2-bearer  |
    +------------------+-----------------------------------------------+
 
-                                 Table 7
+                                 Table 9
 
    Registrations MUST give the URI or parameter value the short name
    corresponds to, and MUST state which of the two vocabularies they
    join.  Names outside the issue: prefix are not registered here, since
-   scope values are carried verbatim and are not a registered
-   vocabulary.
+   scope values and the action names of Section 5.3.4 are carried
+   verbatim and are not registered vocabularies.
+
+   This document reserves one further name outside the issue: prefix:
+   authorization_detail, which Section 5.3.4 substitutes for the action
+   of an authorization details entry that names none.
 
 13.  References
 
@@ -1508,6 +2050,12 @@ Table of Contents
               Profile 1.0", 27 July 2026,
               <https://openid.github.io/authzen/authzen-access-request-
               approval-profile-1_0>.
+
+   [GRANTMGMT]
+              Lodderstedt, T., Low, S., and D. Postnikov, "Grant
+              Management for OAuth 2.0", 26 June 2026,
+              <https://openid.bitbucket.io/fapi/oauth-v2-grant-
+              management.html>.
 
    [I-D.brossard-oauth-rar-authzen]
               Brossard, D., Gazitt, O., and A. Babeanu, "AuthZEN
@@ -1586,10 +2134,20 @@ Table of Contents
               Access Tokens", RFC 9068, DOI 10.17487/RFC9068, October
               2021, <https://www.rfc-editor.org/rfc/rfc9068>.
 
+   [RFC9126]  Lodderstedt, T., Campbell, B., Sakimura, N., Tonge, D.,
+              and F. Skokan, "OAuth 2.0 Pushed Authorization Requests",
+              RFC 9126, DOI 10.17487/RFC9126, September 2021,
+              <https://www.rfc-editor.org/rfc/rfc9126>.
+
    [RFC9470]  Bertocci, V. and B. Campbell, "OAuth 2.0 Step Up
               Authentication Challenge Protocol", RFC 9470,
               DOI 10.17487/RFC9470, September 2023,
               <https://www.rfc-editor.org/rfc/rfc9470>.
+
+   [RFC9700]  Lodderstedt, T., Bradley, J., Labunets, A., and D. Fett,
+              "Best Current Practice for OAuth 2.0 Security", BCP 240,
+              RFC 9700, DOI 10.17487/RFC9700, January 2025,
+              <https://www.rfc-editor.org/rfc/rfc9700>.
 
    [ZANZIBAR] Pang, R., Caceres, R., and M. Burrows, "Zanzibar: Google's
               Consistent, Global Authorization System", 2019,
@@ -1610,6 +2168,43 @@ Acknowledgments
    scenario demonstrated AuthZEN search operations populating token
    claims, and to the members of the AuthZEN Working Group and the OAuth
    Working Group.
+
+Document History
+
+   This section is to be removed before publishing as an RFC.
+
+Since -00
+
+   *  A request may now name several issuance targets.  The single-
+      target MUST in Section 5.2 becomes a SHOULD inherited from
+      [RFC8707] Section 5 and [RFC9700] Section 4.10.2, and
+      Section 5.2.2 says how tuples are formed per target, how a denied
+      gate removes one, and why a scope survives only where it was
+      permitted at every surviving target.
+
+   *  Requested authorization_details now reach the PDP.  Section 5.3.4
+      decomposes an entry along the product of [RFC9396] Section 2.2
+      into one evaluation per location, action, and datatype, with the
+      datatype carried as a trailing segment of action.name.
+
+   *  Section 5.5.2 orders the AS's own reductions before the PDP call,
+      so the batch carries only what the AS would otherwise grant.
+
+   *  Section 5.5.3 requires an AS to bound the size of the batch
+      without naming a bound, and Section 11.2 covers the attack.
+
+   *  crit is unilateral.  The enforcement point capability declaration
+      and the precondition that gated crit on it are removed, so this
+      profile no longer uses context.issuance on the request leg at all.
+
+   *  The structural check of Section 6.4.4 tests a returned entry
+      against a single covering request entry rather than against the
+      union of the same-type entries, and a member absent from the
+      request entry no longer causes rejection.
+
+   *  Added worked examples of both authorization details shapes, cross-
+      references between the rules and the examples that exercise them,
+      and a Related Work paragraph on [GRANTMGMT].
 
 Author's Address
 
