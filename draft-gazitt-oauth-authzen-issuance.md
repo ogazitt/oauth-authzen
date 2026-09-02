@@ -1817,3 +1817,33 @@ Thanks also to the participants in the OpenID AuthZEN interoperability
 events, whose December 2025 identity provider scenario demonstrated AuthZEN
 search operations populating token claims, and to the members of the AuthZEN
 Working Group and the OAuth Working Group.
+
+# Document History
+{:numbered="false" removeinrfc="true"}
+
+## Since -00
+{:numbered="false"}
+
+* A request may now name several issuance targets. The single-target MUST in
+  {{resource}} becomes a SHOULD inherited from {{RFC8707}} Section 5 and
+  {{RFC9700}} Section 4.10.2, and {{several-targets}} says how tuples are
+  formed per target, how a denied gate removes one, and why a scope survives
+  only where it was permitted at every surviving target.
+* Requested `authorization_details` now reach the PDP. {{rar-tuple}}
+  decomposes an entry along the product of {{RFC9396}} Section 2.2 into one
+  evaluation per location, action, and datatype, with the datatype carried as
+  a trailing segment of `action.name`.
+* {{residue}} orders the AS's own reductions before the PDP call, so the batch
+  carries only what the AS would otherwise grant.
+* {{bounded}} requires an AS to bound the size of the batch without naming a
+  bound, and {{amplification}} covers the attack.
+* `crit` is unilateral. The enforcement point capability declaration and the
+  precondition that gated `crit` on it are removed, so this profile no longer
+  uses `context.issuance` on the request leg at all.
+* The structural check of {{rar-response}} tests a returned entry against a
+  single covering request entry rather than against the union of the
+  same-type entries, and a member absent from the request entry no longer
+  causes rejection.
+* Added worked examples of both authorization details shapes, cross-references
+  between the rules and the examples that exercise them, and a Related Work
+  paragraph on {{GRANTMGMT}}.
