@@ -396,6 +396,8 @@ This is also what makes the `audience` constraining key of {{shaping}}
 reachable. That key narrows a *set* of targets, and a set can only be
 narrowed if the request was able to put more than one member in it.
 
+{{ex-rar-two}} shows a two-target request on the wire.
+
 ## Actions: Gate, Scope, and Authorization Detail Tuples {#gate-and-scope}
 
 Token issuance asks two questions that are frequently conflated:
@@ -434,7 +436,8 @@ where `<token-type>` and `<grant-type>` are short names registered in
 `issue:id_token:authorization_code`, `issue:refresh_token:token_exchange`.
 
 The `issue:` prefix is reserved. A deployment MUST NOT use a scope value
-beginning with `issue:` as a scope tuple action.
+beginning with `issue:` as a scope tuple action. {{ex-cc}} shows a gate tuple
+in a request.
 
 The grant is part of the action because it is not recoverable from the rest
 of the tuple and it is not implied by the token type. The same subject,
@@ -484,6 +487,8 @@ AS. Any such mapping is internal to the PDP. This keeps `action.name` a
 stable interface: the AS reports what the client asked for, and the PDP
 decides what that means in its own policy vocabulary.
 
+{{ex-downscope}} shows three scope tuples behind a gate, one of them denied.
+
 ### Authorization Detail Tuple {#rar-tuple}
 
 Where the request carries `authorization_details` ({{RFC9396}}), each entry
@@ -526,6 +531,11 @@ datatype axis is narrowed on the response side alone ({{rar-response}}).
 These names cannot be confused with the gate names of {{gate-tuple}}. A gate
 tuple always names a resource whose type is `audience`; an authorization
 detail tuple never does, because `resource.type` is the entry's own `type`.
+The two may name the same `resource.id` and remain distinct questions, which
+{{ex-rar-one}} shows.
+
+{{ex-rar-two}} shows an entry decomposing into the four cells of a two by two
+product, and one of them denied.
 
 Only `type` is REQUIRED of an entry ({{RFC9396}} Section 2), so an axis may
 be absent:
@@ -651,7 +661,7 @@ scope, or authorization detail cell each decision belongs to by position.
 
 A request reduces to a single evaluation only when it names one target, no
 scopes, and no authorization details, in which case the gate tuple stands
-alone.
+alone. {{ex-no-scopes}} is that case, and {{ex-cc}} the smallest batch.
 
 `execute_all` is required because a denial must be able to narrow the grant
 rather than fail it. {{AUTHZEN}} evaluation semantics are selected per request
@@ -715,7 +725,8 @@ issue a token. For token exchange requests the appropriate error is
 An AS MAY instead fail the whole request when any gate is denied.
 {{one-target}} already permits it to refuse a multi-target request outright,
 and an AS unwilling to issue a token for a subset of what was asked for is
-exercising the same discretion later.
+exercising the same discretion later. {{ex-rar-two}} closes on what a denied
+gate would have removed from the batch shown there.
 
 Where one target was requested, both rules coincide: a denied gate fails the
 request.
@@ -745,6 +756,8 @@ entry survives either, the AS MUST fail the request rather than issue an
 empty token, even though the gate permitted it. A permitted gate authorizes a
 token of that kind to exist; it does not authorize an empty one.
 
+{{ex-downscope}} shows a partial denial narrowing a single-target request.
+
 ### A Denied Cell Narrows an Entry {#rar-denial}
 
 An authorization detail tuple governs one cell of one entry. The AS
@@ -757,6 +770,7 @@ are not, the AS reassembles them as several entries of the same `type`, which
 is the shape Figure 6 of {{RFC9396}} defines for a client wanting exactly
 this. An AS MUST NOT instead widen the result to the smallest single entry
 containing the survivors, which would return a cell the PDP denied.
+{{ex-rar-two}} works through such a split.
 
 Where an entry's `locations` was absent and its tuples were therefore fanned
 across several targets, a cell survives only where it was permitted at every
@@ -798,6 +812,10 @@ the response `context`:
 An AS implementing this profile MUST process `context.issuance` and MUST
 ignore unrecognized members outside it, preserving the advisory character
 that {{AUTHZEN}} gives response context generally.
+
+The examples of {{examples}} carry the envelope on live responses:
+`token_lifetime` in {{ex-cc}}, `claims` in {{ex-downscope}}, and
+`granted_scope` in {{ex-no-scopes}}.
 
 Every key defined below has exactly one JSON type, and bindings that define
 further keys MUST do the same. Where the corresponding OAuth or JWT
@@ -1146,10 +1164,11 @@ servers rather than for the token endpoint, where no equivalent signal
 exists. This is an open item, and closing it requires work in both
 specifications.
 
-# Examples
+# Examples {#examples}
 
 The first example below is shown in full, framed against the HTTPS JSON
 binding of {{AUTHZEN}}. The remaining examples show only the JSON payload.
+Each is referenced from the section that specifies the rule it exercises.
 
 The transport is a property of the deployment, not of this profile: an
 evaluation carrying the mapping defined here is the same evaluation whatever
@@ -1159,10 +1178,13 @@ for a request that reduces to a single evaluation, as published in the PDP's
 metadata; the paths shown below are the defaults that apply when metadata
 provides no value.
 
-## Client Credentials, One Scope
+## Client Credentials, One Scope {#ex-cc}
 
-One scope is requested, so the request is the gate tuple and one scope
-tuple. This is the floor: two evaluations, so the Access Evaluations API.
+One scope is requested, so the request is one gate tuple ({{gate-tuple}}) and
+one scope tuple ({{scope-tuple}}). This is the floor: two evaluations, so the
+Access Evaluations API. One target is shared by both, so `resource` is carried
+once at the top level; the examples below that need a resource per evaluation
+carry it there instead, as {{several-targets}} provides.
 
 ~~~ http-message
 POST /access/v1/evaluations HTTP/1.1
@@ -1211,10 +1233,11 @@ Content-Type: application/json
 }
 ~~~
 
-## Authorization Code, Downscoping
+## Authorization Code, Downscoping {#ex-downscope}
 
 Three scopes are requested. The gate leads at index 0 and `execute_all`
-allows the AS to issue the permitted subset of the rest.
+allows the AS to issue the permitted subset of the rest, per
+{{scope-denial}}.
 
 ~~~ json
 {
@@ -1273,10 +1296,10 @@ refresh, index 0 would have read
 `issue:access_token:refresh_token`, and a policy that requires fresh
 authorization here could deny it while leaving the scope tuples untouched.
 
-## No Scopes Requested
+## No Scopes Requested {#ex-no-scopes}
 
-No scopes and no default set, so the gate tuple stands alone. This is the
-only shape this document produces that is a single evaluation, and it is
+No scopes and no default set, so the gate tuple stands alone ({{batch}}). This
+is the only shape this document produces that is a single evaluation, and it is
 therefore the only one sent to the Access Evaluation API rather than the
 Access Evaluations API: the payload is a bare evaluation with no
 `evaluations` array, and under the HTTPS JSON binding it is a `POST` to
@@ -1314,7 +1337,7 @@ Access Evaluations API: the payload is a bare evaluation with no
 }
 ~~~
 
-## Authorization Details, One Entry
+## Authorization Details, One Entry {#ex-rar-one}
 
 The token request below carries one authorization details entry naming one
 location, one action, and one datatype. Line breaks in the request body are
@@ -1395,7 +1418,7 @@ that API. `resource.type` is what separates them.
 Every cell was permitted, so the entry reassembles to itself and the AS
 issues a token carrying the requested `authorization_details` unchanged.
 
-## Authorization Details Across Two Targets
+## Authorization Details Across Two Targets {#ex-rar-two}
 
 Here the request names two issuance targets, and its single entry names two
 locations and two datatypes. One action across two locations and two
