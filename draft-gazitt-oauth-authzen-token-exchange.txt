@@ -116,6 +116,8 @@ Table of Contents
      12.1.  Normative References
      12.2.  Informative References
    Acknowledgments
+   Document History
+     Since -00
    Author's Address
 
 1.  Introduction
@@ -398,11 +400,34 @@ Table of Contents
 
    *  *Level 2*, with resource.id set to each resource identifier named
       by the request under [RFC8707].  Scope tuples are produced at both
-      levels.
+      levels, and authorization detail tuples only here: an entry
+      describes access at a resource rather than delegation to the
+      consumer of the artifact.  Where an entry omits locations, the
+      targets [ISSUANCE] substitutes are the level-2 resources.
 
    A denial at level 1 is a refusal to delegate into that trust domain
-   and is fatal.  A denial at level 2 narrows the resource or scope set
-   the issued artifact may name.
+   and is fatal.
+
+   A denial at level 2 narrows what the issued artifact may name, and
+   how depends on which tuple was denied.  A denied scope tuple removes
+   that scope from the artifact entirely, even where other level-2
+   resources permitted it, which is the intersection [ISSUANCE]
+   requires.  A denied authorization detail cell narrows only its own
+   entry at its own location, because a cell names the location it
+   applies to.
+
+   The intersection is forced here by redemption rather than by
+   [RFC9068].  An ID-JAG carries the level-2 resources in a resource
+   claim and its scopes in a flat scope claim, with no pairing between
+   them, and [I-D.ietf-oauth-identity-assertion-authz-grant] has the
+   resource authorization server process both and grant any subset it
+   decides on.  A scope the identity provider's PDP permitted at one
+   resource and denied at another would therefore reach redemption with
+   the denial no longer visible, and could be granted for the resource
+   that denied it.  An AS whose deployment needs a scope to survive at
+   one level-2 resource and not another issues one ID-JAG per resource,
+   or expresses the distinction in authorization_details, where the
+   location is part of the cell.
 
    Where the request names no [RFC8707] resource, level 2 does not exist
    and the evaluation is single-level.
@@ -542,12 +567,17 @@ Table of Contents
    gate tuple exists for: without it, a scopeless ID-JAG request would
    produce no evaluation at all.
 
-   The specification permits the authorization server to modify, filter,
-   or omit the requested authorization details.  Under this binding
-   those operations have distinct sources: filtering follows from denied
-   scope tuples, omission from an entry all of whose tuples are denied,
-   and modification from the authorization_details shaping key of
-   [ISSUANCE], subject to that key's structural narrowing checks.
+   [I-D.ietf-oauth-identity-assertion-authz-grant] has the identity
+   provider evaluate policy for each requested authorization detail, and
+   permits it to modify, filter, or omit them.  Under this binding the
+   unit is finer than the entry, since [ISSUANCE] decomposes each entry
+   into one tuple per cell, and the three operations have distinct
+   sources.  An entry is omitted where every one of its cells is denied.
+   An entry is filtered where only some are, which may require returning
+   it as several entries of one type rather than one.  Modification
+   beyond what the cells can express comes from the
+   authorization_details shaping key of [ISSUANCE], subject to that
+   key's structural check.
 
    *Redemption.* The application's authorization server presents the ID-
    JAG as an assertion grant.  This is an ordinary single-level
@@ -761,12 +791,7 @@ Table of Contents
      },
      "context": {
        "client_id": "gateway-client",
-       "may_act": { "sub": "spiffe://cluster/ns/prod/sa/gateway" },
-       "issuance": {
-         "capabilities": [
-           "urn:ietf:params:authzen:token-issuance"
-         ]
-       }
+       "may_act": { "sub": "spiffe://cluster/ns/prod/sa/gateway" }
      },
      "evaluations": [
        {
@@ -829,14 +854,7 @@ Table of Contents
    grantable set.
 
    {
-     "context": {
-       "client_id": "chatterbox-idp-7f3a",
-       "issuance": {
-         "capabilities": [
-           "urn:ietf:params:authzen:token-issuance"
-         ]
-       }
-     },
+     "context": { "client_id": "chatterbox-idp-7f3a" },
      "evaluations": [
        {
          "subject":  { "type": "user", "id": "U0405936" },
@@ -983,9 +1001,9 @@ Table of Contents
 
    [ISSUANCE] Gazitt, O., "AuthZEN Profile for OAuth 2.0 Token
               Issuance", Work in Progress, Internet-Draft, draft-gazitt-
-              oauth-authzen-issuance-00, 4 August 2026,
+              oauth-authzen-issuance-01, 1 September 2026,
               <https://datatracker.ietf.org/doc/html/draft-gazitt-oauth-
-              authzen-issuance-00>.
+              authzen-issuance-01>.
 
    [RFC2119]  Bradner, S., "Key words for use in RFCs to Indicate
               Requirement Levels", BCP 14, RFC 2119,
@@ -1045,6 +1063,10 @@ Table of Contents
               DOI 10.17487/RFC8705, February 2020,
               <https://www.rfc-editor.org/rfc/rfc8705>.
 
+   [RFC9068]  Bertocci, V., "JSON Web Token (JWT) Profile for OAuth 2.0
+              Access Tokens", RFC 9068, DOI 10.17487/RFC9068, October
+              2021, <https://www.rfc-editor.org/rfc/rfc9068>.
+
    [RFC9449]  Fett, D., Campbell, B., Bradley, J., Lodderstedt, T.,
               Jones, M., and D. Waite, "OAuth 2.0 Demonstrating Proof of
               Possession (DPoP)", RFC 9449, DOI 10.17487/RFC9449,
@@ -1066,6 +1088,28 @@ Acknowledgments
 
    Thanks to the members of the OAuth Working Group and the OpenID
    AuthZEN Working Group.
+
+Document History
+
+   This section is to be removed before publishing as an RFC.
+
+Since -00
+
+   *  Authorization details are narrowed by the cell rather than by the
+      scope tuple, following the authorization detail tuple [ISSUANCE]
+      now defines.
+
+   *  Section 4.4.1 places authorization detail tuples at level 2 and
+      says which targets are substituted for an entry that omits
+      locations.
+
+   *  A denied scope tuple at level 2 and a denied authorization detail
+      cell at level 2 narrow different things, and the scope
+      intersection is justified by what an ID-JAG loses at redemption
+      rather than by [RFC9068].
+
+   *  Removed the enforcement point capability declaration from the
+      examples, which [ISSUANCE] no longer defines.
 
 Author's Address
 

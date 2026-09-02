@@ -109,8 +109,9 @@ Table of Contents
    14. Security Considerations
      14.1.  Enrichment Is Not Authorization
      14.2.  No Consistency Across Calls
-     14.3.  Token Size
-     14.4.  Privacy
+     14.3.  Provenance and Freshness
+     14.4.  Token Size
+     14.5.  Privacy
    15. IANA Considerations
      15.1.  Issuance Authorization Entity Types
      15.2.  Authorization Claim Bindings Registry
@@ -119,6 +120,8 @@ Table of Contents
      16.1.  Normative References
      16.2.  Informative References
    Acknowledgments
+   Document History
+     Since -00
    Author's Address
 
 1.  Introduction
@@ -384,9 +387,8 @@ Table of Contents
 6.3.  Context
 
    An AS SHOULD convey in the search context the same values it conveys
-   on the evaluation request under [ISSUANCE], other than the capability
-   declaration of that document, which concerns response shaping and has
-   no meaning on a search.  It MAY additionally convey:
+   on the evaluation request under [ISSUANCE].  It MAY additionally
+   convey:
 
          +==========+==================+=========================+
          | Key      | Type             | Value                   |
@@ -566,7 +568,7 @@ Table of Contents
    token endpoint, and where that bound is exceeded it treats the search
    as failed under Section 10.  Reaching such a bound is a sign that the
    data belongs at the resource server rather than in the token; see
-   Section 14.3.
+   Section 14.4.
 
 10.  Failure Handling
 
@@ -697,12 +699,7 @@ Table of Contents
      },
      "context": {
        "client_id": "chatterbox",
-       "acr": "urn:example:loa:2",
-       "issuance": {
-         "capabilities": [
-           "urn:ietf:params:authzen:token-issuance"
-         ]
-       }
+       "acr": "urn:example:loa:2"
      },
      "evaluations": [
        {
@@ -830,7 +827,43 @@ Table of Contents
    bounding any cache lifetime to the lifetime of the tokens the results
    are rendered into.
 
-14.3.  Token Size
+14.3.  Provenance and Freshness
+
+   A claim rendered by this profile carries no indication that it was
+   rendered by this profile.  A resource server reading groups cannot
+   distinguish a value the AS obtained from a PDP at issuance from one
+   cached at session establishment or copied from an upstream token, and
+   those have different revocation behavior.  What the profile improves
+   is the AS's side of it: the value now comes from a named PDP through
+   a specified API rather than from an unspecified directory, database,
+   or hook.  The token records none of that.
+
+   Nor is the instant at which the underlying state held establishable
+   from the token.  An AS asserting that these were the subject's groups
+   at 14:02 is making two claims of different kinds in one artifact.
+   The first, that it issued the token, is authoritative because it
+   issued it.  The second is an account of what a third party's state
+   contained at a moment only the AS observed, and the AS is the party
+   whose caching and propagation behavior a resource server would be
+   trying to evaluate.  Trusting an issuer does not make it a witness to
+   its own freshness.
+
+   This document therefore defines no provenance or freshness claim.  A
+   value the AS asserts about its own timeliness would be relied on as
+   though it were verifiable, and it would not be.  Meeting the
+   requirement takes an attestation from the party that holds the state,
+   which is a signing relationship between that party and the resource
+   server rather than a claim an AS can mint.
+
+   The property is not created here.  It holds for every authorization
+   claim in an [RFC9068] access token, and for auth_time, acr, and amr
+   in an ID Token, all of which are the issuer's account of an event
+   only the issuer observed.  Where a resource server needs a decision
+   against current state rather than an account of past state, the
+   surface for it is the one named in Section 14.4: call the PDP at
+   request time, with the resource in hand.
+
+14.4.  Token Size
 
    A claim with thousands of members produces a token that may exceed
    the header size limits of intermediaries on the path to the resource
@@ -846,7 +879,7 @@ Table of Contents
    will not fit in a token is a signal about which surface the
    deployment needs.
 
-14.4.  Privacy
+14.5.  Privacy
 
    An authorization claim discloses to every party that receives the
    token the complete enumeration of what the subject holds of that
@@ -958,9 +991,9 @@ Table of Contents
 
    [ISSUANCE] Gazitt, O., "AuthZEN Profile for OAuth 2.0 Token
               Issuance", Work in Progress, Internet-Draft, draft-gazitt-
-              oauth-authzen-issuance-00, 4 August 2026,
+              oauth-authzen-issuance-01, 1 September 2026,
               <https://datatracker.ietf.org/doc/html/draft-gazitt-oauth-
-              authzen-issuance-00>.
+              authzen-issuance-01>.
 
    [RFC2119]  Bradner, S., "Key words for use in RFCs to Indicate
               Requirement Levels", BCP 14, RFC 2119,
@@ -1016,6 +1049,20 @@ Acknowledgments
    events, whose December 2025 identity provider scenario demonstrated
    AuthZEN search operations populating token claims, and to the members
    of the AuthZEN Working Group and the OAuth Working Group.
+
+Document History
+
+   This section is to be removed before publishing as an RFC.
+
+Since -00
+
+   *  Added Section 14.3, stating that an enriched claim carries no
+      indication of its own provenance and that the instant at which the
+      underlying state held is not establishable from the token.
+
+   *  Removed the search context's carve-out for the enforcement point
+      capability declaration, and the declaration itself from the
+      example, neither of which [ISSUANCE] defines any longer.
 
 Author's Address
 
