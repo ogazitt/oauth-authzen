@@ -932,6 +932,14 @@ for arbitrary authorization detail types. This profile therefore requires:
   Figure 6 of {{RFC9396}} does, an entry returning `read` on `photos` is
   within the union of the two and within neither, and names a permission the
   client did not request.
+* **Absent members.** A member absent from the covering request entry
+  constrains nothing, and a returned entry MAY carry a member the request
+  omitted: the client asked for the entry unrestricted along that axis, so
+  any value the PDP supplies narrows it, which is the policy narrowing
+  {{rar-tuple}} describes. `locations` is the exception, since
+  {{rar-tuple}} substitutes the requested targets where it is absent. A
+  returned entry MUST NOT name a location that is neither in the covering
+  request entry nor a requested target of {{resource}}.
 * **Type-specific members.** For members beyond those defined in
   {{RFC9396}}, the AS MUST either apply a validator specific to that
   authorization details type or reject the decision. An AS MUST NOT pass
