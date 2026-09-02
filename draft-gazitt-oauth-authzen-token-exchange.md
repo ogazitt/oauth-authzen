@@ -324,7 +324,11 @@ producing tuples at both:
 * **Level 1**, with `resource.id` set to the consumer of the issued artifact
   - the peer authorization server. Gate tuples appear only at this level.
 * **Level 2**, with `resource.id` set to each resource identifier named by
-  the request under {{RFC8707}}. Scope tuples are produced at both levels.
+  the request under {{RFC8707}}. Scope tuples are produced at both levels,
+  and authorization detail tuples only here: an entry describes access at a
+  resource rather than delegation to the consumer of the artifact. Where an
+  entry omits `locations`, the targets {{ISSUANCE}} substitutes are the
+  level-2 resources.
 
 A denial at level 1 is a refusal to delegate into that trust domain and is
 fatal. A denial at level 2 narrows the resource or scope set the issued
@@ -446,12 +450,16 @@ specific set returns `granted_scope` in the response context, as
 for: without it, a scopeless ID-JAG request would produce no evaluation at
 all.
 
-The specification permits the authorization server to modify, filter, or
-omit the requested authorization details. Under this binding those
-operations have distinct sources: filtering follows from denied scope
-tuples, omission from an entry all of whose tuples are denied, and
-modification from the `authorization_details` shaping key of {{ISSUANCE}},
-subject to that key's structural narrowing checks.
+{{I-D.ietf-oauth-identity-assertion-authz-grant}} has the identity provider
+evaluate policy for each requested authorization detail, and permits it to
+modify, filter, or omit them. Under this binding the unit is finer than the
+entry, since {{ISSUANCE}} decomposes each entry into one tuple per cell, and
+the three operations have distinct sources. An entry is omitted where every
+one of its cells is denied. An entry is filtered where only some are, which
+may require returning it as several entries of one `type` rather than one.
+Modification beyond what the cells can express comes from the
+`authorization_details` shaping key of {{ISSUANCE}}, subject to that key's
+structural check.
 
 **Redemption.** The application's authorization server presents the ID-JAG
 as an assertion grant. This is an ordinary single-level evaluation. Its
