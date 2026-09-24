@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2026-09-22T04:12:43.440278+00:00",
+  "timestamp": "2026-09-24T04:04:51.889353+00:00",
   "repo": "ogazitt/oauth-authzen",
   "labels": [
     {
@@ -75,7 +75,7 @@
       "id": "I_kwDOTnp6ss8AAAABLecFcQ",
       "title": "Step-up authentication has no carrier at the token endpoint",
       "url": "https://github.com/ogazitt/oauth-authzen/issues/1",
-      "state": "OPEN",
+      "state": "CLOSED",
       "author": "ogazitt",
       "authorAssociation": "OWNER",
       "assignees": [],
@@ -85,16 +85,24 @@
       ],
       "body": "A PDP that denies because the subject authenticated too weakly knows something\nthe client could act on: which `acr` and `amr` values would have permitted the\nrequest. Neither end of that is specified today.\n\n- AuthZEN carries `acr_values` / `amr_values` only in the **non-normative\n  example** of Section 5.5.2.3. The keys are never defined, so there is\n  nothing normative for this profile to reference.\n- `insufficient_user_authentication` (RFC 9470) is defined for resource\n  servers. The token endpoint has no equivalent.\n\nThe Error Mapping section currently says an AS SHOULD surface the requirement\nand declines to define how.\n\nClosing this needs work in both specifications, which is why it may deserve\nits own document rather than a paragraph here. The AuthZEN half should be\nraised with the AuthZEN WG.",
       "createdAt": "2026-08-04T21:31:21Z",
-      "updatedAt": "2026-08-04T21:31:21Z",
-      "closedAt": null,
-      "comments": []
+      "updatedAt": "2026-09-23T22:36:44Z",
+      "closedAt": "2026-09-23T22:36:44Z",
+      "comments": [
+        {
+          "author": "ogazitt",
+          "authorAssociation": "OWNER",
+          "body": "Resolved, and smaller than it looked.\n\nThe AuthZEN half closed itself: the Obligations profile ships a normative `step-up` obligation with `acr_value` and `amr_values`, a registry and PEP negotiation, so \"AuthZEN defines no keys for this\" is no longer true.\n\nThe OAuth half turned out not to need an answer. The premise here was that the requirement should reach the client, and it cannot: an AS at the token endpoint has no front channel to the subject, so the obligation is addressed to an enforcement point that does not exist on that exchange. Rather than invent a carrier, a PDP governing token issuance should not return the obligation at all. openid/authzen#674 states that, and notes that on a permit it is worse than a no-op - the Obligations profile requires a non-complying enforcement point to treat the response as a denial, so the token is suppressed.\n\nThe Error Mapping paragraph that said an AS SHOULD surface the requirement is removed with it.",
+          "createdAt": "2026-09-23T22:36:43Z",
+          "updatedAt": "2026-09-23T22:36:43Z"
+        }
+      ]
     },
     {
       "number": 2,
       "id": "I_kwDOTnp6ss8AAAABLecIkw",
       "title": "No error code is named for a policy denial",
       "url": "https://github.com/ogazitt/oauth-authzen/issues/2",
-      "state": "OPEN",
+      "state": "CLOSED",
       "author": "ogazitt",
       "authorAssociation": "OWNER",
       "assignees": [],
@@ -104,16 +112,24 @@
       ],
       "body": "The Error Mapping table says \"fail the request; do not issue\" for a gate\ndenial without naming an OAuth error code. That reflects the state of the\nneighbouring specifications, which have no consensus:\n\n- **RFC 8693** Section 2.2.1 says the AS MUST use `invalid_request` when a\n  token is \"unacceptable based on policy\" - which contradicts RFC 6749\n  Section 5.2, where `invalid_request` means the request is *malformed*.\n- **Identity chaining** defers to RFC 7523 Section 3.1, i.e. `invalid_grant`.\n- **ID-JAG** and **Transaction Tokens** describe policy denial in detail and\n  name no error code at all.\n- `access_denied` is semantically exact (\"the resource owner or authorization\n  server denied the request\") but is defined at the authorization endpoint in\n  RFC 6749 Section 4.1.2.1. RFC 8628 Section 3.5 does use it at the token\n  endpoint, which weakens that objection.\n\nShould this profile name a code, or stay silent deliberately, so that a client\ncannot infer which gate failed?",
       "createdAt": "2026-08-04T21:31:29Z",
-      "updatedAt": "2026-08-04T21:31:29Z",
-      "closedAt": null,
-      "comments": []
+      "updatedAt": "2026-09-23T21:54:08Z",
+      "closedAt": "2026-09-23T21:54:08Z",
+      "comments": [
+        {
+          "author": "ogazitt",
+          "authorAssociation": "OWNER",
+          "body": "Superseded by openid/authzen#672, which merges this with the other two sides of the same gap: what the client is told on a denial, on a narrowing, and on a fail-closed. Each carries a proposed resolution there.",
+          "createdAt": "2026-09-23T21:54:07Z",
+          "updatedAt": "2026-09-23T21:54:07Z"
+        }
+      ]
     },
     {
       "number": 3,
       "id": "I_kwDOTnp6ss8AAAABLecLXQ",
       "title": "A partial grant has no signal beyond the scope parameter",
       "url": "https://github.com/ogazitt/oauth-authzen/issues/3",
-      "state": "OPEN",
+      "state": "CLOSED",
       "author": "ogazitt",
       "authorAssociation": "OWNER",
       "assignees": [],
@@ -123,16 +139,24 @@
       ],
       "body": "A scope tuple denial narrows the issued token rather than failing the request.\nThe scope case is covered: RFC 6749 Section 5.1 and RFC 8693 Section 2.2.1\nrequire the `scope` response parameter when the granted scope differs from the\nrequested scope, and ID-JAG states that granted scopes may be a subset of\nthose requested.\n\nNothing covers the rest of it. There is no signal for a narrowed `audience` or\nfor filtered `authorization_details`, and nothing conveys *why* a privilege\nwas dropped. A client that asked for three scopes and got two cannot tell\nwhether the third was refused by policy or was never recognized.\n\nRelated to #2, which is the same gap seen from the failure side.",
       "createdAt": "2026-08-04T21:31:36Z",
-      "updatedAt": "2026-08-04T21:31:36Z",
-      "closedAt": null,
-      "comments": []
+      "updatedAt": "2026-09-23T21:54:10Z",
+      "closedAt": "2026-09-23T21:54:10Z",
+      "comments": [
+        {
+          "author": "ogazitt",
+          "authorAssociation": "OWNER",
+          "body": "Superseded by openid/authzen#672, which merges this with the other two sides of the same gap: what the client is told on a denial, on a narrowing, and on a fail-closed. Each carries a proposed resolution there.",
+          "createdAt": "2026-09-23T21:54:09Z",
+          "updatedAt": "2026-09-23T21:54:09Z"
+        }
+      ]
     },
     {
       "number": 4,
       "id": "I_kwDOTnp6ss8AAAABLecO_g",
       "title": "Which URN namespace names the capability",
       "url": "https://github.com/ogazitt/oauth-authzen/issues/4",
-      "state": "OPEN",
+      "state": "CLOSED",
       "author": "ogazitt",
       "authorAssociation": "OWNER",
       "assignees": [],
@@ -142,16 +166,24 @@
       ],
       "body": "Section 12.1 sets out three resolutions and leaves the choice to the working\ngroup:\n\n1. This document (or a companion) performs the RFC 3553 registration of the\n   `authzen` sub-namespace of `urn:ietf:params`, satisfying the IETF Review\n   policy that AuthZEN 1.0 Section 12 asks for and that a specification\n   published outside the IETF stream cannot satisfy on its own.\n2. Name the capability under `urn:openid:authzen` instead, requesting no IANA\n   action. ARAP already does this, so it is the scheme AuthZEN profiles use in\n   practice.\n3. Decline the dependency and register under `urn:ietf:params:oauth`\n   (RFC 6755), whose Specification Required policy is not blocked.\n\nA capability identifier is only useful if both parties compute the same\nstring, so one scheme for all AuthZEN capabilities is worth more than this\ndocument's independence from any of them. Options 1 and 2 both achieve that\nand differ only in which body assigns the name.\n\nNeeds to be settled jointly with the AuthZEN WG rather than here alone.",
       "createdAt": "2026-08-04T21:31:45Z",
-      "updatedAt": "2026-08-04T21:31:45Z",
-      "closedAt": null,
-      "comments": []
+      "updatedAt": "2026-09-23T20:47:16Z",
+      "closedAt": "2026-09-23T20:47:16Z",
+      "comments": [
+        {
+          "author": "ogazitt",
+          "authorAssociation": "OWNER",
+          "body": "Resolved in the text: the profile registers `urn:openid:authzen:capability:token-issuance`, which is option 2. The IANA Considerations section carries the reasoning - the `urn:openid:authzen:` namespace is administered by the OpenID Foundation, ARAP follows the same convention for `urn:openid:authzen:capability:access-request`, and the `capabilities` array remains a list of URNs as AuthZEN 1.0 defines it.\n\nAdoption by the AuthZEN WG settled what this issue framed as open. The question was which body assigns the name, and the document is now an OpenID Foundation work item.\n\nThe residual - AuthZEN 1.0 Section 12 requests an IANA registration of the `urn:ietf:params:authzen:` sub-namespace that was never filed - is tracked at openid/authzen#597 and does not block this profile.",
+          "createdAt": "2026-09-23T20:47:15Z",
+          "updatedAt": "2026-09-23T20:47:15Z"
+        }
+      ]
     },
     {
       "number": 5,
       "id": "I_kwDOTnp6ss8AAAABLecSpA",
       "title": "Is a new registry the right way to name gate actions?",
       "url": "https://github.com/ogazitt/oauth-authzen/issues/5",
-      "state": "OPEN",
+      "state": "CLOSED",
       "author": "ogazitt",
       "authorAssociation": "OWNER",
       "assignees": [],
@@ -161,16 +193,24 @@
       ],
       "body": "The gate action name is `issue:<token-type>:<grant-type>`, composed from short\nnames held in two registries this document creates, rather than from the\nexisting OAuth grant type URIs.\n\nThe reason is portability: relation identifiers in real policy engines have\nlength and character constraints that the URIs exceed, so a composed name\nbuilt from URIs could not be carried into a relationship-based engine without\nrewriting the policy.\n\nThe counter-argument is that inventing a parallel vocabulary for grants that\nalready have registered identifiers is a cost of its own, and that engines\ncould canonicalize instead. This is the kind of naming call the working group\nis better placed to make.",
       "createdAt": "2026-08-04T21:31:52Z",
-      "updatedAt": "2026-08-04T21:31:52Z",
-      "closedAt": null,
-      "comments": []
+      "updatedAt": "2026-09-23T22:45:30Z",
+      "closedAt": "2026-09-23T22:45:30Z",
+      "comments": [
+        {
+          "author": "ogazitt",
+          "authorAssociation": "OWNER",
+          "body": "Closing. The short names stand, as an editorial judgment rather than a\nconsensus question.\n\nThe portability argument is the one that decides it. A gate action name is\ncarried into the policy engine as a relation or permission identifier, and\nreal engines constrain the length and character set of those identifiers more\ntightly than a grant type URI will fit. Composing the name from URIs would\nmean every deployment rewrites it on the way in, which puts the rewriting\nrule outside the specification and makes two deployments disagree about what\nthe same grant is called.\n\nThe cost of the parallel vocabulary is real but small and bounded: two short\nlists that change only when OAuth registers a new grant type or token type.\nThe counter-proposal, that engines canonicalize instead, moves the same work\nto every implementer rather than doing it once here.\n\nThe registries are also OpenID Foundation registries rather than IANA ones\n(\u00a712), so if the working group prefers a different naming scheme later, the\ncost of changing course is a registry edit and not an IETF action.\n",
+          "createdAt": "2026-09-23T22:45:29Z",
+          "updatedAt": "2026-09-23T22:45:29Z"
+        }
+      ]
     },
     {
       "number": 6,
       "id": "I_kwDOTnp6ss8AAAABLecVyA",
       "title": "Batch size, latency budget and caching are unspecified",
       "url": "https://github.com/ogazitt/oauth-authzen/issues/6",
-      "state": "OPEN",
+      "state": "CLOSED",
       "author": "ogazitt",
       "authorAssociation": "OWNER",
       "assignees": [],
@@ -179,8 +219,8 @@
       ],
       "body": "A request naming several scopes against several audiences produces a cross\nproduct of evaluations. Section 4.1 addresses colocation and the latency\nargument, but the document says nothing about:\n\n- an upper bound on the number of evaluations in one batch, or pagination\n- the latency budget an AS should assume on the token path\n- whether, and for how long, a decision may be cached\n\nThe third is the one with security consequences, since caching a permit is\nthe thing the whole framework is arguing against doing in a token.",
       "createdAt": "2026-08-04T21:31:59Z",
-      "updatedAt": "2026-09-02T05:15:16Z",
-      "closedAt": null,
+      "updatedAt": "2026-09-23T22:44:05Z",
+      "closedAt": "2026-09-23T22:44:05Z",
       "comments": [
         {
           "author": "ogazitt",
@@ -188,6 +228,13 @@
           "body": "Batch size is addressed in `-01`. \u00a75.5.3 requires an AS to bound the number of evaluations it will form and reject a request that exceeds the bound, without naming a number, on the RFC 9126 \u00a72.3 precedent. Rejection uses the error belonging to the parameter that overran rather than `invalid_request`. \u00a711.2 covers the amplification case, including why AuthZEN \u00a711.7's PDP-side shedding is not something an AS may lean on.\n\nLatency budget: \u00a74.1 and \u00a711.1 are what there is, and I don't intend to name a number there either.\n\nCaching is untouched, and it's the half worth keeping this open for. All the draft says is that deployments \"should consider caching of decisions\", in a document whose argument is that a token is a cached permit. Narrowing this issue to caching.",
           "createdAt": "2026-09-02T05:15:15Z",
           "updatedAt": "2026-09-02T05:15:15Z"
+        },
+        {
+          "author": "ogazitt",
+          "authorAssociation": "OWNER",
+          "body": "Closing with no change.\n\nThe first two are already answered in the text: \u00a75.5.3 requires an AS to\nbound the batch without naming a bound, and \u00a74.1 covers the latency budget,\nincluding that the PDP may run in the AS's own process.\n\nCaching stays a deployment matter. \u00a711.1 already says deployments should\nconsider it, and that is the right depth: the profile's latency argument does\nnot depend on caching, since a decision is already amortized across the life\nof the token it issues, so there is no pressure the specification needs to\nrelieve. Writing cache rules into the profile would specify a mechanism it\ndoes not require and cannot enforce.\n",
+          "createdAt": "2026-09-23T22:44:03Z",
+          "updatedAt": "2026-09-23T22:44:03Z"
         }
       ]
     },
@@ -196,7 +243,7 @@
       "id": "I_kwDOTnp6ss8AAAABLecY6g",
       "title": "Fail closed, but with what response?",
       "url": "https://github.com/ogazitt/oauth-authzen/issues/7",
-      "state": "OPEN",
+      "state": "CLOSED",
       "author": "ogazitt",
       "authorAssociation": "OWNER",
       "assignees": [],
@@ -206,16 +253,24 @@
       ],
       "body": "The draft says that an unreachable PDP, or a malformed decision response,\nmeans the AS fails closed and does not issue. It does not say what the client\nsees.\n\nRFC 6749 has no token endpoint equivalent of a 503. HTTP 503 with `Retry-After`\nmay be sufficient on its own, or `temporarily_unavailable` semantics may need\ndefining for this endpoint.\n\nThis interacts with `I-D.gerber-oauth-deferred-token-response` (cited in\nSection 4.2 as the escape hatch for decisions that cannot be made\nsynchronously): a PDP that is merely slow and a PDP that is down should\nprobably not look the same to a client.",
       "createdAt": "2026-08-04T21:32:06Z",
-      "updatedAt": "2026-08-04T21:32:06Z",
-      "closedAt": null,
-      "comments": []
+      "updatedAt": "2026-09-23T21:54:12Z",
+      "closedAt": "2026-09-23T21:54:12Z",
+      "comments": [
+        {
+          "author": "ogazitt",
+          "authorAssociation": "OWNER",
+          "body": "Superseded by openid/authzen#672, which merges this with the other two sides of the same gap: what the client is told on a denial, on a narrowing, and on a fail-closed. Each carries a proposed resolution there.",
+          "createdAt": "2026-09-23T21:54:11Z",
+          "updatedAt": "2026-09-23T21:54:11Z"
+        }
+      ]
     },
     {
       "number": 8,
       "id": "I_kwDOTnp6ss8AAAABLecb4Q",
       "title": "Two smaller questions on the response vocabulary",
       "url": "https://github.com/ogazitt/oauth-authzen/issues/8",
-      "state": "OPEN",
+      "state": "CLOSED",
       "author": "ogazitt",
       "authorAssociation": "OWNER",
       "assignees": [],
@@ -224,8 +279,8 @@
       ],
       "body": "Both carried forward from the analysis that produced Section 6, neither\nblocking.\n\n**Refresh token lifetime.** Should `token_lifetime` have a companion key for\nthe refresh token, or is refresh issuance simply a separate decision with its\nown evaluation? The latter is cleaner but means an AS cannot express \"issue\nthis access token, but no refresh token\" in a single call.\n\n**Response signing with `crit`.** Should signing the decision response be\nREQUIRED when `crit` is used? Leaning no, on the grounds that an attacker who\ncan strip `crit` can equally flip `decision` to `true`, so `crit` adds no\nattack surface that transport security does not already have to cover. A\nsecurity area reviewer will ask, so the reasoning should probably be written\ndown either way.",
       "createdAt": "2026-08-04T21:32:14Z",
-      "updatedAt": "2026-09-02T05:06:49Z",
-      "closedAt": null,
+      "updatedAt": "2026-09-23T21:27:34Z",
+      "closedAt": "2026-09-23T21:27:34Z",
       "comments": [
         {
           "author": "ogazitt",
@@ -233,6 +288,13 @@
           "body": "Response signing isn't really required, since `crit` doesn't change the threat model. An attacker who can strip `crit` can equally flip `decision` to `true`, so the transport protection between the AS and the PDP has to cover it either way. \u00a711.4 already says this, and has since -00.\n\nLeaving this open for the refresh token lifetime question only.",
           "createdAt": "2026-09-02T05:06:49Z",
           "updatedAt": "2026-09-02T05:06:49Z"
+        },
+        {
+          "author": "ogazitt",
+          "authorAssociation": "OWNER",
+          "body": "Both resolved.\n\n**Refresh token lifetime.** No companion key. Refresh issuance is a\nseparate decision with its own gate tuple, and the objection against\nthat option - that an AS could not express \"access token yes, refresh\ntoken no\" in a single call - was wrong: the batch is a single call.\nopenid/authzen#670 makes the profile form one gate tuple per token type\nand aggregate shaping per token type, so a PDP returns a `token_lifetime`\non `issue:refresh_token:authorization_code` that bounds the refresh token\nalone, and a denial there narrows the response instead of failing it.\n\n**Response signing with `crit`.** Leaning no became no, and the reasoning\nis written down in Security Considerations: an attacker able to strip\n`crit` can equally flip `decision` to `true`, so `crit` adds no attack\nsurface that transport security does not already cover.\n",
+          "createdAt": "2026-09-23T21:27:33Z",
+          "updatedAt": "2026-09-23T21:27:33Z"
         }
       ]
     },
