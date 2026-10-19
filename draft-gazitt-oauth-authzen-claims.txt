@@ -4,8 +4,8 @@
 
 Web Authorization Protocol                                     O. Gazitt
 Internet-Draft                                               Independent
-Intended status: Standards Track                        2 September 2026
-Expires: 6 March 2027
+Intended status: Standards Track                         19 October 2026
+Expires: 22 April 2027
 
 
      AuthZEN Profile for Authorization Claims in JWT Access Tokens
@@ -61,7 +61,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 6 March 2027.
+   This Internet-Draft will expire on 22 April 2027.
 
 Copyright Notice
 
@@ -1026,9 +1026,9 @@ Table of Contents
    [I-D.gazitt-oauth-authzen-token-exchange]
               Gazitt, O., "AuthZEN Binding for OAuth 2.0 Token
               Exchange", Work in Progress, Internet-Draft, draft-gazitt-
-              oauth-authzen-token-exchange-00, 4 August 2026,
+              oauth-authzen-token-exchange-01, 1 September 2026,
               <https://datatracker.ietf.org/doc/html/draft-gazitt-oauth-
-              authzen-token-exchange-00>.
+              authzen-token-exchange-01>.
 
    [RFC7515]  Jones, M., Bradley, J., and N. Sakimura, "JSON Web
               Signature (JWS)", RFC 7515, DOI 10.17487/RFC7515, May

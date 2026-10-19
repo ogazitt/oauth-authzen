@@ -1,0 +1,2568 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta content="Common,Latin" name="scripts">
+<meta content="initial-scale=1.0" name="viewport">
+<title>COAZ-RAR: COAZ Binding for OAuth 2.0 Rich Authorization Requests - Draft 1</title>
+<meta content="Omri Gazitt" name="author">
+<meta content="
+       This specification defines COAZ-RAR, the COAZ binding, as defined by the COAZ
+Framework  , for OAuth 2.0 Rich Authorization Requests  .
+An authorization details type is typically defined by one party and processed
+by others: an authorization server decides whether to grant an entry of that
+type, and a resource server decides whether a call is permitted under it.
+This binding lets the definer of a type publish, once, how an entry of that
+type maps onto an OpenID AuthZEN Authorization API request  , and
+lets both enforcement points apply that mapping. The authorization server
+applies it at token issuance, under the AuthZEN profile for OAuth 2.0 token
+issuance  ; the resource server applies it when a call arrives.
+Both ask the Policy Decision Point their questions in one vocabulary. The
+mapping is published as a member of the type's entry in the authorization
+details types metadata defined by  . 
+    " name="description">
+<meta content="xml2rfc 3.34.1" name="generator">
+<meta content="authorization" name="keyword">
+<meta content="AuthZEN" name="keyword">
+<meta content="OAuth" name="keyword">
+<meta content="rich authorization requests" name="keyword">
+<meta content="fine-grained authorization" name="keyword">
+<meta content="draft-gazitt-authzen-coaz-rar-latest" name="ietf.draft">
+<!-- Generator version information:
+  xml2rfc 3.34.1
+    Python 3.14.8
+    ConfigArgParse 1.8.0
+    google-i18n-address 3.1.1
+    intervaltree 3.2.1
+    Jinja2 3.1.6
+    lxml 6.1.1
+    natsort 8.4.0
+    platformdirs 4.13.4
+    pycountry 24.6.1
+    PyYAML 6.0.3
+    requests 2.33.1
+    wcwidth 0.9.2
+-->
+<link href="draft-gazitt-authzen-coaz-rar.xml" rel="alternate" type="application/rfc+xml">
+<link href="#copyright" rel="license">
+<style type="text/css">@font-face {
+  font-family: 'Lora';
+  font-style: italic;
+  font-weight: 400;
+  font-display: swap;
+  src: local('Lora Italic'), local('Lora-Italic'), url('https://martinthomson.github.io/rfc-css/fonts/lora-italic-cyrillic-ext.woff2') format('woff2');
+  unicode-range: U+0460-052F, U+1C80-1C88, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
+}
+@font-face {
+  font-family: 'Lora';
+  font-style: italic;
+  font-weight: 400;
+  font-display: swap;
+  src: local('Lora Italic'), local('Lora-Italic'), url('https://martinthomson.github.io/rfc-css/fonts/lora-italic-cyrillic-ext.woff2') format('woff2');
+  unicode-range: U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+@font-face {
+  font-family: 'Lora';
+  font-style: italic;
+  font-weight: 400;
+  font-display: swap;
+  src: local('Lora Italic'), local('Lora-Italic'), url('https://martinthomson.github.io/rfc-css/fonts/lora-italic-vietnamese.woff2') format('woff2');
+  unicode-range: U+0102-0103, U+0110-0111, U+1EA0-1EF9, U+20AB;
+}
+@font-face {
+  font-family: 'Lora';
+  font-style: italic;
+  font-weight: 400;
+  font-display: swap;
+  src: local('Lora Italic'), local('Lora-Italic'), url('https://martinthomson.github.io/rfc-css/fonts/lora-italic-latin-ext.woff2') format('woff2');
+  unicode-range: U+0100-024F, U+0259, U+1E00-1EFF, U+2020, U+20A0-20AB, U+20AD-20CF, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+@font-face {
+  font-family: 'Lora';
+  font-style: italic;
+  font-weight: 400;
+  font-display: swap;
+  src: local('Lora Italic'), local('Lora-Italic'), url('https://martinthomson.github.io/rfc-css/fonts/lora-italic-latin.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: 'Lora';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: local('Lora Regular'), local('Lora-Regular'), url('https://martinthomson.github.io/rfc-css/fonts/lora-regular-cyrillic-ext.woff2') format('woff2');
+  unicode-range: U+0460-052F, U+1C80-1C88, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
+}
+@font-face {
+  font-family: 'Lora';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: local('Lora Regular'), local('Lora-Regular'), url('https://martinthomson.github.io/rfc-css/fonts/lora-regular-cyrillic.woff2') format('woff2');
+  unicode-range: U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+@font-face {
+  font-family: 'Lora';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: local('Lora Regular'), local('Lora-Regular'), url('https://martinthomson.github.io/rfc-css/fonts/lora-regular-vietnamese.woff2') format('woff2');
+  unicode-range: U+0102-0103, U+0110-0111, U+1EA0-1EF9, U+20AB;
+}
+@font-face {
+  font-family: 'Lora';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: local('Lora Regular'), local('Lora-Regular'), url('https://martinthomson.github.io/rfc-css/fonts/lora-regular-latin-ext.woff2') format('woff2');
+  unicode-range: U+0100-024F, U+0259, U+1E00-1EFF, U+2020, U+20A0-20AB, U+20AD-20CF, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+@font-face {
+  font-family: 'Lora';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: local('Lora Regular'), local('Lora-Regular'), url('https://martinthomson.github.io/rfc-css/fonts/lora-regular-latin.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: 'Lora';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: local('Lora Bold'), local('Lora-Bold'), url('https://martinthomson.github.io/rfc-css/fonts/lora-bold-cyrillic-ext.woff2') format('woff2');
+  unicode-range: U+0460-052F, U+1C80-1C88, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
+}
+@font-face {
+  font-family: 'Lora';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: local('Lora Bold'), local('Lora-Bold'), url('https://martinthomson.github.io/rfc-css/fonts/lora-bold-cyrillic.woff2') format('woff2');
+  unicode-range: U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+@font-face {
+  font-family: 'Lora';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: local('Lora Bold'), local('Lora-Bold'), url('https://martinthomson.github.io/rfc-css/fonts/lora-bold-vietnamese.woff2') format('woff2');
+  unicode-range: U+0102-0103, U+0110-0111, U+1EA0-1EF9, U+20AB;
+}
+@font-face {
+  font-family: 'Lora';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: local('Lora Bold'), local('Lora-Bold'), url('https://martinthomson.github.io/rfc-css/fonts/lora-bold-latin-ext.woff2') format('woff2');
+  unicode-range: U+0100-024F, U+0259, U+1E00-1EFF, U+2020, U+20A0-20AB, U+20AD-20CF, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+@font-face {
+  font-family: 'Lora';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: local('Lora Bold'), local('Lora-Bold'), url('https://martinthomson.github.io/rfc-css/fonts/lora-bold-latin.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: 'Lora';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: local('Lora SemiBold'), local('Lora-SemiBold'), url('https://martinthomson.github.io/rfc-css/fonts/lora-semibold-latin.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+@font-face {
+  font-family: 'Oxygen Mono';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: local('Oxygen Mono'), local('OxygenMono-Regular'), url('https://martinthomson.github.io/rfc-css/fonts/oxygenmono-regular-latin-ext.woff2') format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+@font-face {
+  font-family: 'Oxygen Mono';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: local('Oxygen Mono'), local('OxygenMono-Regular'), url('https://martinthomson.github.io/rfc-css/fonts/oxygenmono-regular-latin.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+@font-face {
+  font-family: 'Sofia Sans Semi Condensed';
+  font-style: italic;
+  font-weight: 1 1000;
+  src: url('https://martinthomson.github.io/rfc-css/fonts/sofiasanssemicondensed-italic-cyrillic-ext.woff2') format('woff2');
+  unicode-range: U+0460-052F, U+1C80-1C8A, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
+}
+@font-face {
+  font-family: 'Sofia Sans Semi Condensed';
+  font-style: italic;
+  font-weight: 1 1000;
+  src: url('https://martinthomson.github.io/rfc-css/fonts/sofiasanssemicondensed-italic-cyrillic.woff2') format('woff2');
+  unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+@font-face {
+  font-family: 'Sofia Sans Semi Condensed';
+  font-style: italic;
+  font-weight: 1 1000;
+  src: url('https://martinthomson.github.io/rfc-css/fonts/sofiasanssemicondensed-italic-greek.woff2') format('woff2');
+  unicode-range: U+0370-0377, U+037A-037F, U+0384-038A, U+038C, U+038E-03A1, U+03A3-03FF;
+}
+@font-face {
+  font-family: 'Sofia Sans Semi Condensed';
+  font-style: italic;
+  font-weight: 1 1000;
+  src: url('https://martinthomson.github.io/rfc-css/fonts/sofiasanssemicondensed-italic-latin-ext.woff2') format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+@font-face {
+  font-family: 'Sofia Sans Semi Condensed';
+  font-style: italic;
+  font-weight: 1 1000;
+  src: url('https://martinthomson.github.io/rfc-css/fonts/sofiasanssemicondensed-italic-latin.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: 'Sofia Sans Semi Condensed';
+  font-style: normal;
+  font-weight: 1 1000;
+  src: url('https://martinthomson.github.io/rfc-css/fonts/sofiasanssemicondensed-regular-cyrillic-ext.woff2') format('woff2');
+  unicode-range: U+0460-052F, U+1C80-1C8A, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
+}
+@font-face {
+  font-family: 'Sofia Sans Semi Condensed';
+  font-style: normal;
+  font-weight: 1 1000;
+  src: url('https://martinthomson.github.io/rfc-css/fonts/sofiasanssemicondensed-regular-cyrillic.woff2') format('woff2');
+  unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+@font-face {
+  font-family: 'Sofia Sans Semi Condensed';
+  font-style: normal;
+  font-weight: 1 1000;
+  src: url('https://martinthomson.github.io/rfc-css/fonts/sofiasanssemicondensed-regular-greek.woff2') format('woff2');
+  unicode-range: U+0370-0377, U+037A-037F, U+0384-038A, U+038C, U+038E-03A1, U+03A3-03FF;
+}
+@font-face {
+  font-family: 'Sofia Sans Semi Condensed';
+  font-style: normal;
+  font-weight: 1 1000;
+  src: url('https://martinthomson.github.io/rfc-css/fonts/sofiasanssemicondensed-regular-latin-ext.woff2') format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+@font-face {
+  font-family: 'Sofia Sans Semi Condensed';
+  font-style: normal;
+  font-weight: 1 1000;
+  src: url('https://martinthomson.github.io/rfc-css/fonts/sofiasanssemicondensed-regular-latin.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+:root {
+  color-scheme: light dark;
+  --background-color: #fff;
+  --text-color: #222;
+  --title-color: #191919;
+  --link-color: #2a6496;
+  --highlight-color: #f9f9f9;
+  --line-color: #eee;
+  --pilcrow-weak: #ddd;
+  --pilcrow-strong: #bbb;
+  --small-font-size: 14.5px;
+  --font-mono: 'Oxygen Mono', monospace;
+  --font-title: "Sofia Sans Semi Condensed", sans-serif;
+  scrollbar-color: #bbb #eee;
+}
+body {
+  max-width: 600px;
+  margin: 75px auto;
+  padding: 0 5px;
+  color: var(--text-color);
+  background-color: var(--background-color);
+  font: 16px/22px "Lora", serif;
+  scroll-behavior: smooth;
+}
+
+.ears {
+  display: none;
+}
+
+/* headings */
+section {
+  clear: both;
+}
+.section-number {
+  padding-right: 0.5em;
+}
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-title);
+  font-weight: 680;
+  margin: 0.8em 0 0.3em;
+  font-size-adjust: 0.5;
+  color: var(--title-color);
+}
+h1 {
+  &#title {
+    font-size: 32px;
+    line-height: 40px;
+    clear: both;
+    margin: 1.5em 0 0.2em;
+  }
+  &#rfcnum {
+    margin: 1.5em 0 0.2em;
+    & + h1#title {
+      margin: 0.2em 0;
+    }
+  }
+}
+
+h1, h2, h3 {
+  font-size: 22px;
+  line-height: 27px;
+}
+h4, h5, h6 {
+  font-size: 20px;
+  line-height: 24px;
+}
+
+/* general structure */
+.author {
+  padding-bottom: 0.3em;
+  vertical-align: top;
+}
+#abstract+p {
+  font-size: 18px;
+  line-height: 24px;
+  & code, & samp, & tt {
+    font-size: 16px;
+    line-height: 0;
+  }
+}
+
+p {
+  padding: 0;
+  margin: 0.5em 0;
+  text-align: left;
+}
+div {
+  margin: 0;
+}
+.alignRight {
+  margin: 1em 0;
+  &.art-text {
+    background-color: var(--highlight-color);
+    border: 1px solid var(--line-color);
+    border-radius: 3px;
+    padding: 0.5em 1em 0;
+    margin-bottom: 0.5em;
+    & pre {
+      padding: 0;
+      width: auto;
+    }
+  }
+  & > *:first-child {
+    border: none;
+    margin: 0;
+    float: right;
+    clear: both;
+  }
+  & > *:nth-child(2) {
+    clear: both;
+    display: block;
+    border: none;
+  }
+}
+svg {
+  display: block;
+  /* font-family isn't space-separated, but =~ will have to do */
+  &[font-family~="monospace" i], & [font-family~="monospace" i] {
+    font-family: var(--font-mono);
+  }
+}
+.alignCenter {
+  margin: 1em 0;
+  &.art-text {
+    background-color: var(--highlight-color);
+    border: 1px solid var(--line-color);
+    border-radius: 3px;
+    padding: 0.5em 1em 0;
+    margin-bottom: 0.5em;
+    & pre {
+      padding: 0;
+      width: auto;
+    }
+  }
+  & > *:first-child {
+    border: none;
+    /* this isn't optimal, but it's an existence proof.  PrinceXML doesn't
+       support flexbox yet.
+    */
+    display: table;
+    margin: 0 auto;
+  }
+}
+
+/* lists */
+ol, ul {
+  padding: 0;
+  margin: 0 0 0.5em 2em;
+  & :is(ol, ul) {
+    margin-left: 1em;
+  }
+}
+li {
+  margin: 0 0 0.25em 0;
+}
+ul.empty, .ulEmpty {
+  list-style-type: none;
+  & li {
+    margin-top: 0.5em;
+  }
+}
+:is(ul, ol).compact, .ulCompact, .olCompact {
+  margin: 0 0 0 2em;
+  & li {
+    margin: 0;
+    & :first-child { margin-top: 0; }
+    & :last-child { margin-bottom: 0; }
+  }
+}
+
+/* definition lists */
+dl {
+  clear: left;
+  --indent: 3ch;
+  /* --indent: attr(indent ch); not supported in any browser, but we can dream */
+  &.olPercent {
+    --indent: 5ch;
+    & > dt {
+      min-width: calc(var(--indent) - 2ch);
+      float: none;
+    }
+  }
+
+  dl > dd > & {
+    margin-top: 0.5em;
+    margin-bottom: 0;
+  }
+
+  &:not(.dlNewline) > dt {
+    float: left;
+    margin-right: 2ch;
+    min-width: 8ch;
+  }
+  & > dd {
+    margin-bottom: .8em;
+    margin-left: var(--indent) !important; /* stupid element overrides */
+    min-height: 2ex;
+  }
+}
+:is(dl.compact, .dlCompact) > dd {
+  margin-bottom: 0;
+  & > :is(:first-child, .break:first-child + *) {
+    margin-top: 0;
+  }
+  & > :is(:last-child) {
+    margin-bottom: 0;
+  }
+}
+:is(dd, span).break {
+  display: none;
+}
+
+/* links */
+a {
+  text-decoration: none;
+  &[href] {
+    color: var(--link-color);
+    &:hover { text-decoration: underline; }
+    &.selfRef {
+      color: var(--text-color);
+      &:hover {
+        text-decoration: none;
+        background-color: var(--highlight-color);
+      }
+    }
+  }
+}
+.iref + a[href].internal {
+  color: var(--text-color);
+}
+a.xref:is(.cite, .auto), :is(#status-of-memo, #copyright) a {
+  white-space: nowrap;
+}
+
+/* Figures */
+tt, code, pre {
+  background-color: var(--highlight-color);
+  font: 14px/22px var(--font-mono);
+}
+tt, code {
+  /* changing the font for inline elements leads to different ascender
+     and descender heights; as we want to retain baseline alignment,
+     remove leading to avoid altering the final height of lines
+     note: this fails if these blocks take an entire line,
+     a different solution would be great */
+  line-height: 0;
+}
+:is(h1, h2, h3, h4, h5, h6) :is(tt, code) {
+  font-size: 84%;
+}
+pre {
+  border: 1px solid var(--line-color);
+  font-size: 13.5px;
+  line-height: 16px;
+  letter-spacing: -0.2px;
+  margin: 5px;
+  padding: 5px;
+}
+img {
+  max-width: 100%;
+}
+figure {
+  margin: 0.5em 0;
+  padding: 0;
+  & blockquote {
+    margin: 0.8em 0.4em 0.4em;
+  }
+}
+figcaption, caption {
+  font-style: italic;
+  margin: 0.5em 1.5em;
+  text-align: left;
+  caption-side: bottom;
+}
+@media screen {
+  /* Auto-collapse boilerplate. */
+  :is(#status-of-memo, #copyright) {
+    & p {
+      margin: -2px 0;
+      max-height: 0;
+      transition: max-height 2s ease, margin 0.5s ease 0.5s;
+      overflow: hidden;
+    }
+    &:hover p,
+    & h2:target ~ p {
+      margin: 0.5em 0;
+      max-height: 500px;
+      overflow: auto;
+    }
+  }
+  pre, svg {
+    display: inline-block;
+    /* In the horizontal direction, sometimes people make over-sized figures.
+       Scrollbars for those is therefore necessary: auto adds them as necessary..
+       In the vertical direction, the line-height can combine with the font
+       asender/descender height to produce scrollbars: hidden avoids that. */
+    overflow: auto hidden;
+  }
+  pre {
+    max-width: 100%;
+    width: calc(100% - 22px - 1em);
+  }
+  svg {
+    max-width: calc(100% - 22px - 1em);
+  }
+  figure pre {
+    display: block;
+    width: calc(100% - 25px);
+  }
+  :is(pre, svg) + .pilcrow {
+    display: inline-block;
+    vertical-align: text-bottom;
+    padding-bottom: 8px;
+  }
+}
+
+/* aside, blockquote */
+aside, blockquote {
+  margin-left: 0;
+  padding: 0 2em;
+  font-style: italic;
+}
+blockquote {
+  margin: 1em 0;
+  border-left: 2px var(--pilcrow-strong) solid;
+}
+cite {
+  display: block;
+  text-align: right;
+  font-style: italic;
+}
+
+/* tables */
+table {
+  width: auto;
+  max-width: 100%;
+  margin: 0 0 1em;
+  border-collapse: collapse;
+  &.right { margin-left: auto; }
+  &.center { margin-left: auto; margin-right: auto; }
+  &.left { margin-right: auto; }
+  & .text-left { text-align: left; }
+  & .text-center { text-align: center; }
+  & .text-right { text-align: right; }
+  & caption {
+    margin: 0;
+    padding: 3px 0 3px 1em;
+  }
+  & p { margin: 0; }
+}
+
+thead, tbody {
+  border: 1px solid var(--line-color);
+}
+th, td {
+  text-align: left;
+  vertical-align: top;
+  padding: 5px 10px;
+}
+th {
+  background-color: var(--line-color);
+}
+:is(tr:nth-child(2n), thead+tbody > tr:nth-child(2n+1)) > td {
+  background-color: var(--background-color);
+}
+:is(tr:nth-child(2n+1), thead+tbody > tr:nth-child(2n)) > td {
+  background-color: var(--highlight-color);
+}
+
+/* pilcrow */
+a.pilcrow {
+  margin-left: 3px;
+  opacity: 0.2;
+  user-select: none;
+  &[href] {
+    color: var(--pilcrow-weak);
+    &:hover { text-decoration: none; }
+  }
+  @media not print {
+    :hover > &, &:focus {
+      opacity: 1;
+    }
+    &[href]:hover {
+      color: var(--pilcrow-strong);
+      background-color: transparent;
+    }
+  }
+  @media print {
+    display: none;
+  }
+}
+
+/* misc */
+hr {
+  border: 0;
+  border-top: 1px solid var(--line-color);
+}
+.bcp14 {
+  font-variant: small-caps;
+  font-weight: 600;
+  font-size: var(--small-font-size);
+}
+.role {
+  font-variant: all-small-caps;
+}
+sub, sup {
+  line-height: 1;
+  font-size: 80%;
+}
+
+/* info block */
+#identifiers {
+  margin: 0;
+  font-size: var(--small-font-size);
+  line-height: 18px;
+  --identifier-width: 15ch;
+  & dt {
+    width: var(--identifier-width);
+    min-width: var(--identifier-width);
+    clear: left;
+    float: left;
+    text-align: right;
+    margin-right: 1ch;
+  }
+  & dd {
+    margin: 0;
+    margin-left: calc(1em + var(--identifier-width)) !important;
+    min-width: 5em;
+  }
+  & .authors {
+    & .author {
+      display: inline-block;
+      margin-right: 1.5em;
+    }
+    & .org {
+      font-style: italic;
+    }
+  }
+}
+
+/* The prepared/rendered info at the very bottom of the page */
+.docInfo {
+  color: #999;
+  font-size: 0.9em;
+  font-style: italic;
+  margin-top: 2em;
+  & .prepared {
+    float: right;
+  }
+}
+
+/* table of contents */
+#toc {
+  padding: 0.75em 0 2em 0;
+  margin-bottom: 1em;
+
+  & nav {
+    & ul {
+      margin: 0 0.5em 0 0;
+      padding: 0;
+      list-style: none;
+    }
+    & li {
+      line-height: 1.3em;
+      margin: 2px 0;
+      padding-left: 1.2em;
+      text-indent: -1.2em;
+    }
+  }
+  & a.xref {
+    white-space: normal;
+  }
+}
+
+.references {
+  & > dt {
+    text-align: right;
+    font-weight: bold;
+    min-width: 10ch;
+    margin-right: 1.5ch;
+    &:target::before {
+      content: "⇒";
+      margin: 0 10px 0 -25px;
+    }
+  }
+  & > dd {
+    margin-left: 12ch !important;
+    overflow: visible;
+    & .refInstance {
+      margin-bottom: 0.8em;
+    }
+    & .ascii {
+      margin-bottom: 0.25em;
+    }
+  }
+}
+
+#rfc\.index\.index + ul {
+  margin-left: 0;
+}
+
+/* authors */
+address.vcard {
+  font-style: normal;
+  max-width: 20em;
+  margin: 1em auto 1em 0;
+
+  & .nameRole {
+    font-weight: 700;
+    margin-left: 0;
+  }
+  & .label {
+    margin: 0.5em 0;
+  }
+  & .type {
+    display: none;
+  }
+  & .alternative-contact {
+    margin: 0.5em 0 0.25em 0;
+  }
+  & .non-ascii {
+    margin: 0 0 0 2em;
+  }
+  & div.left {
+    text-align: left;
+  }
+  & div.right {
+    text-align: right;
+  }
+}
+
+hr.addr {
+  border-top: 1px dashed;
+  margin: 0;
+  color: #ddd;
+  max-width: calc(100% - 16px);
+}
+@media (min-width: 500px) {
+  #authors-addresses {
+    & > section {
+      column-count: 2;
+      column-gap: 20px;
+    }
+    & > section > h2 {
+      column-span: all;
+    }
+    /* hack for break-inside: avoid-column */
+    & address {
+      display: inline-block;
+      break-inside: avoid-column;
+    }
+  }
+}
+
+/* Comments */
+.rfcEditorRemove {
+  & p:first-of-type {
+    font-style: italic;
+  }
+}
+.cref {
+  background-color: rgba(249, 232, 105, 0.3);
+  padding: 2px 4px;
+}
+.crefSource {
+  font-style: italic;
+}
+
+@media screen {
+  #toc {
+    & nav {
+      font-family: var(--font-title);
+      font-weight: 360;
+      & > ul { margin-bottom: 2em; }
+      & ul {
+        margin: 0 0 0 4px;
+        & :is(p, li) {
+          margin: 2px 0;
+        }
+      }
+    }
+    & a.toplink {
+      float: right;
+    }
+  }
+}
+@media not screen {
+  #toc a.toplink {
+    display: none;
+  }
+}
+
+
+/* TOC layout for smaller screens */
+@media screen and (max-width: 929px) {
+  #toc {
+    position: fixed;
+    z-index: 2;
+    top: 0;
+    right: 0;
+    padding: 1px 0 0 0;
+    margin: 0;
+    border-bottom: 1px solid #ccc;
+    opacity: 0.6;
+    & h2 {
+      margin: 0;
+      padding: 2px 0 2px 6px;
+      padding-right: 1em;
+      font-size: 18px;
+      line-height: 24px;
+      min-width: 190px;
+      text-align: right;
+      background-color: #444;
+      color: white;
+      cursor: pointer;
+      &::before { /* css hamburger */
+        float: right;
+        position: relative;
+        width: 1em;
+        height: 1px;
+        left: -164px;
+        margin: 8px 0 0 0;
+        background: white none repeat scroll 0 0;
+        box-shadow: 0 4px 0 0 white, 0 8px 0 0 white;
+        content: "";
+      }
+    }
+    & nav {
+      display: none;
+      background-color: var(--background-color);
+      padding: 0.5em 1em 1em;
+      overflow: auto;
+      overscroll-behavior: contain;
+      height: calc(100vh - 48px);
+      border-left: 1px solid #ddd;
+    }
+    &.active {
+      opacity: 1;
+      & nav { display: block; }
+    }
+    /* Make the collapsed ToC header render white on gray also when it's a link */
+    & h2 a,
+    & h2 a:is(:link, :focus, :hover),
+    & a.toplink,
+    & a.toplink:hover {
+      color: white;
+      background-color: #444;
+      text-decoration: none;
+    }
+    & a.toplink {
+      margin: 2px 0.5em 0;
+    }
+  }
+}
+
+/* TOC layout for wide screens */
+@media screen and (min-width: 930px) {
+  body {
+    padding-right: 360px;
+    padding-right: calc(min(180px + 20%, 500px));
+  }
+  #toc {
+    position: fixed;
+    bottom: 0;
+    right: 0;
+    right: calc(50vw - 480px);
+    width: 312px;
+    margin: 0;
+    padding: 0;
+    z-index: 1;
+    & h2 {
+      margin: 0;
+      padding: 0.25em 1em 1em 0;
+    }
+    & nav {
+      display: block;
+      height: calc(90vh - 84px);
+      bottom: 0;
+      padding: 0.5em 0 2em;
+      overflow: auto;
+      overscroll-behavior: contain;
+      scrollbar-width: thin;
+    }
+    & a.toplink {
+      margin: 8px 0.5em 0;
+    }
+  }
+  img { /* future proofing */
+    max-width: 100%;
+    height: auto;
+  }
+}
+
+/* pagination */
+@media print {
+  body {
+    width: 100%;
+  }
+  p {
+    orphans: 3;
+    widows: 3;
+  }
+  #n-copyright-notice {
+    border-bottom: none;
+  }
+  #toc {
+    page-break-before: always;
+    border-top: none;
+    padding-top: 0;
+  }
+  #n-introduction {
+    page-break-before: always;
+  }
+  figure, pre, .vcard {
+    page-break-inside: avoid;
+  }
+  h1, h2, h3, h4, h5, h6 {
+    page-break-after: avoid;
+  }
+  :is(h2, h3, h4, h5, h6)+*, dd {
+    page-break-before: avoid;
+  }
+  pre {
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    font-size: 10pt;
+  }
+  table {
+    border: 1px solid #ddd;
+  }
+  td {
+    border-top: 1px solid #ddd;
+  }
+}
+
+@page :first {
+  padding-top: 0;
+  @top-left {
+    content: normal;
+    border: none;
+  }
+  @top-center {
+    content: normal;
+    border: none;
+  }
+  @top-right {
+    content: normal;
+    border: none;
+  }
+}
+
+@page {
+  size: A4;
+  margin-bottom: 45mm;
+  padding-top: 20px;
+}
+
+/* Dark mode. */
+@media (prefers-color-scheme: dark) {
+:root {
+  --background-color: #121212;
+  --text-color: #f0f0f0;
+  --title-color: #fff;
+  --link-color: #4da4f0;
+  --highlight-color: #282828;
+  --line-color: #444;
+  --pilcrow-weak: #444;
+  --pilcrow-strong: #666;
+  scrollbar-color: #777 #333;
+}
+}
+
+/* SVG Trick: a prefix match works because only black and white are allowed */
+svg {
+  & :is([stroke="black"], [stroke^="#000"]) {
+    stroke: var(--text-color);
+  }
+  & :is([stroke="white"], [stroke^="#fff"]) {
+    stroke: var(--background-color);
+  }
+  & :is([fill="black"], [fill^="#000"], :not([fill])) {
+    fill: var(--text-color);
+  }
+  & :is([fill="white"], [fill^="#fff"]) {
+    fill: var(--background-color);
+  }
+}
+/* Appended to i-d-template's lib/v3.css when building the editor's copy. */
+
+/* That stylesheet gives the paragraph after the Abstract heading a larger
+   lede treatment, which only reads as deliberate when the abstract is a
+   single paragraph. These abstracts are not, so the first paragraph came out
+   two points bigger than the two below it. */
+#abstract + p {
+  font-size: inherit;
+  line-height: inherit;
+}
+</style>
+
+</head>
+<body class="xml2rfc">
+<table class="ears">
+<thead><tr>
+<td class="left"></td>
+<td class="center">coaz-rar</td>
+<td class="right">October 2026</td>
+</tr></thead>
+<tfoot><tr>
+<td class="left">Gazitt</td>
+<td class="center">Standards Track</td>
+<td class="right">[Page]</td>
+</tr></tfoot>
+</table>
+<div id="external-metadata" class="document-information"></div>
+<div id="internal-metadata" class="document-information">
+<dl id="identifiers">
+<dt class="label-workgroup">Workgroup:</dt>
+<dd class="workgroup">OpenID AuthZEN</dd>
+<dt class="label-published">Published:</dt>
+<dd class="published">
+<time datetime="2026-10-19" class="published">19 October 2026</time>
+    </dd>
+<dt class="label-authors">Author:</dt>
+<dd class="authors">
+<div class="author">
+      <div class="author-name">O. Gazitt</div>
+<div class="org">Independent</div>
+</div>
+</dd>
+</dl>
+</div>
+<h1 id="title">COAZ-RAR: COAZ Binding for OAuth 2.0 Rich Authorization Requests - Draft 1</h1>
+<section id="section-abstract">
+      <h2 id="abstract"><a href="#abstract" class="selfRef">Abstract</a></h2>
+<p id="section-abstract-1">This specification defines COAZ-RAR, the COAZ binding, as defined by the COAZ
+Framework <span>[<a href="#COAZFW" class="cite xref">COAZFW</a>]</span>, for OAuth 2.0 Rich Authorization Requests <span>[<a href="#RFC9396" class="cite xref">RFC9396</a>]</span>.
+An authorization details type is typically defined by one party and processed
+by others: an authorization server decides whether to grant an entry of that
+type, and a resource server decides whether a call is permitted under it.
+This binding lets the definer of a type publish, once, how an entry of that
+type maps onto an OpenID AuthZEN Authorization API request <span>[<a href="#AUTHZEN" class="cite xref">AUTHZEN</a>]</span>, and
+lets both enforcement points apply that mapping. The authorization server
+applies it at token issuance, under the AuthZEN profile for OAuth 2.0 token
+issuance <span>[<a href="#ISSUANCE" class="cite xref">ISSUANCE</a>]</span>; the resource server applies it when a call arrives.
+Both ask the Policy Decision Point their questions in one vocabulary. The
+mapping is published as a member of the type's entry in the authorization
+details types metadata defined by <span>[<a href="#RARMETA" class="cite xref">RARMETA</a>]</span>.<a href="#section-abstract-1" class="pilcrow">¶</a></p>
+</section>
+<div id="toc">
+<section id="section-toc.1">
+        <a href="#" onclick="scroll(0,0)" class="toplink">▲</a><h2 id="name-table-of-contents">
+<a href="#name-table-of-contents" class="section-name selfRef">Table of Contents</a>
+        </h2>
+<nav class="toc"><ul class="compact toc ulBare ulEmpty">
+<li class="compact toc ulBare ulEmpty" id="section-toc.1-1.1">
+            <p id="section-toc.1-1.1.1" class="keepWithNext"><a href="#section-1" class="auto internal xref">1</a>.  <a href="#name-introduction" class="internal xref">Introduction</a></p>
+<ul class="compact toc ulBare ulEmpty">
+<li class="compact toc ulBare ulEmpty" id="section-toc.1-1.1.2.1">
+                <p id="section-toc.1-1.1.2.1.1" class="keepWithNext"><a href="#section-1.1" class="auto internal xref">1.1</a>.  <a href="#name-requirements-notation-and-c" class="internal xref">Requirements Notation and Conventions</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.1.2.2">
+                <p id="section-toc.1-1.1.2.2.1" class="keepWithNext"><a href="#section-1.2" class="auto internal xref">1.2</a>.  <a href="#name-terminology" class="internal xref">Terminology</a></p>
+</li>
+            </ul>
+</li>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.2">
+            <p id="section-toc.1-1.2.1"><a href="#section-2" class="auto internal xref">2</a>.  <a href="#name-relationship-to-the-coaz-fr" class="internal xref">Relationship to the COAZ Framework</a></p>
+<ul class="compact toc ulBare ulEmpty">
+<li class="compact toc ulBare ulEmpty" id="section-toc.1-1.2.2.1">
+                <p id="section-toc.1-1.2.2.1.1"><a href="#section-2.1" class="auto internal xref">2.1</a>.  <a href="#name-architecture" class="internal xref">Architecture</a></p>
+</li>
+            </ul>
+</li>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.3">
+            <p id="section-toc.1-1.3.1"><a href="#section-3" class="auto internal xref">3</a>.  <a href="#name-information-model" class="internal xref">Information Model</a></p>
+<ul class="compact toc ulBare ulEmpty">
+<li class="compact toc ulBare ulEmpty" id="section-toc.1-1.3.2.1">
+                <p id="section-toc.1-1.3.2.1.1"><a href="#section-3.1" class="auto internal xref">3.1</a>.  <a href="#name-cells" class="internal xref">Cells</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.3.2.2">
+                <p id="section-toc.1-1.3.2.2.1"><a href="#section-3.2" class="auto internal xref">3.2</a>.  <a href="#name-the-resource-peps-projectio" class="internal xref">The Resource PEP's Projection</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.3.2.3">
+                <p id="section-toc.1-1.3.2.3.1"><a href="#section-3.3" class="auto internal xref">3.3</a>.  <a href="#name-the-prospective-token" class="internal xref">The Prospective Token</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.3.2.4">
+                <p id="section-toc.1-1.3.2.4.1"><a href="#section-3.4" class="auto internal xref">3.4</a>.  <a href="#name-enrichment" class="internal xref">Enrichment</a></p>
+</li>
+            </ul>
+</li>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.4">
+            <p id="section-toc.1-1.4.1"><a href="#section-4" class="auto internal xref">4</a>.  <a href="#name-expressions-and-literals" class="internal xref">Expressions and Literals</a></p>
+</li>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.5">
+            <p id="section-toc.1-1.5.1"><a href="#section-5" class="auto internal xref">5</a>.  <a href="#name-mapping-envelopes" class="internal xref">Mapping Envelopes</a></p>
+<ul class="compact toc ulBare ulEmpty">
+<li class="compact toc ulBare ulEmpty" id="section-toc.1-1.5.2.1">
+                <p id="section-toc.1-1.5.2.1.1"><a href="#section-5.1" class="auto internal xref">5.1</a>.  <a href="#name-operations-in-scope" class="internal xref">Operations in Scope</a></p>
+</li>
+            </ul>
+</li>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.6">
+            <p id="section-toc.1-1.6.1"><a href="#section-6" class="auto internal xref">6</a>.  <a href="#name-declaring-a-mapping" class="internal xref">Declaring a Mapping</a></p>
+</li>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.7">
+            <p id="section-toc.1-1.7.1"><a href="#section-7" class="auto internal xref">7</a>.  <a href="#name-default-mapping" class="internal xref">Default Mapping</a></p>
+</li>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.8">
+            <p id="section-toc.1-1.8.1"><a href="#section-8" class="auto internal xref">8</a>.  <a href="#name-declared-mappings" class="internal xref">Declared Mappings</a></p>
+<ul class="compact toc ulBare ulEmpty">
+<li class="compact toc ulBare ulEmpty" id="section-toc.1-1.8.2.1">
+                <p id="section-toc.1-1.8.2.1.1"><a href="#section-8.1" class="auto internal xref">8.1</a>.  <a href="#name-payment-initiation" class="internal xref">Payment Initiation</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.8.2.2">
+                <p id="section-toc.1-1.8.2.2.1"><a href="#section-8.2" class="auto internal xref">8.2</a>.  <a href="#name-two-decisions-per-cell" class="internal xref">Two Decisions per Cell</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.8.2.3">
+                <p id="section-toc.1-1.8.2.3.1"><a href="#section-8.3" class="auto internal xref">8.3</a>.  <a href="#name-class-and-instance" class="internal xref">Class and Instance</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.8.2.4">
+                <p id="section-toc.1-1.8.2.4.1"><a href="#section-8.4" class="auto internal xref">8.4</a>.  <a href="#name-mcp-tools-as-authorization-" class="internal xref">MCP Tools as Authorization Details Types</a></p>
+</li>
+            </ul>
+</li>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.9">
+            <p id="section-toc.1-1.9.1"><a href="#section-9" class="auto internal xref">9</a>.  <a href="#name-pep-behavior" class="internal xref">PEP Behavior</a></p>
+<ul class="compact toc ulBare ulEmpty">
+<li class="compact toc ulBare ulEmpty" id="section-toc.1-1.9.2.1">
+                <p id="section-toc.1-1.9.2.1.1"><a href="#section-9.1" class="auto internal xref">9.1</a>.  <a href="#name-issuance-pep" class="internal xref">Issuance PEP</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.9.2.2">
+                <p id="section-toc.1-1.9.2.2.1"><a href="#section-9.2" class="auto internal xref">9.2</a>.  <a href="#name-resource-pep" class="internal xref">Resource PEP</a></p>
+</li>
+            </ul>
+</li>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.10">
+            <p id="section-toc.1-1.10.1"><a href="#section-10" class="auto internal xref">10</a>. <a href="#name-error-handling" class="internal xref">Error Handling</a></p>
+</li>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.11">
+            <p id="section-toc.1-1.11.1"><a href="#section-11" class="auto internal xref">11</a>. <a href="#name-guidance-for-mapping-author" class="internal xref">Guidance for Mapping Authors</a></p>
+</li>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.12">
+            <p id="section-toc.1-1.12.1"><a href="#section-12" class="auto internal xref">12</a>. <a href="#name-security-considerations" class="internal xref">Security Considerations</a></p>
+<ul class="compact toc ulBare ulEmpty">
+<li class="compact toc ulBare ulEmpty" id="section-toc.1-1.12.2.1">
+                <p id="section-toc.1-1.12.2.1.1"><a href="#section-12.1" class="auto internal xref">12.1</a>.  <a href="#name-trust-in-the-type-definer" class="internal xref">Trust in the Type Definer</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.12.2.2">
+                <p id="section-toc.1-1.12.2.2.1"><a href="#section-12.2" class="auto internal xref">12.2</a>.  <a href="#name-remediation-entries-are-cli" class="internal xref">Remediation Entries Are Client-Carried</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.12.2.3">
+                <p id="section-toc.1-1.12.2.3.1"><a href="#section-12.3" class="auto internal xref">12.3</a>.  <a href="#name-staleness" class="internal xref">Staleness</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.12.2.4">
+                <p id="section-toc.1-1.12.2.4.1"><a href="#section-12.4" class="auto internal xref">12.4</a>.  <a href="#name-fail-closed-enforcement" class="internal xref">Fail-Closed Enforcement</a></p>
+</li>
+            </ul>
+</li>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.13">
+            <p id="section-toc.1-1.13.1"><a href="#section-13" class="auto internal xref">13</a>. <a href="#name-iana-considerations" class="internal xref">IANA Considerations</a></p>
+</li>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.14">
+            <p id="section-toc.1-1.14.1"><a href="#section-14" class="auto internal xref">14</a>. <a href="#name-references" class="internal xref">References</a></p>
+<ul class="compact toc ulBare ulEmpty">
+<li class="compact toc ulBare ulEmpty" id="section-toc.1-1.14.2.1">
+                <p id="section-toc.1-1.14.2.1.1"><a href="#section-14.1" class="auto internal xref">14.1</a>.  <a href="#name-normative-references" class="internal xref">Normative References</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.14.2.2">
+                <p id="section-toc.1-1.14.2.2.1"><a href="#section-14.2" class="auto internal xref">14.2</a>.  <a href="#name-informative-references" class="internal xref">Informative References</a></p>
+</li>
+            </ul>
+</li>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.15">
+            <p id="section-toc.1-1.15.1"><a href="#appendix-A" class="auto internal xref">Appendix A</a>.  <a href="#name-relationship-to-other-speci" class="internal xref">Relationship to Other Specifications</a></p>
+<ul class="compact toc ulBare ulEmpty">
+<li class="compact toc ulBare ulEmpty" id="section-toc.1-1.15.2.1">
+                <p id="section-toc.1-1.15.2.1.1"><a href="#appendix-A.1" class="auto internal xref">A.1</a>.  <a href="#name-coaz-framework-and-coaz-mcp" class="internal xref">COAZ Framework and COAZ-MCP</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.15.2.2">
+                <p id="section-toc.1-1.15.2.2.1"><a href="#appendix-A.2" class="auto internal xref">A.2</a>.  <a href="#name-authzen-profile-for-oauth-2" class="internal xref">AuthZEN Profile for OAuth 2.0 Token Issuance</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.15.2.3">
+                <p id="section-toc.1-1.15.2.3.1"><a href="#appendix-A.3" class="auto internal xref">A.3</a>.  <a href="#name-oauth-20-rar-metadata-and-e" class="internal xref">OAuth 2.0 RAR Metadata and Error Remediation</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.15.2.4">
+                <p id="section-toc.1-1.15.2.4.1"><a href="#appendix-A.4" class="auto internal xref">A.4</a>.  <a href="#name-oauth-20-authority-metadata" class="internal xref">OAuth 2.0 Authority Metadata</a></p>
+</li>
+            </ul>
+</li>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.16">
+            <p id="section-toc.1-1.16.1"><a href="#appendix-B" class="auto internal xref">Appendix B</a>.  <a href="#name-open-issues" class="internal xref">Open Issues</a></p>
+</li>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.17">
+            <p id="section-toc.1-1.17.1"><a href="#appendix-C" class="auto internal xref">Appendix C</a>.  <a href="#name-acknowledgments" class="internal xref">Acknowledgments</a></p>
+</li>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.18">
+            <p id="section-toc.1-1.18.1"><a href="#appendix-D" class="auto internal xref">Appendix D</a>.  <a href="#name-document-history" class="internal xref">Document History</a></p>
+<ul class="compact toc ulBare ulEmpty">
+<li class="compact toc ulBare ulEmpty" id="section-toc.1-1.18.2.1">
+                <p id="section-toc.1-1.18.2.1.1"><a href="#appendix-D.1" class="auto internal xref">D.1</a>.  <a href="#name-00" class="internal xref">-00</a></p>
+</li>
+            </ul>
+</li>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.19">
+            <p id="section-toc.1-1.19.1"><a href="#appendix-E" class="auto internal xref">Appendix E</a>.  <a href="#name-notices" class="internal xref">Notices</a></p>
+</li>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.20">
+            <p id="section-toc.1-1.20.1"><a href="#appendix-F" class="auto internal xref"></a><a href="#name-authors-address" class="internal xref">Author's Address</a></p>
+</li>
+        </ul>
+</nav>
+</section>
+</div>
+<div id="introduction">
+<section id="section-1">
+      <h2 id="name-introduction">
+<a href="#section-1" class="section-number selfRef">1. </a><a href="#name-introduction" class="section-name selfRef">Introduction</a>
+      </h2>
+<p id="section-1-1">Rich Authorization Requests <span>[<a href="#RFC9396" class="cite xref">RFC9396</a>]</span> let a client ask for structured,
+fine-grained access: a payment to a named creditor for a stated amount, read
+access to one patient's records, a set of file paths. Each entry in an
+<code>authorization_details</code> array has a <code>type</code>, and the type determines which
+members the entry may carry and what they mean.<a href="#section-1-1" class="pilcrow">¶</a></p>
+<p id="section-1-2">A type is usually defined by someone other than the authorization server (AS)
+that processes it. Open banking and health ecosystems define types that many
+servers must handle, which is why <span><a href="https://rfc-editor.org/rfc/rfc9396#section-2.1" class="relref">Section 2.1</a> of [<a href="#RFC9396" class="cite xref">RFC9396</a>]</span> recommends
+collision-resistant type names for APIs "expected to be deployed across
+different servers." The resource server (RS) whose API a type describes is
+another definer. So is a Model Context Protocol <span>[<a href="#MCP" class="cite xref">MCP</a>]</span> server, whose tool
+input schemas are type definitions in all but name.<a href="#section-1-2" class="pilcrow">¶</a></p>
+<p id="section-1-3">RFC 9396 leaves the decision to grant an entry, and the RS's decision on a
+call made under it, to each server. Two pieces of adjacent work narrow that
+gap from different sides:<a href="#section-1-3" class="pilcrow">¶</a></p>
+<ul class="normal">
+<li class="normal" id="section-1-4.1">
+          <p id="section-1-4.1.1">The AuthZEN profile for OAuth 2.0 token issuance <span>[<a href="#ISSUANCE" class="cite xref">ISSUANCE</a>]</span> lets an AS
+externalize the issuance decision to a Policy Decision Point (PDP). It
+decomposes an entry along RFC 9396's common data fields (<code>locations</code>,
+<code>actions</code>, <code>datatypes</code>) and asks one question per cell. It does not decompose
+<code>identifier</code>, <code>privileges</code>, or any type-specific member, so for a type whose
+meaning lives in its own members, such as the creditor and amount of a
+payment, the PDP never sees what the decision is about.<a href="#section-1-4.1.1" class="pilcrow">¶</a></p>
+</li>
+        <li class="normal" id="section-1-4.2">
+          <p id="section-1-4.2.1"><span>[<a href="#RARMETA" class="cite xref">RARMETA</a>]</span> defines an AS metadata endpoint that publishes a JSON Schema for
+each type, and a challenge with which an RS that refuses a call tells the
+client exactly which entry to request.<a href="#section-1-4.2.1" class="pilcrow">¶</a></p>
+</li>
+      </ul>
+<p id="section-1-5">Neither says how an entry of a given type becomes an authorization question.
+The party that knows is the type's definer. The COAZ Framework <span>[<a href="#COAZFW" class="cite xref">COAZFW</a>]</span>
+exists for exactly this split between a party that describes an operation and
+a party that enforces it: COAZ-MCP <span>[<a href="#COAZMCP" class="cite xref">COAZMCP</a>]</span> lets an MCP server declare, in
+a tool's input schema, how a call to that tool maps onto an AuthZEN request,
+so that a gateway with no knowledge of the server's business logic can
+enforce it.<a href="#section-1-5" class="pilcrow">¶</a></p>
+<p id="section-1-6">This specification is COAZ-RAR, the COAZ binding for authorization details. It
+treats an authorization details type as the operation description, and the
+types metadata of <span>[<a href="#RARMETA" class="cite xref">RARMETA</a>]</span> as the place a mapping is published. Two
+enforcement points apply it:<a href="#section-1-6" class="pilcrow">¶</a></p>
+<ul class="normal">
+<li class="normal" id="section-1-7.1">
+          <p id="section-1-7.1.1">The AS, at issuance, for each cell of each requested entry, in place of the
+per-cell projection of <span>[<a href="#ISSUANCE" class="cite xref">ISSUANCE</a>]</span>.<a href="#section-1-7.1.1" class="pilcrow">¶</a></p>
+</li>
+        <li class="normal" id="section-1-7.2">
+          <p id="section-1-7.2.1">The RS, when a call arrives, for the entry the call amounts to.<a href="#section-1-7.2.1" class="pilcrow">¶</a></p>
+</li>
+      </ul>
+<p id="section-1-8">Because both apply the same mapping, both ask the PDP in one vocabulary. Where
+the entry names a specific resource, as it does when the RS built it from a
+call it refused, the AS and the RS ask the same question. Where it doesn't, as
+with a standing grant, the AS asks about the class of resource and the RS asks
+about the member of it that the call touches.<a href="#section-1-8" class="pilcrow">¶</a></p>
+<div id="requirements-notation-and-conventions">
+<section id="section-1.1">
+        <h3 id="name-requirements-notation-and-c">
+<a href="#section-1.1" class="section-number selfRef">1.1. </a><a href="#name-requirements-notation-and-c" class="section-name selfRef">Requirements Notation and Conventions</a>
+        </h3>
+<p id="section-1.1-1">The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD",
+"SHOULD NOT", "RECOMMENDED", "NOT RECOMMENDED", "MAY", and "OPTIONAL" in this
+document are to be interpreted as described in BCP 14 <span>[<a href="#RFC2119" class="cite xref">RFC2119</a>]</span> <span>[<a href="#RFC8174" class="cite xref">RFC8174</a>]</span>
+when, and only when, they appear in all capitals, as shown here.<a href="#section-1.1-1" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="terminology">
+<section id="section-1.2">
+        <h3 id="name-terminology">
+<a href="#section-1.2" class="section-number selfRef">1.2. </a><a href="#name-terminology" class="section-name selfRef">Terminology</a>
+        </h3>
+<p id="section-1.2-1">This specification uses the terms defined in the COAZ Framework <span>[<a href="#COAZFW" class="cite xref">COAZFW</a>]</span>,
+notably binding, information model, input variable, mapping, literal,
+expression, default mapping, declared mapping, PEP, and PDP, and the terms
+authorization details, authorization details type, and common data fields
+defined by <span>[<a href="#RFC9396" class="cite xref">RFC9396</a>]</span>. It adds the following:<a href="#section-1.2-1" class="pilcrow">¶</a></p>
+<span class="break"></span><dl class="dlParallel" id="section-1.2-2">
+          <dt id="section-1.2-2.1">Entry:</dt>
+          <dd style="margin-left: 1.5em" id="section-1.2-2.2">
+            <p id="section-1.2-2.2.1">One object in an <code>authorization_details</code> array.<a href="#section-1.2-2.2.1" class="pilcrow">¶</a></p>
+</dd>
+          <dd class="break"></dd>
+<dt id="section-1.2-2.3">Cell:</dt>
+          <dd style="margin-left: 1.5em" id="section-1.2-2.4">
+            <p id="section-1.2-2.4.1">One combination of a <code>locations</code> value, an <code>actions</code> value, and, where
+present, a <code>datatypes</code> value of an entry. <span><a href="https://rfc-editor.org/rfc/rfc9396#section-2.2" class="relref">Section 2.2</a> of [<a href="#RFC9396" class="cite xref">RFC9396</a>]</span> defines an
+entry as the product of these values; a cell is one element of that product.<a href="#section-1.2-2.4.1" class="pilcrow">¶</a></p>
+</dd>
+          <dd class="break"></dd>
+<dt id="section-1.2-2.5">Type Definer:</dt>
+          <dd style="margin-left: 1.5em" id="section-1.2-2.6">
+            <p id="section-1.2-2.6.1">The party that defines an authorization details type and its meaning: an
+ecosystem, a resource server operator, or an MCP server.<a href="#section-1.2-2.6.1" class="pilcrow">¶</a></p>
+</dd>
+          <dd class="break"></dd>
+<dt id="section-1.2-2.7">Issuance PEP:</dt>
+          <dd style="margin-left: 1.5em" id="section-1.2-2.8">
+            <p id="section-1.2-2.8.1">The AS, acting as a PEP when it decides whether to grant an entry under
+<span>[<a href="#ISSUANCE" class="cite xref">ISSUANCE</a>]</span>.<a href="#section-1.2-2.8.1" class="pilcrow">¶</a></p>
+</dd>
+          <dd class="break"></dd>
+<dt id="section-1.2-2.9">Resource PEP:</dt>
+          <dd style="margin-left: 1.5em" id="section-1.2-2.10">
+            <p id="section-1.2-2.10.1">The RS, or a gateway in front of it, acting as a PEP when it decides whether
+to permit a call.<a href="#section-1.2-2.10.1" class="pilcrow">¶</a></p>
+</dd>
+          <dd class="break"></dd>
+<dt id="section-1.2-2.11">Projection:</dt>
+          <dd style="margin-left: 1.5em" id="section-1.2-2.12">
+            <p id="section-1.2-2.12.1">The entry and cell that an RS determines a call amounts to.<a href="#section-1.2-2.12.1" class="pilcrow">¶</a></p>
+</dd>
+          <dd class="break"></dd>
+<dt id="section-1.2-2.13">Prospective Token:</dt>
+          <dd style="margin-left: 1.5em" id="section-1.2-2.14">
+            <p id="section-1.2-2.14.1">The set of claims the AS will place in the access token it is about to
+issue, as known before the PDP is asked.<a href="#section-1.2-2.14.1" class="pilcrow">¶</a></p>
+</dd>
+        <dd class="break"></dd>
+</dl>
+</section>
+</div>
+</section>
+</div>
+<div id="relationship-to-the-coaz-framework">
+<section id="section-2">
+      <h2 id="name-relationship-to-the-coaz-fr">
+<a href="#section-2" class="section-number selfRef">2. </a><a href="#name-relationship-to-the-coaz-fr" class="section-name selfRef">Relationship to the COAZ Framework</a>
+      </h2>
+<p id="section-2-1">This binding fulfils the binding conformance requirements of the COAZ
+Framework <span>[<a href="#COAZFW" class="cite xref">COAZFW</a>]</span> as summarized below; each row is specified in the
+referenced section.<a href="#section-2-1" class="pilcrow">¶</a></p>
+<table class="center" id="table-1">
+        <caption><a href="#table-1" class="selfRef">Table 1</a></caption>
+<thead>
+          <tr>
+            <th class="text-left" rowspan="1" colspan="1">Framework requirement</th>
+            <th class="text-left" rowspan="1" colspan="1">This binding</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="text-left" rowspan="1" colspan="1">Information model</td>
+            <td class="text-left" rowspan="1" colspan="1">
+              <code>detail</code>, <code>cell</code>, <code>token</code>, <code>params</code> (<a href="#information-model" class="auto internal xref">Section 3</a>)</td>
+          </tr>
+          <tr>
+            <td class="text-left" rowspan="1" colspan="1">Mapping location</td>
+            <td class="text-left" rowspan="1" colspan="1">
+              <code>authzen_mapping</code> in the type's metadata entry, else <code>x-authzen-mapping</code> in the type's schema, else the default (<a href="#declaring" class="auto internal xref">Section 6</a>)</td>
+          </tr>
+          <tr>
+            <td class="text-left" rowspan="1" colspan="1">Literal/expression discriminator</td>
+            <td class="text-left" rowspan="1" colspan="1">Framework default: <code>$</code> prefix, <code>$$</code> escape (<a href="#expressions" class="auto internal xref">Section 4</a>)</td>
+          </tr>
+          <tr>
+            <td class="text-left" rowspan="1" colspan="1">Expression language</td>
+            <td class="text-left" rowspan="1" colspan="1">Framework default: CEL <span>[<a href="#CEL" class="cite xref">CEL</a>]</span> (<a href="#expressions" class="auto internal xref">Section 4</a>)</td>
+          </tr>
+          <tr>
+            <td class="text-left" rowspan="1" colspan="1">Envelopes</td>
+            <td class="text-left" rowspan="1" colspan="1">
+              <code>evaluation</code> and <code>evaluations</code> (<a href="#envelopes" class="auto internal xref">Section 5</a>)</td>
+          </tr>
+          <tr>
+            <td class="text-left" rowspan="1" colspan="1">Operations in scope</td>
+            <td class="text-left" rowspan="1" colspan="1">One cell of one entry; no pass-through set (<a href="#operations" class="auto internal xref">Section 5.1</a>)</td>
+          </tr>
+          <tr>
+            <td class="text-left" rowspan="1" colspan="1">Default mapping behavior</td>
+            <td class="text-left" rowspan="1" colspan="1">The per-cell projection of <span>[<a href="#ISSUANCE" class="cite xref">ISSUANCE</a>]</span> (<a href="#default-mapping" class="auto internal xref">Section 7</a>)</td>
+          </tr>
+          <tr>
+            <td class="text-left" rowspan="1" colspan="1">Declared mapping behavior</td>
+            <td class="text-left" rowspan="1" colspan="1">The type definer MAY declare a mapping; it overrides the default for that type (<a href="#declared-mappings" class="auto internal xref">Section 8</a>)</td>
+          </tr>
+          <tr>
+            <td class="text-left" rowspan="1" colspan="1">Trust-anchored fields</td>
+            <td class="text-left" rowspan="1" colspan="1">
+              <code>subject.id</code>, by verification (<a href="#declared-mappings" class="auto internal xref">Section 8</a>)</td>
+          </tr>
+          <tr>
+            <td class="text-left" rowspan="1" colspan="1">Error transport</td>
+            <td class="text-left" rowspan="1" colspan="1">OAuth error responses at the AS, HTTP status at the RS (<a href="#errors" class="auto internal xref">Section 10</a>)</td>
+          </tr>
+          <tr>
+            <td class="text-left" rowspan="1" colspan="1">Discoverability</td>
+            <td class="text-left" rowspan="1" colspan="1">The types metadata endpoint of <span>[<a href="#RARMETA" class="cite xref">RARMETA</a>]</span> (<a href="#declaring" class="auto internal xref">Section 6</a>)</td>
+          </tr>
+        </tbody>
+      </table>
+<div id="architecture">
+<section id="section-2.1">
+        <h3 id="name-architecture">
+<a href="#section-2.1" class="section-number selfRef">2.1. </a><a href="#name-architecture" class="section-name selfRef">Architecture</a>
+        </h3>
+<span id="name-one-mapping-two-enforcement"></span><div id="fig-architecture">
+<figure id="figure-1">
+          <div class="alignLeft art-ascii-art art-text artwork" id="section-2.1-1.1">
+<pre>
+ Type definer -----&gt; AS types metadata endpoint, read by both PEPs
+ (ecosystem, RS,     { "&lt;type&gt;": { "schema": {...},
+  MCP server)                      "authzen_mapping": {...} } }
+
+ +--------+
+ |        |                        +----------------+
+ |        |  (1) call              |  Resource PEP  |
+ |        |-----------------------&gt;| (RS / gateway) |
+ |        |&lt;-----------------------|                |
+ |        |  (2) 401, remediation  +----------------+
+ |        |
+ |        |                        +----------------+      +-------+
+ |        |  (3) token request     |  Issuance PEP  | (4)  |       |
+ | Client |-----------------------&gt;|      (AS)      |-----&gt;|       |
+ |        |&lt;-----------------------|                |      |       |
+ |        |  token                 +----------------+      |       |
+ |        |                                                |  PDP  |
+ |        |                        +----------------+      |       |
+ |        |  (5) retry             |  Resource PEP  | (6)  |       |
+ |        |-----------------------&gt;| (RS / gateway) |-----&gt;|       |
+ |        |&lt;-----------------------|                |      |       |
+ |        |  200                   +----------------+      +-------+
+ +--------+
+</pre>
+</div>
+<figcaption><a href="#figure-1" class="selfRef">Figure 1</a>:
+<a href="#name-one-mapping-two-enforcement" class="selfRef">One mapping, two enforcement points</a>
+          </figcaption></figure>
+</div>
+<ol start="1" type="1" class="normal type-1" id="section-2.1-2">
+<li id="section-2.1-2.1">
+            <p id="section-2.1-2.1.1">The client calls the RS with a token that does not cover the call.<a href="#section-2.1-2.1.1" class="pilcrow">¶</a></p>
+</li>
+          <li id="section-2.1-2.2">
+            <p id="section-2.1-2.2.1">The RS projects the call onto an entry and answers with the remediation
+challenge of <span>[<a href="#RARMETA" class="cite xref">RARMETA</a>]</span>, carrying that entry.<a href="#section-2.1-2.2.1" class="pilcrow">¶</a></p>
+</li>
+          <li id="section-2.1-2.3">
+            <p id="section-2.1-2.3.1">The client requests a token for the entry.<a href="#section-2.1-2.3.1" class="pilcrow">¶</a></p>
+</li>
+          <li id="section-2.1-2.4">
+            <p id="section-2.1-2.4.1">The AS applies the type's mapping to each cell of the entry and asks the
+PDP, under <span>[<a href="#ISSUANCE" class="cite xref">ISSUANCE</a>]</span>. It issues a token for what the PDP permits.<a href="#section-2.1-2.4.1" class="pilcrow">¶</a></p>
+</li>
+          <li id="section-2.1-2.5">
+            <p id="section-2.1-2.5.1">The client retries the call with the new token.<a href="#section-2.1-2.5.1" class="pilcrow">¶</a></p>
+</li>
+          <li id="section-2.1-2.6">
+            <p id="section-2.1-2.6.1">The RS applies the same mapping to its projection of the call and asks
+the PDP before permitting it.<a href="#section-2.1-2.6.1" class="pilcrow">¶</a></p>
+</li>
+        </ol>
+<p id="section-2.1-3">Steps 1 and 2 are absent when a client requests an entry without having been
+refused, as with a standing grant. Step 6 occurs on every call the token
+covers, whether or not the entry came from a remediation.<a href="#section-2.1-3" class="pilcrow">¶</a></p>
+<p id="section-2.1-4">The PDP at step 4 and the PDP at step 6 need not be the same. In a
+cross-domain deployment the AS's PDP holds the policy of the organization
+whose user or agent is asking, and the RS's PDP holds the policy of the
+organization that owns the resource. The mapping gives them a common
+vocabulary without requiring a common policy.<a href="#section-2.1-4" class="pilcrow">¶</a></p>
+</section>
+</div>
+</section>
+</div>
+<div id="information-model">
+<section id="section-3">
+      <h2 id="name-information-model">
+<a href="#section-3" class="section-number selfRef">3. </a><a href="#name-information-model" class="section-name selfRef">Information Model</a>
+      </h2>
+<p id="section-3-1">This binding exposes four input variables to expressions. Each is populated
+differently at the two enforcement points.<a href="#section-3-1" class="pilcrow">¶</a></p>
+<table class="center" id="table-2">
+        <caption><a href="#table-2" class="selfRef">Table 2</a></caption>
+<thead>
+          <tr>
+            <th class="text-left" rowspan="1" colspan="1">Variable</th>
+            <th class="text-left" rowspan="1" colspan="1">At the Issuance PEP</th>
+            <th class="text-left" rowspan="1" colspan="1">At the Resource PEP</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="text-left" rowspan="1" colspan="1">
+              <code>detail</code>
+</td>
+            <td class="text-left" rowspan="1" colspan="1">The entry being evaluated, after any enrichment by the AS (<a href="#enrichment" class="auto internal xref">Section 3.4</a>)</td>
+            <td class="text-left" rowspan="1" colspan="1">The entry of the projection (<a href="#projection" class="auto internal xref">Section 3.2</a>)</td>
+          </tr>
+          <tr>
+            <td class="text-left" rowspan="1" colspan="1">
+              <code>cell</code>
+</td>
+            <td class="text-left" rowspan="1" colspan="1">The cell being evaluated (<a href="#cells" class="auto internal xref">Section 3.1</a>)</td>
+            <td class="text-left" rowspan="1" colspan="1">The cell of the projection</td>
+          </tr>
+          <tr>
+            <td class="text-left" rowspan="1" colspan="1">
+              <code>token</code>
+</td>
+            <td class="text-left" rowspan="1" colspan="1">The prospective token (<a href="#prospective-token" class="auto internal xref">Section 3.3</a>)</td>
+            <td class="text-left" rowspan="1" colspan="1">The claims of the presented access token</td>
+          </tr>
+          <tr>
+            <td class="text-left" rowspan="1" colspan="1">
+              <code>params</code>
+</td>
+            <td class="text-left" rowspan="1" colspan="1">
+              <code>{"name": &lt;type&gt;, "arguments": &lt;detail&gt;}</code>
+</td>
+            <td class="text-left" rowspan="1" colspan="1">The same, or the MCP <code>params</code> object where the Resource PEP is an MCP gateway</td>
+          </tr>
+        </tbody>
+      </table>
+<span class="break"></span><dl class="dlParallel" id="section-3-3">
+        <dt id="section-3-3.1">
+<code>detail</code>:</dt>
+        <dd style="margin-left: 1.5em" id="section-3-3.2">
+          <p id="section-3-3.2.1">A map holding the entry, with every member it carries, including <code>type</code>.<a href="#section-3-3.2.1" class="pilcrow">¶</a></p>
+</dd>
+        <dd class="break"></dd>
+<dt id="section-3-3.3">
+<code>cell</code>:</dt>
+        <dd style="margin-left: 1.5em" id="section-3-3.4">
+          <p id="section-3-3.4.1">A map with a <code>location</code> key (string), an <code>action</code> key (string), a
+<code>datatype</code> key (string) that is present only when the cell has a datatype,
+and a <code>name</code> key (string) holding the action name <span>[<a href="#ISSUANCE" class="cite xref">ISSUANCE</a>]</span> forms for the
+cell: the action alone, or the action and datatype joined by a colon.<a href="#section-3-3.4.1" class="pilcrow">¶</a></p>
+</dd>
+        <dd class="break"></dd>
+<dt id="section-3-3.5">
+<code>token</code>:</dt>
+        <dd style="margin-left: 1.5em" id="section-3-3.6">
+          <p id="section-3-3.6.1">A map of access token claims. At the Resource PEP these are the decoded
+claims of a JWT access token <span>[<a href="#RFC9068" class="cite xref">RFC9068</a>]</span> or the members of a token
+introspection response <span>[<a href="#RFC7662" class="cite xref">RFC7662</a>]</span>.<a href="#section-3-3.6.1" class="pilcrow">¶</a></p>
+</dd>
+        <dd class="break"></dd>
+<dt id="section-3-3.7">
+<code>params</code>:</dt>
+        <dd style="margin-left: 1.5em" id="section-3-3.8">
+          <p id="section-3-3.8.1">A map holding the operation's name and arguments in the shape COAZ-MCP
+<span>[<a href="#COAZMCP" class="cite xref">COAZMCP</a>]</span> exposes for <code>tools/call</code>. It exists so that a mapping written for
+an MCP tool runs unchanged when that tool is also used as an authorization
+details type (<a href="#mcp-tools" class="auto internal xref">Section 8.4</a>).<a href="#section-3-3.8.1" class="pilcrow">¶</a></p>
+</dd>
+      <dd class="break"></dd>
+</dl>
+<div id="cells">
+<section id="section-3.1">
+        <h3 id="name-cells">
+<a href="#section-3.1" class="section-number selfRef">3.1. </a><a href="#name-cells" class="section-name selfRef">Cells</a>
+        </h3>
+<p id="section-3.1-1">At the Issuance PEP, the cells of an entry and their order are those of the
+Authorization Detail Tuple section of <span>[<a href="#ISSUANCE" class="cite xref">ISSUANCE</a>]</span>, including its substitutions
+for absent members: an absent <code>locations</code> takes each requested target, an
+absent <code>actions</code> takes the reserved name <code>authorization_detail</code>, and an absent
+<code>datatypes</code> yields cells without a <code>datatype</code> key. This binding does not change
+how many cells an entry has; it changes only how each cell becomes evaluations.<a href="#section-3.1-1" class="pilcrow">¶</a></p>
+<p id="section-3.1-2">At the Resource PEP, the cell is the location, action, and datatype that the
+call occupies, in the type's own vocabulary.<a href="#section-3.1-2" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="projection">
+<section id="section-3.2">
+        <h3 id="name-the-resource-peps-projectio">
+<a href="#section-3.2" class="section-number selfRef">3.2. </a><a href="#name-the-resource-peps-projectio" class="section-name selfRef">The Resource PEP's Projection</a>
+        </h3>
+<p id="section-3.2-1">A Resource PEP MUST be able to project each call it authorizes under this
+binding onto an entry and a cell. The entry's <code>type</code> is the type that
+describes the call, and its other members are the values the call supplies
+for that type's members.<a href="#section-3.2-1" class="pilcrow">¶</a></p>
+<p id="section-3.2-2">Where a call addresses a specific resource and the type allows <code>identifier</code>
+(<span><a href="https://rfc-editor.org/rfc/rfc9396#section-2.2" class="relref">Section 2.2</a> of [<a href="#RFC9396" class="cite xref">RFC9396</a>]</span>: "a specific resource available at the API"), the
+projection MUST set <code>identifier</code> to that resource. This is what lets a mapping
+ask about the instance at the RS while the AS, given an entry without an
+<code>identifier</code>, asks about the class (<a href="#granularity" class="auto internal xref">Section 8.3</a>).<a href="#section-3.2-2" class="pilcrow">¶</a></p>
+<p id="section-3.2-3">The projection is also the basis of the remediation entry of <span>[<a href="#RARMETA" class="cite xref">RARMETA</a>]</span>,
+which that document says is "built using the failed resource request." A
+Resource PEP that issues a remediation challenge SHOULD construct its entry
+from the projection, adding <code>locations</code>, <code>actions</code>, and <code>datatypes</code> from the
+cell only where the type's schema allows those members. Building the
+remediation from the projection is what makes the AS evaluate, at issuance,
+the question the RS will ask when the call is retried.<a href="#section-3.2-3" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="prospective-token">
+<section id="section-3.3">
+        <h3 id="name-the-prospective-token">
+<a href="#section-3.3" class="section-number selfRef">3.3. </a><a href="#name-the-prospective-token" class="section-name selfRef">The Prospective Token</a>
+        </h3>
+<p id="section-3.3-1">At issuance there is no token yet. The Issuance PEP binds <code>token</code> to the
+claims it will place in the token it is about to issue: at least <code>sub</code>,
+<code>client_id</code>, and <code>aud</code>, and any other claim it will mint that does not depend
+on the PDP's response. Claims that the PDP's response would add, such as those
+of the <code>claims</code> key of <span>[<a href="#ISSUANCE" class="cite xref">ISSUANCE</a>]</span>, are not available.<a href="#section-3.3-1" class="pilcrow">¶</a></p>
+<p id="section-3.3-2">A mapping intended for both enforcement points MUST use optional selection
+(<code>.?</code>) for any claim other than <code>sub</code>, so that an AS that does not mint the
+claim produces an absent value rather than a mapping error.<a href="#section-3.3-2" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="enrichment">
+<section id="section-3.4">
+        <h3 id="name-enrichment">
+<a href="#section-3.4" class="section-number selfRef">3.4. </a><a href="#name-enrichment" class="section-name selfRef">Enrichment</a>
+        </h3>
+<p id="section-3.4-1"><span><a href="https://rfc-editor.org/rfc/rfc9396#section-7.1" class="relref">Section 7.1</a> of [<a href="#RFC9396" class="cite xref">RFC9396</a>]</span> allows an AS to enrich an entry with values the user
+selects during the interaction, such as a specific record. At the Issuance PEP,
+<code>detail</code> MUST be the entry after enrichment. A mapping that selects a member
+the client did not send, such as <code>identifier</code>, would otherwise fail on every
+request from a client that relies on enrichment.<a href="#section-3.4-1" class="pilcrow">¶</a></p>
+</section>
+</div>
+</section>
+</div>
+<div id="expressions">
+<section id="section-4">
+      <h2 id="name-expressions-and-literals">
+<a href="#section-4" class="section-number selfRef">4. </a><a href="#name-expressions-and-literals" class="section-name selfRef">Expressions and Literals</a>
+      </h2>
+<p id="section-4-1">This binding uses the framework's defaults unchanged: expressions are written
+in CEL <span>[<a href="#CEL" class="cite xref">CEL</a>]</span>, a string value beginning with <code>$</code> is an expression, and <code>$$</code>
+escapes a literal <code>$</code>. An expression yields <strong>absent</strong> by CEL optional
+selection or by <code>optional.none()</code>, and the containing member is omitted.<a href="#section-4-1" class="pilcrow">¶</a></p>
+<p id="section-4-2">Every mapping in this binding, including the default, contains expressions, so
+a conforming PEP MUST include a CEL evaluator. An Issuance PEP SHOULD compile
+a type's mapping when it adopts the type (<a href="#declaring" class="auto internal xref">Section 6</a>) rather than per
+request.<a href="#section-4-2" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="envelopes">
+<section id="section-5">
+      <h2 id="name-mapping-envelopes">
+<a href="#section-5" class="section-number selfRef">5. </a><a href="#name-mapping-envelopes" class="section-name selfRef">Mapping Envelopes</a>
+      </h2>
+<p id="section-5-1">This binding permits both envelope keys defined by the framework:<a href="#section-5-1" class="pilcrow">¶</a></p>
+<ul class="normal">
+<li class="normal" id="section-5-2.1">
+          <p id="section-5-2.1.1"><code>evaluation</code>, for a cell that needs one decision. The default mapping uses
+it, and it is RECOMMENDED for declared mappings that need one decision.<a href="#section-5-2.1.1" class="pilcrow">¶</a></p>
+</li>
+        <li class="normal" id="section-5-2.2">
+          <p id="section-5-2.2.1"><code>evaluations</code>, for a cell that needs several, such as a transfer that must be
+authorized both as a debit of the source account and as a payment to the
+payee. The <code>evaluations</code> array MUST be a literal array; an expression in its
+place is a mapping error, as Section 2.6 of <span>[<a href="#COAZFW" class="cite xref">COAZFW</a>]</span> requires.<a href="#section-5-2.2.1" class="pilcrow">¶</a></p>
+</li>
+      </ul>
+<p id="section-5-3">Any other envelope key is a mapping error.<a href="#section-5-3" class="pilcrow">¶</a></p>
+<div id="operations">
+<section id="section-5.1">
+        <h3 id="name-operations-in-scope">
+<a href="#section-5.1" class="section-number selfRef">5.1. </a><a href="#name-operations-in-scope" class="section-name selfRef">Operations in Scope</a>
+        </h3>
+<p id="section-5.1-1">The COAZ operation for this binding is <strong>one cell of one entry</strong>. A mapping is
+applied once per cell, and the cell is permitted only if every evaluation the
+mapping produces for it is a permit, which is the fail-closed rule of the
+framework applied to the cell.<a href="#section-5.1-1" class="pilcrow">¶</a></p>
+<p id="section-5.1-2">At the Issuance PEP, the number of cells is set by the entry and by
+<span>[<a href="#ISSUANCE" class="cite xref">ISSUANCE</a>]</span>, not by the mapping. That is how this binding keeps the number of
+decisions fixed by the envelope, as the framework requires, while an entry
+still yields as many questions as its product contains. How the cells of an
+entry combine into what is granted, and what the AS does when some are
+denied, is defined by <span>[<a href="#ISSUANCE" class="cite xref">ISSUANCE</a>]</span> ("A Denied Cell Narrows an Entry") and is
+outside this binding.<a href="#section-5.1-2" class="pilcrow">¶</a></p>
+<p id="section-5.1-3">There is no pass-through set. Every cell of every entry is authorized. An
+entry whose type the AS does not support is rejected under <span><a href="https://rfc-editor.org/rfc/rfc9396#section-5" class="relref">Section 5</a> of [<a href="#RFC9396" class="cite xref">RFC9396</a>]</span>
+before any mapping is selected.<a href="#section-5.1-3" class="pilcrow">¶</a></p>
+</section>
+</div>
+</section>
+</div>
+<div id="declaring">
+<section id="section-6">
+      <h2 id="name-declaring-a-mapping">
+<a href="#section-6" class="section-number selfRef">6. </a><a href="#name-declaring-a-mapping" class="section-name selfRef">Declaring a Mapping</a>
+      </h2>
+<p id="section-6-1">A type's mapping is published in the response of the
+<code>authorization_details_types_metadata_endpoint</code> of <span>[<a href="#RARMETA" class="cite xref">RARMETA</a>]</span>, as a member of
+the object describing that type:<a href="#section-6-1" class="pilcrow">¶</a></p>
+<span class="break"></span><dl class="dlParallel" id="section-6-2">
+        <dt id="section-6-2.1">
+<code>authzen_mapping</code>:</dt>
+        <dd style="margin-left: 1.5em" id="section-6-2.2">
+          <p id="section-6-2.2.1">OPTIONAL. A COAZ mapping, as defined by <span>[<a href="#COAZFW" class="cite xref">COAZFW</a>]</span> and constrained by this
+binding, for entries of this type.<a href="#section-6-2.2.1" class="pilcrow">¶</a></p>
+</dd>
+      <dd class="break"></dd>
+</dl>
+<p id="section-6-3">A PEP selects the mapping for a type as follows:<a href="#section-6-3" class="pilcrow">¶</a></p>
+<ol start="1" type="1" class="normal type-1" id="section-6-4">
+<li id="section-6-4.1">
+          <p id="section-6-4.1.1">If the type's metadata object has an <code>authzen_mapping</code> member, use it.<a href="#section-6-4.1.1" class="pilcrow">¶</a></p>
+</li>
+        <li id="section-6-4.2">
+          <p id="section-6-4.2.1">Otherwise, if the type's <code>schema</code> (or the document at its <code>schema_uri</code>)
+has an <code>x-authzen-mapping</code> member at its top level, use it. This is where
+COAZ-MCP places a tool's mapping, so a tool's input schema adopted as a
+type's schema brings its mapping with it.<a href="#section-6-4.2.1" class="pilcrow">¶</a></p>
+</li>
+        <li id="section-6-4.3">
+          <p id="section-6-4.3.1">Otherwise, use the default mapping (<a href="#default-mapping" class="auto internal xref">Section 7</a>).<a href="#section-6-4.3.1" class="pilcrow">¶</a></p>
+</li>
+      </ol>
+<p id="section-6-5">The mapping is authored by the type definer and <strong>adopted</strong> by the AS
+operator, in the same act by which the AS adopts the type's schema today. An
+AS that adopts a type with a declared mapping takes on that mapping as
+configuration; it does not fetch a mapping from a type definer at request
+time. A Resource PEP obtains the mapping from the same types metadata, so that
+both enforcement points apply the mapping the AS adopted.<a href="#section-6-5" class="pilcrow">¶</a></p>
+<p id="section-6-6">The types metadata endpoint is not access-controlled. Publishing a mapping
+there discloses which members of a type the policy considers, which is the
+shape of the authorization question and not the policy that answers it. An AS
+that considers even that shape sensitive can omit <code>authzen_mapping</code> from the
+published metadata and provision the Resource PEP with it by other means.<a href="#section-6-6" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="default-mapping">
+<section id="section-7">
+      <h2 id="name-default-mapping">
+<a href="#section-7" class="section-number selfRef">7. </a><a href="#name-default-mapping" class="section-name selfRef">Default Mapping</a>
+      </h2>
+<p id="section-7-1">Where a type declares no mapping, a PEP applies the following default to each
+cell. It is the per-cell projection of the Authorization Detail Tuple section
+of <span>[<a href="#ISSUANCE" class="cite xref">ISSUANCE</a>]</span>, expressed as a COAZ mapping:<a href="#section-7-1" class="pilcrow">¶</a></p>
+<span id="name-the-default-mapping"></span><div id="fig-default">
+<figure id="figure-2">
+        <div class="lang-json sourcecode" id="section-7-2.1">
+<pre>
+{
+  "evaluation": {
+    "action": { "name": "$cell.name" },
+    "resource": { "type": "$detail.type", "id": "$cell.location" }
+  }
+}
+</pre>
+</div>
+<figcaption><a href="#figure-2" class="selfRef">Figure 2</a>:
+<a href="#name-the-default-mapping" class="selfRef">The default mapping</a>
+        </figcaption></figure>
+</div>
+<p id="section-7-3">The subject and the top-level context are supplied by the PEP: by
+<span>[<a href="#ISSUANCE" class="cite xref">ISSUANCE</a>]</span> at the Issuance PEP, and from the presented token at the Resource
+PEP (<a href="#declared-mappings" class="auto internal xref">Section 8</a>). Where <span>[<a href="#ISSUANCE" class="cite xref">ISSUANCE</a>]</span> declines to compound a
+datatype into an action name (a <code>datatypes</code> value containing a colon),
+<code>cell.name</code> is the action alone.<a href="#section-7-3" class="pilcrow">¶</a></p>
+<p id="section-7-4">The default asks about the location, so it aligns the two enforcement points
+at the level of the class of resource only. A type that needs the RS to ask
+about a specific resource declares a mapping (<a href="#granularity" class="auto internal xref">Section 8.3</a>).<a href="#section-7-4" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="declared-mappings">
+<section id="section-8">
+      <h2 id="name-declared-mappings">
+<a href="#section-8" class="section-number selfRef">8. </a><a href="#name-declared-mappings" class="section-name selfRef">Declared Mappings</a>
+      </h2>
+<p id="section-8-1">A type definer MAY declare a mapping for a type. A declared mapping overrides
+the default for every cell of every entry of that type, and for no other type.<a href="#section-8-1" class="pilcrow">¶</a></p>
+<p id="section-8-2"><code>subject.id</code> is trust-anchored, enforced by verification. A declared mapping
+MAY set <code>subject.id</code>; if it does, it MUST set it to <code>$token.sub</code>, and the PEP
+MUST verify that the resolved value equals the authenticated subject: at the
+Issuance PEP, the subject <span>[<a href="#ISSUANCE" class="cite xref">ISSUANCE</a>]</span> places in the request; at the Resource
+PEP, the <code>sub</code> claim of the presented token. A mismatch is a mapping error. If
+a declared mapping omits <code>subject</code> or <code>subject.id</code>, the PEP supplies them as it
+would for the default mapping.<a href="#section-8-2" class="pilcrow">¶</a></p>
+<p id="section-8-3">A declared mapping using the <code>evaluations</code> envelope MUST NOT set <code>subject</code> in
+any entry of its <code>evaluations</code> array; a PEP MUST treat one that does as a
+mapping error.<a href="#section-8-3" class="pilcrow">¶</a></p>
+<p id="section-8-4">Every attribute a declared mapping supplies other than the verified
+<code>subject.id</code>, including <code>subject.type</code> and every <code>properties</code> member, is
+untrusted input under Section 2.9 of <span>[<a href="#COAZFW" class="cite xref">COAZFW</a>]</span>. A policy that grants on the
+basis of an elevated role or privilege MUST rely on the verified <code>subject.id</code>,
+not on a declared <code>subject.type</code>.<a href="#section-8-4" class="pilcrow">¶</a></p>
+<div id="ex-payment">
+<section id="section-8.1">
+        <h3 id="name-payment-initiation">
+<a href="#section-8.1" class="section-number selfRef">8.1. </a><a href="#name-payment-initiation" class="section-name selfRef">Payment Initiation</a>
+        </h3>
+<p id="section-8.1-1">The <code>payment_initiation</code> type of RFC 9396 Figure 2. The decision is about the
+creditor and the amount, both type-specific members that the default mapping
+does not reach. The declared mapping puts the creditor in the five-tuple and
+the amount, a parameter of the act, in <code>action.properties</code>:<a href="#section-8.1-1" class="pilcrow">¶</a></p>
+<span id="name-a-declared-mapping-for-paym"></span><div id="fig-payment">
+<figure id="figure-3">
+          <div class="lang-json sourcecode" id="section-8.1-2.1">
+<pre>
+{
+  "evaluation": {
+    "action": {
+      "name": "$cell.action",
+      "properties": {
+        "amount": "$detail.instructedAmount.amount",
+        "currency": "$detail.instructedAmount.currency"
+      }
+    },
+    "resource": {
+      "type": "creditor_account",
+      "id": "$detail.creditorAccount.iban"
+    },
+    "context": { "agent": "$token.?client_id" }
+  }
+}
+</pre>
+</div>
+<figcaption><a href="#figure-3" class="selfRef">Figure 3</a>:
+<a href="#name-a-declared-mapping-for-paym" class="selfRef">A declared mapping for payment_initiation</a>
+          </figcaption></figure>
+</div>
+<p id="section-8.1-3">A mapping can branch per action where actions concern different entities; a
+<code>cancel</code> cell, for instance, might be asked about the payment rather than the
+creditor. The CEL conditional operator serves for that, as COAZ-MCP's examples
+show.<a href="#section-8.1-3" class="pilcrow">¶</a></p>
+<p id="section-8.1-4">For the <code>initiate</code> cell of the Figure 2 entry, the Issuance PEP produces:<a href="#section-8.1-4" class="pilcrow">¶</a></p>
+<div class="lang-json sourcecode" id="section-8.1-5">
+<pre>
+{
+  "action": {
+    "name": "initiate",
+    "properties": { "amount": "123.50", "currency": "EUR" }
+  },
+  "resource": {
+    "type": "creditor_account",
+    "id": "DE02100100109307118603"
+  },
+  "context": { "agent": "fintech-app" }
+}
+</pre><a href="#section-8.1-5" class="pilcrow">¶</a>
+</div>
+<p id="section-8.1-6">When the client retries <code>POST /payments</code> with the token, the Resource PEP
+projects the request body onto the same entry and produces the same
+evaluation.<a href="#section-8.1-6" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="ex-two">
+<section id="section-8.2">
+        <h3 id="name-two-decisions-per-cell">
+<a href="#section-8.2" class="section-number selfRef">8.2. </a><a href="#name-two-decisions-per-cell" class="section-name selfRef">Two Decisions per Cell</a>
+        </h3>
+<p id="section-8.2-1">A transfer type with no common data fields at all, so each entry is a single
+cell with the substituted action <code>authorization_detail</code>. The mapping ignores
+that action and asks two questions:<a href="#section-8.2-1" class="pilcrow">¶</a></p>
+<span id="name-a-declared-mapping-with-two"></span><div id="fig-two">
+<figure id="figure-4">
+          <div class="lang-json sourcecode" id="section-8.2-2.1">
+<pre>
+{
+  "evaluations": {
+    "context": { "agent": "$token.?client_id" },
+    "evaluations": [
+      {
+        "action": {
+          "name": "debit",
+          "properties": {
+            "amount": "$detail.instructed_amount.amount",
+            "currency": "$detail.instructed_amount.currency"
+          }
+        },
+        "resource": {
+          "type": "account",
+          "id": "$detail.debtor_account.account_id"
+        }
+      },
+      {
+        "action": {
+          "name": "pay",
+          "properties": {
+            "amount": "$detail.instructed_amount.amount",
+            "currency": "$detail.instructed_amount.currency"
+          }
+        },
+        "resource": {
+          "type": "pix_key",
+          "id": "$detail.creditor_account.pix_key"
+        }
+      }
+    ]
+  }
+}
+</pre>
+</div>
+<figcaption><a href="#figure-4" class="selfRef">Figure 4</a>:
+<a href="#name-a-declared-mapping-with-two" class="selfRef">A declared mapping with two decisions per cell</a>
+          </figcaption></figure>
+</div>
+</section>
+</div>
+<div id="granularity">
+<section id="section-8.3">
+        <h3 id="name-class-and-instance">
+<a href="#section-8.3" class="section-number selfRef">8.3. </a><a href="#name-class-and-instance" class="section-name selfRef">Class and Instance</a>
+        </h3>
+<p id="section-8.3-1">The <code>customer_information</code> type of RFC 9396 Figure 5, with <code>identifier</code>
+allowed. A client requesting a standing grant sends no <code>identifier</code>; a call to
+<code>GET /customers/c-77/contacts</code> names one. The mapping asks about the
+collection in the first case and about the customer in the second:<a href="#section-8.3-1" class="pilcrow">¶</a></p>
+<span id="name-one-mapping-two-levels-of-d"></span><div id="fig-class-instance">
+<figure id="figure-5">
+          <div class="lang-json sourcecode" id="section-8.3-2.1">
+<pre>
+{
+ "evaluation": {
+  "action": { "name": "$cell.name" },
+  "resource": {
+   "type":
+    "$has(detail.identifier) ? 'customer' : 'customer_information'",
+   "id":
+    "$has(detail.identifier) ? detail.identifier : cell.location"
+  }
+ }
+}
+</pre>
+</div>
+<figcaption><a href="#figure-5" class="selfRef">Figure 5</a>:
+<a href="#name-one-mapping-two-levels-of-d" class="selfRef">One mapping, two levels of detail</a>
+          </figcaption></figure>
+</div>
+<p id="section-8.3-3">At issuance the PDP is asked <code>read:contacts</code> on
+<code>customer_information:https://example.com/customers</code>, which today's policy may
+answer by role. At the RS it is asked <code>read:contacts</code> on <code>customer:c-77</code>, which
+a policy may answer by the subject's relationship to that customer. The policy
+can move from the first answer to the second without either enforcement point
+changing, because the RS was asking about the instance all along. A PDP that
+does not hold the relation between a customer and the collection can be given
+it by the mapping, as a resource property set only when <code>identifier</code> is
+present.<a href="#section-8.3-3" class="pilcrow">¶</a></p>
+<p id="section-8.3-4">A token granted on the class does not cover every instance. A call about a
+customer the subject has no relationship with is refused by the Resource PEP's
+own evaluation, even though the token covers the call. When an RS remediates a
+refused call (<a href="#projection" class="auto internal xref">Section 3.2</a>), the entry carries the <code>identifier</code>, and the AS
+asks about the instance as well.<a href="#section-8.3-4" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="mcp-tools">
+<section id="section-8.4">
+        <h3 id="name-mcp-tools-as-authorization-">
+<a href="#section-8.4" class="section-number selfRef">8.4. </a><a href="#name-mcp-tools-as-authorization-" class="section-name selfRef">MCP Tools as Authorization Details Types</a>
+        </h3>
+<p id="section-8.4-1">An MCP tool can be used as an authorization details type: its <code>type</code> is a URI
+naming the tool, its members are the tool's arguments, and its schema is the
+tool's input schema. If that input schema carries a COAZ-MCP <code>x-authzen-mapping</code>,
+step 2 of <a href="#declaring" class="auto internal xref">Section 6</a> selects it, and the <code>params</code> variable lets it run
+unchanged: <code>params.arguments</code> is the entry at the Issuance PEP and the
+<code>tools/call</code> arguments at an MCP gateway, and <code>token.sub</code> is the authenticated
+subject at both.<a href="#section-8.4-1" class="pilcrow">¶</a></p>
+<p id="section-8.4-2">An MCP gateway that refuses a <code>tools/call</code> can therefore remediate with an
+entry built from the call's arguments, and the AS evaluates, at issuance, the
+call the gateway will see on retry. This gives issuance a decision on the
+concrete arguments of a specific call, which it otherwise does not have.<a href="#section-8.4-2" class="pilcrow">¶</a></p>
+</section>
+</div>
+</section>
+</div>
+<div id="pep-behavior">
+<section id="section-9">
+      <h2 id="name-pep-behavior">
+<a href="#section-9" class="section-number selfRef">9. </a><a href="#name-pep-behavior" class="section-name selfRef">PEP Behavior</a>
+      </h2>
+<div id="issuance-pep">
+<section id="section-9.1">
+        <h3 id="name-issuance-pep">
+<a href="#section-9.1" class="section-number selfRef">9.1. </a><a href="#name-issuance-pep" class="section-name selfRef">Issuance PEP</a>
+        </h3>
+<p id="section-9.1-1">When an AS processes a token request carrying <code>authorization_details</code> under
+<span>[<a href="#ISSUANCE" class="cite xref">ISSUANCE</a>]</span>, it MUST, for each entry:<a href="#section-9.1-1" class="pilcrow">¶</a></p>
+<ol start="1" type="1" class="normal type-1" id="section-9.1-2">
+<li id="section-9.1-2.1">
+            <p id="section-9.1-2.1.1">Apply any enrichment (<a href="#enrichment" class="auto internal xref">Section 3.4</a>).<a href="#section-9.1-2.1.1" class="pilcrow">¶</a></p>
+</li>
+          <li id="section-9.1-2.2">
+            <p id="section-9.1-2.2.1">Select the type's mapping (<a href="#declaring" class="auto internal xref">Section 6</a>).<a href="#section-9.1-2.2.1" class="pilcrow">¶</a></p>
+</li>
+          <li id="section-9.1-2.3">
+            <p id="section-9.1-2.3.1">Form the entry's cells (<a href="#cells" class="auto internal xref">Section 3.1</a>).<a href="#section-9.1-2.3.1" class="pilcrow">¶</a></p>
+</li>
+          <li id="section-9.1-2.4">
+            <p id="section-9.1-2.4.1">For each cell, populate the input variables (<a href="#information-model" class="auto internal xref">Section 3</a>),
+resolve the mapping, verify the trust-anchored <code>subject.id</code>
+(<a href="#declared-mappings" class="auto internal xref">Section 8</a>), and add the resulting evaluations to the batch in
+place of the evaluation <span>[<a href="#ISSUANCE" class="cite xref">ISSUANCE</a>]</span> would form for that cell.<a href="#section-9.1-2.4.1" class="pilcrow">¶</a></p>
+</li>
+        </ol>
+<p id="section-9.1-3">The AS then sends the batch, including the gate tuples <span>[<a href="#ISSUANCE" class="cite xref">ISSUANCE</a>]</span> defines,
+and composes the result as <span>[<a href="#ISSUANCE" class="cite xref">ISSUANCE</a>]</span> defines, treating a cell as permitted
+only if every evaluation the mapping produced for it is a permit. The response
+shaping, no-broadening, and structural-check rules of <span>[<a href="#ISSUANCE" class="cite xref">ISSUANCE</a>]</span> are
+unchanged.<a href="#section-9.1-3" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="resource-pep">
+<section id="section-9.2">
+        <h3 id="name-resource-pep">
+<a href="#section-9.2" class="section-number selfRef">9.2. </a><a href="#name-resource-pep" class="section-name selfRef">Resource PEP</a>
+        </h3>
+<p id="section-9.2-1">When an RS receives a call it authorizes under this binding, it MUST:<a href="#section-9.2-1" class="pilcrow">¶</a></p>
+<ol start="1" type="1" class="normal type-1" id="section-9.2-2">
+<li id="section-9.2-2.1">
+            <p id="section-9.2-2.1.1">Validate the access token as it otherwise would.<a href="#section-9.2-2.1.1" class="pilcrow">¶</a></p>
+</li>
+          <li id="section-9.2-2.2">
+            <p id="section-9.2-2.2.1">Project the call onto an entry and a cell (<a href="#projection" class="auto internal xref">Section 3.2</a>).<a href="#section-9.2-2.2.1" class="pilcrow">¶</a></p>
+</li>
+          <li id="section-9.2-2.3">
+            <p id="section-9.2-2.3.1">Determine whether the token's <code>authorization_details</code> cover the projection,
+using the details the AS made available to it (<span><a href="https://rfc-editor.org/rfc/rfc9396#section-9" class="relref">Section 9</a> of [<a href="#RFC9396" class="cite xref">RFC9396</a>]</span>). If they do not, the RS SHOULD
+answer with the remediation challenge of <span>[<a href="#RARMETA" class="cite xref">RARMETA</a>]</span>, built from the
+projection, and MUST NOT perform the call.<a href="#section-9.2-2.3.1" class="pilcrow">¶</a></p>
+</li>
+          <li id="section-9.2-2.4">
+            <p id="section-9.2-2.4.1">Select the type's mapping, populate the input variables, resolve the
+mapping, and verify the trust-anchored <code>subject.id</code>.<a href="#section-9.2-2.4.1" class="pilcrow">¶</a></p>
+</li>
+          <li id="section-9.2-2.5">
+            <p id="section-9.2-2.5.1">Send the constructed request to the PDP and permit the call only if every
+decision is a permit.<a href="#section-9.2-2.5.1" class="pilcrow">¶</a></p>
+</li>
+          <li id="section-9.2-2.6">
+            <p id="section-9.2-2.6.1">Before performing the call, confirm that the call's projection is
+unchanged from the one evaluated, as COAZ-MCP requires of a message, and
+re-evaluate or refuse it otherwise.<a href="#section-9.2-2.6.1" class="pilcrow">¶</a></p>
+</li>
+        </ol>
+<p id="section-9.2-3">Step 3 asks whether the token covers the call; step 5 asks whether policy
+permits it. Both are required. A token is evidence of what was granted at
+issuance; it is not evidence that the call, as made, is permitted now.<a href="#section-9.2-3" class="pilcrow">¶</a></p>
+</section>
+</div>
+</section>
+</div>
+<div id="errors">
+<section id="section-10">
+      <h2 id="name-error-handling">
+<a href="#section-10" class="section-number selfRef">10. </a><a href="#name-error-handling" class="section-name selfRef">Error Handling</a>
+      </h2>
+<p id="section-10-1">The framework's three categories are reported as follows.<a href="#section-10-1" class="pilcrow">¶</a></p>
+<table class="center" id="table-3">
+        <caption><a href="#table-3" class="selfRef">Table 3</a></caption>
+<thead>
+          <tr>
+            <th class="text-left" rowspan="1" colspan="1">Category</th>
+            <th class="text-left" rowspan="1" colspan="1">Issuance PEP</th>
+            <th class="text-left" rowspan="1" colspan="1">Resource PEP</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="text-left" rowspan="1" colspan="1">Mapping error</td>
+            <td class="text-left" rowspan="1" colspan="1">
+              <code>invalid_authorization_details</code> <span>[<a href="#RFC9396" class="cite xref">RFC9396</a>]</span>
+</td>
+            <td class="text-left" rowspan="1" colspan="1">HTTP 500</td>
+          </tr>
+          <tr>
+            <td class="text-left" rowspan="1" colspan="1">Authorization denial</td>
+            <td class="text-left" rowspan="1" colspan="1">As <span>[<a href="#ISSUANCE" class="cite xref">ISSUANCE</a>]</span> defines for denied cells and gates</td>
+            <td class="text-left" rowspan="1" colspan="1">HTTP 403</td>
+          </tr>
+          <tr>
+            <td class="text-left" rowspan="1" colspan="1">PDP communication error</td>
+            <td class="text-left" rowspan="1" colspan="1">As <span>[<a href="#ISSUANCE" class="cite xref">ISSUANCE</a>]</span> defines: HTTP 503 with <code>Retry-After</code>
+</td>
+            <td class="text-left" rowspan="1" colspan="1">HTTP 503</td>
+          </tr>
+        </tbody>
+      </table>
+<p id="section-10-3">A mapping error at the Issuance PEP is reported as
+<code>invalid_authorization_details</code> because the entry, as received and enriched,
+cannot be evaluated; the client can do nothing with it but change the entry.
+An AS MUST NOT relay the text of a mapping error to the client, for the same
+reason <span>[<a href="#ISSUANCE" class="cite xref">ISSUANCE</a>]</span> forbids relaying PDP reasons.<a href="#section-10-3" class="pilcrow">¶</a></p>
+<p id="section-10-4">A denial at the Resource PEP of a call the token covers is answered with HTTP
+403 and not with a remediation challenge: no token would change the decision.
+An RS MAY include an <code>error</code> value as <span>[<a href="#RFC6750" class="cite xref">RFC6750</a>]</span> allows, and MUST NOT include
+PDP reasons.<a href="#section-10-4" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="guidance">
+<section id="section-11">
+      <h2 id="name-guidance-for-mapping-author">
+<a href="#section-11" class="section-number selfRef">11. </a><a href="#name-guidance-for-mapping-author" class="section-name selfRef">Guidance for Mapping Authors</a>
+      </h2>
+<p id="section-11-1">This section is non-normative.<a href="#section-11-1" class="pilcrow">¶</a></p>
+<table class="center" id="table-4">
+        <caption><a href="#table-4" class="selfRef">Table 4</a></caption>
+<thead>
+          <tr>
+            <th class="text-left" rowspan="1" colspan="1">The member is</th>
+            <th class="text-left" rowspan="1" colspan="1">Put it in</th>
+            <th class="text-left" rowspan="1" colspan="1">Example</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="text-left" rowspan="1" colspan="1">An entity the decision is about</td>
+            <td class="text-left" rowspan="1" colspan="1">
+              <code>resource</code> (<code>type</code> and <code>id</code>)</td>
+            <td class="text-left" rowspan="1" colspan="1">
+              <code>creditor_account:DE02...</code>
+</td>
+          </tr>
+          <tr>
+            <td class="text-left" rowspan="1" colspan="1">The specific resource, when the entry or call names one</td>
+            <td class="text-left" rowspan="1" colspan="1">
+              <code>resource.id</code>, from <code>identifier</code>
+</td>
+            <td class="text-left" rowspan="1" colspan="1">
+              <code>customer:c-77</code>
+</td>
+          </tr>
+          <tr>
+            <td class="text-left" rowspan="1" colspan="1">A quantity or parameter of the act</td>
+            <td class="text-left" rowspan="1" colspan="1">
+              <code>action.properties</code>
+</td>
+            <td class="text-left" rowspan="1" colspan="1">
+              <code>{"amount": "123.50", "currency": "EUR"}</code>
+</td>
+          </tr>
+          <tr>
+            <td class="text-left" rowspan="1" colspan="1">A second entity the act touches</td>
+            <td class="text-left" rowspan="1" colspan="1">A second evaluation</td>
+            <td class="text-left" rowspan="1" colspan="1">a debit of the source and a payment to the payee</td>
+          </tr>
+          <tr>
+            <td class="text-left" rowspan="1" colspan="1">A filter the client placed on its request</td>
+            <td class="text-left" rowspan="1" colspan="1">
+              <code>resource.properties</code>
+</td>
+            <td class="text-left" rowspan="1" colspan="1">a sensitivity filter on a records request</td>
+          </tr>
+          <tr>
+            <td class="text-left" rowspan="1" colspan="1">An assertion about who is asking</td>
+            <td class="text-left" rowspan="1" colspan="1">
+              <code>subject.properties</code> or <code>context</code>
+</td>
+            <td class="text-left" rowspan="1" colspan="1">a practitioner role</td>
+          </tr>
+        </tbody>
+      </table>
+<p id="section-11-3">Entities belong in the five-tuple because every PDP, including one that
+reasons over relationships, can use them. A quantity does not: an amount has
+no identity and no relationships, and a relationship-based engine takes such a
+value as request context for a condition rather than as an object.
+Section 5.3.1 of <span>[<a href="#AUTHZEN" class="cite xref">AUTHZEN</a>]</span> provides for it directly: action properties "can include ...
+parameters of the action that is being requested."<a href="#section-11-3" class="pilcrow">¶</a></p>
+<p id="section-11-4">Do not reduce a value the policy might compare into a category in the mapping.
+A mapping that sends <code>"sensitivity": "high"</code> for any amount over a threshold
+lets the PDP distinguish small payments from large ones, but not 25,000 from
+60,000. COAZ-MCP's discussion of authorization granularity applies equally
+here: an input a mapping does not project is not evaluated by the PDP.<a href="#section-11-4" class="pilcrow">¶</a></p>
+<p id="section-11-5">A filter the client places on its request (a set of sensitivity labels, say)
+exists in the entry but not in a call, so the AS and RS will see different
+properties for it. That is expected and is one reason decision-critical inputs
+belong in the five-tuple.<a href="#section-11-5" class="pilcrow">¶</a></p>
+<p id="section-11-6">An assertion about who is asking, carried in an entry, is client-supplied and
+untrusted. The AS has to verify it against an authoritative source; the
+mapping cannot make it trustworthy.<a href="#section-11-6" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="security-considerations">
+<section id="section-12">
+      <h2 id="name-security-considerations">
+<a href="#section-12" class="section-number selfRef">12. </a><a href="#name-security-considerations" class="section-name selfRef">Security Considerations</a>
+      </h2>
+<div id="trust-in-the-type-definer">
+<section id="section-12.1">
+        <h3 id="name-trust-in-the-type-definer">
+<a href="#section-12.1" class="section-number selfRef">12.1. </a><a href="#name-trust-in-the-type-definer" class="section-name selfRef">Trust in the Type Definer</a>
+        </h3>
+<p id="section-12.1-1">A declared mapping determines what the PDP is asked. A mapping that omits a
+decision-critical member, or projects it lossily, yields permits that do not
+reflect that member. The AS adopts a mapping as configuration, and the trust
+it places in the type definer is the same trust it already places in the
+type's schema; deployments SHOULD review a mapping when adopting a type, as
+they would review the schema.<a href="#section-12.1-1" class="pilcrow">¶</a></p>
+<p id="section-12.1-2">A type definer that is also the RS addressed by the resulting token can, by a
+poor mapping, only weaken tokens addressed to itself, provided the AS
+restricts each token's audience to the evaluated resource as <span>[<a href="#ISSUANCE" class="cite xref">ISSUANCE</a>]</span>
+requires.<a href="#section-12.1-2" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="remediation-entries-are-client-carried">
+<section id="section-12.2">
+        <h3 id="name-remediation-entries-are-cli">
+<a href="#section-12.2" class="section-number selfRef">12.2. </a><a href="#name-remediation-entries-are-cli" class="section-name selfRef">Remediation Entries Are Client-Carried</a>
+        </h3>
+<p id="section-12.2-1">The remediation entry passes through the client, which can alter it before
+requesting a token. The AS evaluates the entry it receives, so an altered entry
+yields at most a token for what the altered entry describes, and only if
+policy permits that. When the call is retried, the RS projects it afresh and
+checks both coverage and policy, so a token for an altered entry does not
+cover the original call unless the alteration was immaterial to it.<a href="#section-12.2-1" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="staleness">
+<section id="section-12.3">
+        <h3 id="name-staleness">
+<a href="#section-12.3" class="section-number selfRef">12.3. </a><a href="#name-staleness" class="section-name selfRef">Staleness</a>
+        </h3>
+<p id="section-12.3-1">A permit at issuance holds for the life of the token, and policy or
+relationships can change in that time. The Resource PEP's evaluation on each
+call is what bounds the consequence. This binding does not make an issuance
+decision a substitute for a decision at the RS.<a href="#section-12.3-1" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="fail-closed-enforcement">
+<section id="section-12.4">
+        <h3 id="name-fail-closed-enforcement">
+<a href="#section-12.4" class="section-number selfRef">12.4. </a><a href="#name-fail-closed-enforcement" class="section-name selfRef">Fail-Closed Enforcement</a>
+        </h3>
+<p id="section-12.4-1">As the framework requires, a mapping error, a denial, or a PDP communication
+failure results in the cell, and therefore the call or the corresponding part
+of the grant, being refused.<a href="#section-12.4-1" class="pilcrow">¶</a></p>
+</section>
+</div>
+</section>
+</div>
+<div id="iana-considerations">
+<section id="section-13">
+      <h2 id="name-iana-considerations">
+<a href="#section-13" class="section-number selfRef">13. </a><a href="#name-iana-considerations" class="section-name selfRef">IANA Considerations</a>
+      </h2>
+<p id="section-13-1">This document has no IANA actions.<a href="#section-13-1" class="pilcrow">¶</a></p>
+<p id="section-13-2"><span>[<a href="#RARMETA" class="cite xref">RARMETA</a>]</span> does not establish a registry for the members of an authorization
+details type metadata object. Should it establish one, <code>authzen_mapping</code>
+(<a href="#declaring" class="auto internal xref">Section 6</a>) is a candidate for registration there.<a href="#section-13-2" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="sec-combined-references">
+<section id="section-14">
+      <h2 id="name-references">
+<a href="#section-14" class="section-number selfRef">14. </a><a href="#name-references" class="section-name selfRef">References</a>
+      </h2>
+<div id="sec-normative-references">
+<section id="section-14.1">
+        <h3 id="name-normative-references">
+<a href="#section-14.1" class="section-number selfRef">14.1. </a><a href="#name-normative-references" class="section-name selfRef">Normative References</a>
+        </h3>
+<dl class="references">
+<dt id="AUTHZEN">[AUTHZEN]</dt>
+        <dd>
+<span class="refAuthor">OpenID Foundation AuthZEN Working Group</span>, <span class="refTitle">"Authorization API 1.0"</span>, <time datetime="2026-01-11" class="refDate">11 January 2026</time>, <span>&lt;<a href="https://openid.net/specs/authorization-api-1_0-final.html">https://openid.net/specs/authorization-api-1_0-final.html</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="CEL">[CEL]</dt>
+        <dd>
+<span class="refAuthor">Google</span>, <span class="refTitle">"Common Expression Language"</span>, <time datetime="2024" class="refDate">2024</time>, <span>&lt;<a href="https://cel.dev/">https://cel.dev/</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="COAZFW">[COAZFW]</dt>
+        <dd>
+<span class="refAuthor">Olivier, A.</span> and <span class="refAuthor">A. Tulshibagwale</span>, <span class="refTitle">"COAZ: A Framework for Mapping Information Models to AuthZEN Authorization Requests"</span>, <time datetime="2026" class="refDate">2026</time>, <span>&lt;<a href="https://openid.github.io/authzen/authzen-coaz-framework-1_0.html">https://openid.github.io/authzen/authzen-coaz-framework-1_0.html</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="ISSUANCE">[ISSUANCE]</dt>
+        <dd>
+<span class="refAuthor">Gazitt, O.</span>, <span class="refTitle">"AuthZEN Profile for OAuth 2.0 Token Issuance"</span>, <time datetime="2026" class="refDate">2026</time>, <span>&lt;<a href="https://openid.github.io/authzen/authzen-oauth-token-issuance-1_0.html">https://openid.github.io/authzen/authzen-oauth-token-issuance-1_0.html</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="RARMETA">[RARMETA]</dt>
+        <dd>
+<span class="refAuthor">Zehavi, Y.</span>, <span class="refTitle">"OAuth 2.0 RAR Metadata and Error Remediation"</span>, <span class="refContent">Work in Progress</span>, <span class="seriesInfo">Internet-Draft, draft-ietf-oauth-rar-metadata-remediation-00</span>, <time datetime="2026-08-23" class="refDate">23 August 2026</time>, <span>&lt;<a href="https://datatracker.ietf.org/doc/html/draft-ietf-oauth-rar-metadata-remediation-00">https://datatracker.ietf.org/doc/html/draft-ietf-oauth-rar-metadata-remediation-00</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="RFC2119">[RFC2119]</dt>
+        <dd>
+<span class="refAuthor">Bradner, S.</span>, <span class="refTitle">"Key words for use in RFCs to Indicate Requirement Levels"</span>, <span class="seriesInfo">BCP 14</span>, <span class="seriesInfo">RFC 2119</span>, <span class="seriesInfo">DOI 10.17487/RFC2119</span>, <time datetime="1997-03" class="refDate">March 1997</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc2119">https://www.rfc-editor.org/rfc/rfc2119</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="RFC8174">[RFC8174]</dt>
+        <dd>
+<span class="refAuthor">Leiba, B.</span>, <span class="refTitle">"Ambiguity of Uppercase vs Lowercase in RFC 2119 Key Words"</span>, <span class="seriesInfo">BCP 14</span>, <span class="seriesInfo">RFC 8174</span>, <span class="seriesInfo">DOI 10.17487/RFC8174</span>, <time datetime="2017-05" class="refDate">May 2017</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc8174">https://www.rfc-editor.org/rfc/rfc8174</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="RFC9396">[RFC9396]</dt>
+      <dd>
+<span class="refAuthor">Lodderstedt, T.</span>, <span class="refAuthor">Richer, J.</span>, and <span class="refAuthor">B. Campbell</span>, <span class="refTitle">"OAuth 2.0 Rich Authorization Requests"</span>, <span class="seriesInfo">RFC 9396</span>, <span class="seriesInfo">DOI 10.17487/RFC9396</span>, <time datetime="2023-05" class="refDate">May 2023</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc9396">https://www.rfc-editor.org/rfc/rfc9396</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+</dl>
+</section>
+</div>
+<div id="sec-informative-references">
+<section id="section-14.2">
+        <h3 id="name-informative-references">
+<a href="#section-14.2" class="section-number selfRef">14.2. </a><a href="#name-informative-references" class="section-name selfRef">Informative References</a>
+        </h3>
+<dl class="references">
+<dt id="AUTHMETA">[AUTHMETA]</dt>
+        <dd>
+<span class="refAuthor">Zehavi, Y.</span>, <span class="refTitle">"OAuth 2.0 Authority Metadata"</span>, <span class="refContent">Work in Progress</span>, <span class="seriesInfo">Internet-Draft, draft-zehavi-oauth-authority-metadata-00</span>, <time datetime="2026-10-11" class="refDate">11 October 2026</time>, <span>&lt;<a href="https://datatracker.ietf.org/doc/html/draft-zehavi-oauth-authority-metadata-00">https://datatracker.ietf.org/doc/html/draft-zehavi-oauth-authority-metadata-00</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="COAZMCP">[COAZMCP]</dt>
+        <dd>
+<span class="refAuthor">Tulshibagwale, A.</span> and <span class="refAuthor">A. Olivier</span>, <span class="refTitle">"COAZ-MCP: COAZ Binding for the Model Context Protocol"</span>, <time datetime="2026" class="refDate">2026</time>, <span>&lt;<a href="https://openid.github.io/authzen/authzen-coaz-mcp-binding-1_0.html">https://openid.github.io/authzen/authzen-coaz-mcp-binding-1_0.html</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="MCP">[MCP]</dt>
+        <dd>
+<span class="refTitle">"Model Context Protocol Specification"</span>, <time datetime="2025" class="refDate">2025</time>, <span>&lt;<a href="https://modelcontextprotocol.io/specification">https://modelcontextprotocol.io/specification</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="RFC6750">[RFC6750]</dt>
+        <dd>
+<span class="refAuthor">Jones, M.</span> and <span class="refAuthor">D. Hardt</span>, <span class="refTitle">"The OAuth 2.0 Authorization Framework: Bearer Token Usage"</span>, <span class="seriesInfo">RFC 6750</span>, <span class="seriesInfo">DOI 10.17487/RFC6750</span>, <time datetime="2012-10" class="refDate">October 2012</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc6750">https://www.rfc-editor.org/rfc/rfc6750</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="RFC7662">[RFC7662]</dt>
+        <dd>
+<span class="refAuthor">Richer, J., Ed.</span>, <span class="refTitle">"OAuth 2.0 Token Introspection"</span>, <span class="seriesInfo">RFC 7662</span>, <span class="seriesInfo">DOI 10.17487/RFC7662</span>, <time datetime="2015-10" class="refDate">October 2015</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc7662">https://www.rfc-editor.org/rfc/rfc7662</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="RFC9068">[RFC9068]</dt>
+        <dd>
+<span class="refAuthor">Bertocci, V.</span>, <span class="refTitle">"JSON Web Token (JWT) Profile for OAuth 2.0 Access Tokens"</span>, <span class="seriesInfo">RFC 9068</span>, <span class="seriesInfo">DOI 10.17487/RFC9068</span>, <time datetime="2021-10" class="refDate">October 2021</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc9068">https://www.rfc-editor.org/rfc/rfc9068</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="RFC9728">[RFC9728]</dt>
+      <dd>
+<span class="refAuthor">Jones, M.B.</span>, <span class="refAuthor">Hunt, P.</span>, and <span class="refAuthor">A. Parecki</span>, <span class="refTitle">"OAuth 2.0 Protected Resource Metadata"</span>, <span class="seriesInfo">RFC 9728</span>, <span class="seriesInfo">DOI 10.17487/RFC9728</span>, <time datetime="2025-04" class="refDate">April 2025</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc9728">https://www.rfc-editor.org/rfc/rfc9728</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+</dl>
+</section>
+</div>
+</section>
+</div>
+<div id="relationship-to-other-specifications">
+<section id="appendix-A">
+      <h2 id="name-relationship-to-other-speci">
+<a href="#appendix-A" class="section-number selfRef">Appendix A. </a><a href="#name-relationship-to-other-speci" class="section-name selfRef">Relationship to Other Specifications</a>
+      </h2>
+<div id="coaz-framework-and-coaz-mcp">
+<section id="appendix-A.1">
+        <h3 id="name-coaz-framework-and-coaz-mcp">
+<a href="#appendix-A.1" class="section-number selfRef">A.1. </a><a href="#name-coaz-framework-and-coaz-mcp" class="section-name selfRef">COAZ Framework and COAZ-MCP</a>
+        </h3>
+<p id="appendix-A.1-1">This document is a binding of <span>[<a href="#COAZFW" class="cite xref">COAZFW</a>]</span> and follows the structure of
+<span>[<a href="#COAZMCP" class="cite xref">COAZMCP</a>]</span>. It reuses COAZ-MCP's mapping location, the tool input schema, as
+its second selection step, and its <code>params</code> variable, so that a tool's mapping
+can be used unchanged.<a href="#appendix-A.1-1" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="authzen-profile-for-oauth-20-token-issuance">
+<section id="appendix-A.2">
+        <h3 id="name-authzen-profile-for-oauth-2">
+<a href="#appendix-A.2" class="section-number selfRef">A.2. </a><a href="#name-authzen-profile-for-oauth-2" class="section-name selfRef">AuthZEN Profile for OAuth 2.0 Token Issuance</a>
+        </h3>
+<p id="appendix-A.2-1"><span>[<a href="#ISSUANCE" class="cite xref">ISSUANCE</a>]</span> defines the issuance decision this binding plugs into: the batch,
+the gate tuples, the cell decomposition, and how decisions shape the token.
+This binding replaces only the per-cell projection, and only for types that
+declare a mapping. Its default mapping is that projection.<a href="#appendix-A.2-1" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="oauth-20-rar-metadata-and-error-remediation">
+<section id="appendix-A.3">
+        <h3 id="name-oauth-20-rar-metadata-and-e">
+<a href="#appendix-A.3" class="section-number selfRef">A.3. </a><a href="#name-oauth-20-rar-metadata-and-e" class="section-name selfRef">OAuth 2.0 RAR Metadata and Error Remediation</a>
+        </h3>
+<p id="appendix-A.3-1"><span>[<a href="#RARMETA" class="cite xref">RARMETA</a>]</span> defines the types metadata endpoint where a mapping is published,
+and the remediation challenge whose entry this binding builds from the RS's
+projection. It defines no consumer of the types metadata within its own flow;
+this binding adds two.<a href="#appendix-A.3-1" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="oauth-20-authority-metadata">
+<section id="appendix-A.4">
+        <h3 id="name-oauth-20-authority-metadata">
+<a href="#appendix-A.4" class="section-number selfRef">A.4. </a><a href="#name-oauth-20-authority-metadata" class="section-name selfRef">OAuth 2.0 Authority Metadata</a>
+        </h3>
+<p id="appendix-A.4-1"><span>[<a href="#AUTHMETA" class="cite xref">AUTHMETA</a>]</span> publishes, in protected resource metadata <span>[<a href="#RFC9728" class="cite xref">RFC9728</a>]</span>, what the
+actions of a scope or authorization details type mean. That is information a
+PDP can use when answering; a mapping is how a PEP forms the question. The two
+are complementary and independent.<a href="#appendix-A.4-1" class="pilcrow">¶</a></p>
+</section>
+</div>
+</section>
+</div>
+<div id="open-issues">
+<section id="appendix-B">
+      <h2 id="name-open-issues">
+<a href="#appendix-B" class="section-number selfRef">Appendix B. </a><a href="#name-open-issues" class="section-name selfRef">Open Issues</a>
+      </h2>
+<p id="appendix-B-1">This section is to be removed before publication.<a href="#appendix-B-1" class="pilcrow">¶</a></p>
+<ol start="1" type="1" class="normal type-1" id="appendix-B-2">
+<li id="appendix-B-2.1">
+          <p id="appendix-B-2.1.1">Should the default mapping use <code>identifier</code> as <code>resource.id</code> when it is
+present? Types built only from common data fields would then get
+instance-level questions at the RS without a declared mapping. The default
+can only use the type as <code>resource.type</code>, so a collection and its members
+would share a type and differ only by identifier.<a href="#appendix-B-2.1.1" class="pilcrow">¶</a></p>
+</li>
+        <li id="appendix-B-2.2">
+          <p id="appendix-B-2.2.1"><span>[<a href="#RARMETA" class="cite xref">RARMETA</a>]</span> has no extension point for type metadata members, so
+<code>authzen_mapping</code> has no registered home.<a href="#appendix-B-2.2.1" class="pilcrow">¶</a></p>
+</li>
+        <li id="appendix-B-2.3">
+          <p id="appendix-B-2.3.1">A type that carries its multiplicity in a type-specific array (<span><a href="https://rfc-editor.org/rfc/rfc9396#section-2.1" class="relref">Section 2.1</a> of [<a href="#RFC9396" class="cite xref">RFC9396</a>]</span>,
+Figure 4) cannot be decomposed: the framework forbids an expression from
+setting the number of decisions, and even a binding-defined fan-out would
+leave the AS unable to rebuild a narrower array from the permitted items
+without knowing the type.<a href="#appendix-B-2.3.1" class="pilcrow">¶</a></p>
+</li>
+        <li id="appendix-B-2.4">
+          <p id="appendix-B-2.4.1">Should the mapping be able to name the claims it requires of the
+prospective token, instead of relying on optional selection?<a href="#appendix-B-2.4.1" class="pilcrow">¶</a></p>
+</li>
+      </ol>
+</section>
+</div>
+<div id="acknowledgments">
+<section id="appendix-C">
+      <h2 id="name-acknowledgments">
+<a href="#appendix-C" class="section-number selfRef">Appendix C. </a><a href="#name-acknowledgments" class="section-name selfRef">Acknowledgments</a>
+      </h2>
+<p id="appendix-C-1">The approach follows COAZ-MCP, by Atul Tulshibagwale and Alex Olivier, and
+builds on Yaron Zehavi's work on authorization details type metadata and
+remediation.<a href="#appendix-C-1" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="document-history">
+<section id="appendix-D">
+      <h2 id="name-document-history">
+<a href="#appendix-D" class="section-number selfRef">Appendix D. </a><a href="#name-document-history" class="section-name selfRef">Document History</a>
+      </h2>
+<div id="section">
+<section id="appendix-D.1">
+        <h3 id="name-00">
+<a href="#appendix-D.1" class="section-number selfRef">D.1. </a><a href="#name-00" class="section-name selfRef">-00</a>
+        </h3>
+<ul class="normal">
+<li class="normal" id="appendix-D.1-1.1">
+            <p id="appendix-D.1-1.1.1">Initial version.<a href="#appendix-D.1-1.1.1" class="pilcrow">¶</a></p>
+</li>
+        </ul>
+</section>
+</div>
+</section>
+</div>
+<div id="notices">
+<section id="appendix-E">
+      <h2 id="name-notices">
+<a href="#appendix-E" class="section-number selfRef">Appendix E. </a><a href="#name-notices" class="section-name selfRef">Notices</a>
+      </h2>
+<p id="appendix-E-1">Copyright (c) 2026 The OpenID Foundation.<a href="#appendix-E-1" class="pilcrow">¶</a></p>
+<p id="appendix-E-2">The OpenID Foundation (OIDF) grants to any Contributor, developer, implementer,
+or other interested party a non-exclusive, royalty free, worldwide copyright
+license to reproduce, prepare derivative works from, distribute, perform and
+display, this Implementers Draft, Final Specification, or Final Specification
+Incorporating Errata Corrections solely for the purposes of (i) developing
+specifications, and (ii) implementing Implementers Drafts, Final
+Specifications, and Final Specification Incorporating Errata Corrections based
+on such documents, provided that attribution be made to the OIDF as the source
+of the material, but that such attribution does not indicate an endorsement by
+the OIDF.<a href="#appendix-E-2" class="pilcrow">¶</a></p>
+<p id="appendix-E-3">The technology described in this specification was made available from
+contributions from various sources, including members of the OpenID Foundation
+and others. Although the OpenID Foundation has taken steps to help ensure that
+the technology is available for distribution, it takes no position regarding
+the validity or scope of any intellectual property or other rights that might
+be claimed to pertain to the implementation or use of the technology described
+in this specification or the extent to which any license under such rights
+might or might not be available; neither does it represent that it has made
+any independent effort to identify any such rights. The OpenID Foundation and
+the contributors to this specification make no (and hereby expressly disclaim
+any) warranties (express, implied, or otherwise), including implied warranties
+of merchantability, non-infringement, fitness for a particular purpose, or
+title, related to this specification, and the entire risk as to implementing
+this specification is assumed by the implementer. The OpenID Intellectual
+Property Rights policy (found at openid.net) requires contributors to offer a
+patent promise not to assert certain patent claims against other contributors
+and against implementers. OpenID invites any interested party to bring to its
+attention any copyrights, patents, patent applications, or other proprietary
+rights that may cover technology that may be required to practice this
+specification.<a href="#appendix-E-3" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="authors-addresses">
+<section id="appendix-F">
+      <h2 id="name-authors-address">
+<a href="#name-authors-address" class="section-name selfRef">Author's Address</a>
+      </h2>
+<address class="vcard">
+        <div dir="auto" class="left"><span class="fn nameRole">Omri Gazitt</span></div>
+<div dir="auto" class="left"><span class="org">Independent</span></div>
+<div class="email">
+<span>Email:</span>
+<a href="mailto:ogazitt@gmail.com" class="email">ogazitt@gmail.com</a>
+</div>
+</address>
+</section>
+</div>
+<script>const toc = document.getElementById("toc");
+toc.querySelector("h2").addEventListener("click", e => {
+  toc.classList.toggle("active");
+});
+toc.querySelector("nav").addEventListener("click", e => {
+  toc.classList.remove("active");
+});
+</script>
+</body>
+</html>
