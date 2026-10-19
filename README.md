@@ -4,6 +4,15 @@
 
 This is the working area for individual Internet-Drafts.
 
+## COAZ-RAR: COAZ Binding for OAuth 2.0 Rich Authorization Requests
+
+* [Editor's Copy](https://ogazitt.github.io/oauth-authzen/#go.draft-gazitt-authzen-coaz-rar.html)
+
+A proposed binding of the OpenID AuthZEN COAZ framework, written for the
+AuthZEN working group rather than as an IETF Internet-Draft. It is edited
+here until the working group takes it up. Issues are welcome in this
+repository.
+
 ## AuthZEN Profile for OAuth 2.0 Token Issuance
 
 * [Editor's Copy](https://ogazitt.github.io/oauth-authzen/#go.draft-gazitt-oauth-authzen-issuance.html)
