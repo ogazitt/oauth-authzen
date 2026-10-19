@@ -35,6 +35,17 @@ decision, and what a policy decision point is and is not allowed to change
 about the resulting token. The drafts are normative and stand on their own;
 the posts carry the reasoning and the alternatives that were rejected.
 
+The series:
+* [Scopes are still not permissions. But the token isn't going away.](https://notes.ogazitt.com/posts/scopes-are-still-not-permissions/)
+* [The decision every OAuth spec declines to make](https://notes.ogazitt.com/posts/the-decision-every-oauth-spec-declines-to-make/)
+* [Two questions, not one](https://notes.ogazitt.com/posts/two-questions-not-one/)
+* [The answer is not a boolean](https://notes.ogazitt.com/posts/the-answer-is-not-a-boolean/)
+* [Claims enrichment is a search](https://notes.ogazitt.com/posts/claims-enrichment-is-a-search/)
+
+## Current status
+
+The drafts have been adopted by the OpenID Foundation AuthZEN WG. See the post [here](https://notes.ogazitt.com/posts/an-official-home-for-the-issuance-profiles/).
+
 ## Contributing
 
 See the
