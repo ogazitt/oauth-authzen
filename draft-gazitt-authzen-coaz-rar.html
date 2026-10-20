@@ -1082,7 +1082,7 @@ svg {
 <dd class="workgroup">OpenID AuthZEN</dd>
 <dt class="label-published">Published:</dt>
 <dd class="published">
-<time datetime="2026-10-19" class="published">19 October 2026</time>
+<time datetime="2026-10-20" class="published">20 October 2026</time>
     </dd>
 <dt class="label-authors">Author:</dt>
 <dd class="authors">
@@ -2447,29 +2447,31 @@ are complementary and independent.<a href="#appendix-A.4-1" class="pilcrow">¶</
       <h2 id="name-open-issues">
 <a href="#appendix-B" class="section-number selfRef">Appendix B. </a><a href="#name-open-issues" class="section-name selfRef">Open Issues</a>
       </h2>
-<p id="appendix-B-1">This section is to be removed before publication.<a href="#appendix-B-1" class="pilcrow">¶</a></p>
+<p id="appendix-B-1">This section is to be removed before publication. Each item is tracked as
+an issue in the editor's repository.<a href="#appendix-B-1" class="pilcrow">¶</a></p>
 <ol start="1" type="1" class="normal type-1" id="appendix-B-2">
 <li id="appendix-B-2.1">
           <p id="appendix-B-2.1.1">Should the default mapping use <code>identifier</code> as <code>resource.id</code> when it is
-present? Types built only from common data fields would then get
+present? (<a href="https://github.com/ogazitt/oauth-authzen/issues/15">#15</a>) Types built only from common data fields would then get
 instance-level questions at the RS without a declared mapping. The default
 can only use the type as <code>resource.type</code>, so a collection and its members
 would share a type and differ only by identifier.<a href="#appendix-B-2.1.1" class="pilcrow">¶</a></p>
 </li>
         <li id="appendix-B-2.2">
           <p id="appendix-B-2.2.1"><span>[<a href="#RARMETA" class="cite xref">RARMETA</a>]</span> has no extension point for type metadata members, so
-<code>authzen_mapping</code> has no registered home.<a href="#appendix-B-2.2.1" class="pilcrow">¶</a></p>
+<code>authzen_mapping</code> has no registered home. (<a href="https://github.com/ogazitt/oauth-authzen/issues/16">#16</a>)<a href="#appendix-B-2.2.1" class="pilcrow">¶</a></p>
 </li>
         <li id="appendix-B-2.3">
           <p id="appendix-B-2.3.1">A type that carries its multiplicity in a type-specific array (<span><a href="https://rfc-editor.org/rfc/rfc9396#section-2.1" class="relref">Section 2.1</a> of [<a href="#RFC9396" class="cite xref">RFC9396</a>]</span>,
 Figure 4) cannot be decomposed: the framework forbids an expression from
 setting the number of decisions, and even a binding-defined fan-out would
 leave the AS unable to rebuild a narrower array from the permitted items
-without knowing the type.<a href="#appendix-B-2.3.1" class="pilcrow">¶</a></p>
+without knowing the type. (<a href="https://github.com/ogazitt/oauth-authzen/issues/17">#17</a>)<a href="#appendix-B-2.3.1" class="pilcrow">¶</a></p>
 </li>
         <li id="appendix-B-2.4">
           <p id="appendix-B-2.4.1">Should the mapping be able to name the claims it requires of the
-prospective token, instead of relying on optional selection?<a href="#appendix-B-2.4.1" class="pilcrow">¶</a></p>
+prospective token, instead of relying on optional selection?
+(<a href="https://github.com/ogazitt/oauth-authzen/issues/18">#18</a>)<a href="#appendix-B-2.4.1" class="pilcrow">¶</a></p>
 </li>
       </ol>
 </section>

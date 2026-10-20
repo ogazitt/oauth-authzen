@@ -4,7 +4,7 @@
 
 OpenID AuthZEN                                                 O. Gazitt
                                                              Independent
-                                                         19 October 2026
+                                                         20 October 2026
 
 
 COAZ-RAR: COAZ Binding for OAuth 2.0 Rich Authorization Requests - Draft
@@ -966,27 +966,32 @@ A.4.  OAuth 2.0 Authority Metadata
 
 Appendix B.  Open Issues
 
-   This section is to be removed before publication.
+   This section is to be removed before publication.  Each item is
+   tracked as an issue in the editor's repository.
 
    1.  Should the default mapping use identifier as resource.id when it
-       is present?  Types built only from common data fields would then
+       is present? (#15 (https://github.com/ogazitt/oauth-authzen/
+       issues/15)) Types built only from common data fields would then
        get instance-level questions at the RS without a declared
        mapping.  The default can only use the type as resource.type, so
        a collection and its members would share a type and differ only
        by identifier.
 
    2.  [RARMETA] has no extension point for type metadata members, so
-       authzen_mapping has no registered home.
+       authzen_mapping has no registered home. (#16
+       (https://github.com/ogazitt/oauth-authzen/issues/16))
 
    3.  A type that carries its multiplicity in a type-specific array
        (Section 2.1 of [RFC9396], Figure 4) cannot be decomposed: the
        framework forbids an expression from setting the number of
        decisions, and even a binding-defined fan-out would leave the AS
        unable to rebuild a narrower array from the permitted items
-       without knowing the type.
+       without knowing the type. (#17 (https://github.com/ogazitt/oauth-
+       authzen/issues/17))
 
    4.  Should the mapping be able to name the claims it requires of the
-       prospective token, instead of relying on optional selection?
+       prospective token, instead of relying on optional selection? (#18
+       (https://github.com/ogazitt/oauth-authzen/issues/18))
 
 Appendix C.  Acknowledgments
 
