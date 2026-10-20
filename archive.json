@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2026-10-18T03:54:07.173315+00:00",
+  "timestamp": "2026-10-20T04:16:10.729563+00:00",
   "repo": "ogazitt/oauth-authzen",
   "labels": [
     {
@@ -67,6 +67,11 @@
       "name": "error-handling",
       "description": "Error codes and failure signalling",
       "color": "d93f0b"
+    },
+    {
+      "name": "coaz-rar",
+      "description": "COAZ-RAR binding",
+      "color": "5319e7"
     }
   ],
   "issues": [
@@ -438,6 +443,82 @@
       "createdAt": "2026-08-31T22:01:53Z",
       "updatedAt": "2026-09-02T05:56:21Z",
       "closedAt": "2026-09-02T05:56:21Z",
+      "comments": []
+    },
+    {
+      "number": 15,
+      "id": "I_kwDOTnp6ss8AAAABYa9Lsg",
+      "title": "Should the default mapping use `identifier` as `resource.id` when present?",
+      "url": "https://github.com/ogazitt/oauth-authzen/issues/15",
+      "state": "OPEN",
+      "author": "ogazitt",
+      "authorAssociation": "OWNER",
+      "assignees": [],
+      "labels": [
+        "design",
+        "coaz-rar"
+      ],
+      "body": "The default mapping asks about the location, so for types built from common data fields the RS can only ask about the collection unless the type declares a mapping. Using `identifier` when present would give those types instance-level questions for free.\n\nThe catch: the default can only use the RAR type as `resource.type`, so a collection and its members would share a type and differ only by id.\n\nSince the default is the issuance profile's projection, a yes here is also a change to `{#rar-tuple}` in openid/authzen.\n",
+      "createdAt": "2026-10-20T00:36:53Z",
+      "updatedAt": "2026-10-20T00:36:53Z",
+      "closedAt": null,
+      "comments": []
+    },
+    {
+      "number": 16,
+      "id": "I_kwDOTnp6ss8AAAABYa9MrA",
+      "title": "`authzen_mapping` has no registered home",
+      "url": "https://github.com/ogazitt/oauth-authzen/issues/16",
+      "state": "OPEN",
+      "author": "ogazitt",
+      "authorAssociation": "OWNER",
+      "assignees": [],
+      "labels": [
+        "design",
+        "coaz-rar"
+      ],
+      "body": "draft-ietf-oauth-rar-metadata-remediation defines a fixed set of members for a type's metadata object, with no registry and no rule for unknown members.\n\nOptions:\n- ask that draft for a registry\n- ask it for an ignore-unknown-members rule\n- put the mapping only in the schema (`x-authzen-mapping`, as COAZ-MCP does)\n",
+      "createdAt": "2026-10-20T00:36:54Z",
+      "updatedAt": "2026-10-20T00:36:54Z",
+      "closedAt": null,
+      "comments": []
+    },
+    {
+      "number": 17,
+      "id": "I_kwDOTnp6ss8AAAABYa9NdA",
+      "title": "Types whose multiplicity is in a type-specific array",
+      "url": "https://github.com/ogazitt/oauth-authzen/issues/17",
+      "state": "OPEN",
+      "author": "ogazitt",
+      "authorAssociation": "OWNER",
+      "assignees": [],
+      "labels": [
+        "design",
+        "coaz-rar"
+      ],
+      "body": "RFC 9396 Figure 4 puts (path, access) pairs in a `permissions` array. COAZ forbids an expression from setting the number of decisions, and even a binding-level `for_each` leaves the AS unable to rebuild a narrower array from the permitted items.\n\nDoes this binding need fan-out *and* reassembly, or should such types be out of scope?\n",
+      "createdAt": "2026-10-20T00:36:56Z",
+      "updatedAt": "2026-10-20T00:36:56Z",
+      "closedAt": null,
+      "comments": []
+    },
+    {
+      "number": 18,
+      "id": "I_kwDOTnp6ss8AAAABYa9OMw",
+      "title": "Should a mapping name the token claims it needs?",
+      "url": "https://github.com/ogazitt/oauth-authzen/issues/18",
+      "state": "OPEN",
+      "author": "ogazitt",
+      "authorAssociation": "OWNER",
+      "assignees": [],
+      "labels": [
+        "design",
+        "coaz-rar"
+      ],
+      "body": "At the AS, `token` holds only the claims the AS will mint. Today a mapping intended for both enforcement points must use `.?` for anything but `sub`.\n\nAlternatively a mapping could declare required claims, and an AS that can't supply them would refuse to adopt the type.\n",
+      "createdAt": "2026-10-20T00:36:57Z",
+      "updatedAt": "2026-10-20T00:36:57Z",
+      "closedAt": null,
       "comments": []
     }
   ],
