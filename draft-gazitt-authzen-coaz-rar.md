@@ -410,12 +410,19 @@ A PEP selects the mapping for a type as follows:
 
 3. Otherwise, use the default mapping ({{default-mapping}}).
 
-The mapping is authored by the type definer and **adopted** by the AS
-operator, in the same act by which the AS adopts the type's schema today. An
-AS that adopts a type with a declared mapping takes on that mapping as
-configuration; it does not fetch a mapping from a type definer at request
-time. A Resource PEP obtains the mapping from the same types metadata, so that
-both enforcement points apply the mapping the AS adopted.
+The mapping is authored by the type definer, which is the authority for it
+as it is for the type's schema. The type definer may be an ecosystem, an RS,
+or an MCP server. An AS operator **adopts** the mapping in the same act by
+which it adopts the type's schema today, and takes it on as configuration; the
+AS does not fetch a mapping from a type definer at request time. The AS's
+types metadata endpoint is the channel through which the mapping is
+distributed, not the source of its authority. A Resource PEP obtains the
+mapping from that endpoint, so that both enforcement points apply the type
+definer's mapping.
+
+Where one type is used by several RSs, possibly under different operators,
+the type and its mapping are their shared vocabulary. Each RS brings its own
+PDP and policy ({{architecture}}).
 
 The types metadata endpoint is not access-controlled. Publishing a mapping
 there discloses which members of a type the policy considers, which is the
@@ -733,10 +740,10 @@ mapping cannot make it trustworthy.
 
 A declared mapping determines what the PDP is asked. A mapping that omits a
 decision-critical member, or projects it lossily, yields permits that do not
-reflect that member. The AS adopts a mapping as configuration, and the trust
-it places in the type definer is the same trust it already places in the
-type's schema; deployments SHOULD review a mapping when adopting a type, as
-they would review the schema.
+reflect that member. An AS or RS that uses a type relies on the type definer
+for its mapping, and the trust it places there is the same trust it already
+places in the type's schema; deployments SHOULD review a mapping when adopting
+a type, as they would review the schema.
 
 A type definer that is also the RS addressed by the resulting token can, by a
 poor mapping, only weaken tokens addressed to itself, provided the AS
