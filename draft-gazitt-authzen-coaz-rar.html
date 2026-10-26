@@ -1082,7 +1082,7 @@ svg {
 <dd class="workgroup">OpenID AuthZEN</dd>
 <dt class="label-published">Published:</dt>
 <dd class="published">
-<time datetime="2026-10-20" class="published">20 October 2026</time>
+<time datetime="2026-10-26" class="published">26 October 2026</time>
     </dd>
 <dt class="label-authors">Author:</dt>
 <dd class="authors">
@@ -1783,17 +1783,23 @@ type's schema brings its mapping with it.<a href="#section-6-4.2.1" class="pilcr
           <p id="section-6-4.3.1">Otherwise, use the default mapping (<a href="#default-mapping" class="auto internal xref">Section 7</a>).<a href="#section-6-4.3.1" class="pilcrow">¶</a></p>
 </li>
       </ol>
-<p id="section-6-5">The mapping is authored by the type definer and <strong>adopted</strong> by the AS
-operator, in the same act by which the AS adopts the type's schema today. An
-AS that adopts a type with a declared mapping takes on that mapping as
-configuration; it does not fetch a mapping from a type definer at request
-time. A Resource PEP obtains the mapping from the same types metadata, so that
-both enforcement points apply the mapping the AS adopted.<a href="#section-6-5" class="pilcrow">¶</a></p>
-<p id="section-6-6">The types metadata endpoint is not access-controlled. Publishing a mapping
+<p id="section-6-5">The mapping is authored by the type definer, which is the authority for it
+as it is for the type's schema. The type definer may be an ecosystem, an RS,
+or an MCP server. An AS operator <strong>adopts</strong> the mapping in the same act by
+which it adopts the type's schema today, and takes it on as configuration; the
+AS does not fetch a mapping from a type definer at request time. The AS's
+types metadata endpoint is the channel through which the mapping is
+distributed, not the source of its authority. A Resource PEP obtains the
+mapping from that endpoint, so that both enforcement points apply the type
+definer's mapping.<a href="#section-6-5" class="pilcrow">¶</a></p>
+<p id="section-6-6">Where one type is used by several RSs, possibly under different operators,
+the type and its mapping are their shared vocabulary. Each RS brings its own
+PDP and policy (<a href="#architecture" class="auto internal xref">Section 2.1</a>).<a href="#section-6-6" class="pilcrow">¶</a></p>
+<p id="section-6-7">The types metadata endpoint is not access-controlled. Publishing a mapping
 there discloses which members of a type the policy considers, which is the
 shape of the authorization question and not the policy that answers it. An AS
 that considers even that shape sensitive can omit <code>authzen_mapping</code> from the
-published metadata and provision the Resource PEP with it by other means.<a href="#section-6-6" class="pilcrow">¶</a></p>
+published metadata and provision the Resource PEP with it by other means.<a href="#section-6-7" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="default-mapping">
@@ -2249,10 +2255,10 @@ mapping cannot make it trustworthy.<a href="#section-11-6" class="pilcrow">¶</a
         </h3>
 <p id="section-12.1-1">A declared mapping determines what the PDP is asked. A mapping that omits a
 decision-critical member, or projects it lossily, yields permits that do not
-reflect that member. The AS adopts a mapping as configuration, and the trust
-it places in the type definer is the same trust it already places in the
-type's schema; deployments SHOULD review a mapping when adopting a type, as
-they would review the schema.<a href="#section-12.1-1" class="pilcrow">¶</a></p>
+reflect that member. An AS or RS that uses a type relies on the type definer
+for its mapping, and the trust it places there is the same trust it already
+places in the type's schema; deployments SHOULD review a mapping when adopting
+a type, as they would review the schema.<a href="#section-12.1-1" class="pilcrow">¶</a></p>
 <p id="section-12.1-2">A type definer that is also the RS addressed by the resulting token can, by a
 poor mapping, only weaken tokens addressed to itself, provided the AS
 restricts each token's audience to the evaluated resource as <span>[<a href="#ISSUANCE" class="cite xref">ISSUANCE</a>]</span>
