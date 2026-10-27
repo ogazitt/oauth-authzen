@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2026-10-25T04:02:14.587750+00:00",
+  "timestamp": "2026-10-27T04:26:04.447520+00:00",
   "repo": "ogazitt/oauth-authzen",
   "labels": [
     {
@@ -496,9 +496,9 @@
         "design",
         "coaz-rar"
       ],
-      "body": "RFC 9396 Figure 4 puts (path, access) pairs in a `permissions` array. COAZ forbids an expression from setting the number of decisions, and even a binding-level `for_each` leaves the AS unable to rebuild a narrower array from the permitted items.\n\nDoes this binding need fan-out *and* reassembly, or should such types be out of scope?\n",
+      "body": "RFC 9396 Figure 4:\n\n```json\n{ \"type\": \"https://scheme.example.org/files\",\n  \"locations\": [\"https://example.com/files\"],\n  \"permissions\": [\n    { \"path\": \"/myfiles/A\",   \"access\": [\"read\"] },\n    { \"path\": \"/myfiles/A/X\", \"access\": [\"read\", \"write\"] } ] }\n```\n\nThe decision is three (path, access) pairs: `read /myfiles/A`, `read /myfiles/A/X`, `write /myfiles/A/X`. The issuance profile forms cells only from `locations`, `actions`, and `datatypes`, so this entry is one cell, and a mapping runs once for it.\n\n### What a mapping can do today\n\n- **Pass the array as a property** (`resource.properties`): one decision, but the paths are entities, and an advisory bag is the wrong place for decision-critical inputs.\n- **Address fixed indices** (`$detail.permissions[0]`): breaks on any other length, and an extra item goes unevaluated.\n- **One entry per item** (RFC 9396 Figure 6): works today, and a denied entry narrows the grant under the issuance profile's \"A Denied Cell Narrows an Entry\".\n\n### What per-item decisions would need\n\n**1. Fan-out (request side).** The limit isn't CEL (`detail.permissions.map(...)` is legal); it's Section 2.6 of the COAZ framework, which requires the number of decisions to be fixed by the envelope. Two options:\n\n- a. A binding-level declaration in the type metadata naming an array (by path, not by expression) as cell-forming, with an `item` cell variable. This is how this binding already reconciles a variable cell count with the framework for `locations` \u00d7 `actions`.\n- b. A framework-level `for_each` envelope, which would also serve COAZ-MCP tools that take arrays.\n\nEither needs a bound on the item count, so a client can't inflate the batch.\n\n**2. Reassembly (return side).** Without it, one denied item still denies the whole entry. To issue `[{A, [read]}, {A/X, [read]}]`, the AS has to know that dropping an item narrows the grant (true for file grants; not for a bulk payment, where dropping a line changes the transaction, or a list of required approvers, where it broadens it), and how to remove part of an item (`access` is a set, `path` is the key). Only the type definer knows this, so it would be declared per type, next to `authzen_mapping`. COAZ maps messages to requests and has no return path, so this would live in this binding.\n\n### Not affected\n\nThe Resource PEP. A call touches one path with one access, so its projection is one cell. The multiplicity exists only in a request for a grant.\n\n### Question\n\nShould this binding take on fan-out and reassembly (1a + 2), ask the framework for 1b, or leave such types to one entry per item and say so?\n",
       "createdAt": "2026-10-20T00:36:56Z",
-      "updatedAt": "2026-10-20T00:36:56Z",
+      "updatedAt": "2026-10-26T12:05:58Z",
       "closedAt": null,
       "comments": []
     },
@@ -520,7 +520,55 @@
       "updatedAt": "2026-10-20T00:36:57Z",
       "closedAt": null,
       "comments": []
+    },
+    {
+      "number": 19,
+      "id": "I_kwDOTnp6ss8AAAABZ_pa5g",
+      "title": "The type definer, not the AS, is the authority for a mapping",
+      "url": "https://github.com/ogazitt/oauth-authzen/issues/19",
+      "state": "CLOSED",
+      "author": "ogazitt",
+      "authorAssociation": "OWNER",
+      "assignees": [],
+      "labels": [
+        "design",
+        "coaz-rar"
+      ],
+      "body": "Raised by Yaron Zehavi in review of the draft.\n\nThe Declaring a Mapping section says a Resource PEP obtains the mapping from the AS's types metadata endpoint \"so that both enforcement points apply the mapping the AS adopted.\" That reads as if the AS is the authority for the mapping an RS applies.\n\nThe intent is that the type definer (an ecosystem, an RS, or an MCP server) is the authority for the mapping, as it is for the type's schema, and the AS's metadata endpoint is the distribution channel. Where several RSs under different operators use one type, the type and its mapping are their shared vocabulary, and each brings its own PDP and policy.\n\nThe section should say so, and Trust in the Type Definer should apply to both enforcement points, not only the AS.\n",
+      "createdAt": "2026-10-26T12:14:58Z",
+      "updatedAt": "2026-10-26T12:17:15Z",
+      "closedAt": "2026-10-26T12:17:15Z",
+      "comments": []
     }
   ],
-  "pulls": []
+  "pulls": [
+    {
+      "number": 20,
+      "id": "PR_kwDOTnp6ss8AAAABKwywfg",
+      "title": "Make the type definer, not the AS, the authority for a mapping",
+      "url": "https://github.com/ogazitt/oauth-authzen/pull/20",
+      "state": "MERGED",
+      "author": "ogazitt",
+      "authorAssociation": "OWNER",
+      "assignees": [],
+      "labels": [],
+      "body": "Closes #19.\n\n- **Declaring a Mapping:** names the type definer as the authority for the mapping and the AS's types metadata endpoint as the distribution channel, and adds a paragraph on one type used by several RSs.\n- **Trust in the Type Definer:** the trust applies to an AS or RS that uses a type, not only the AS.\n\nThanks to Yaron Zehavi for raising this.\n\n\ud83e\udd16 Generated with [Claude Code](https://claude.com/claude-code)\n",
+      "createdAt": "2026-10-26T12:15:02Z",
+      "updatedAt": "2026-10-26T12:17:14Z",
+      "baseRepository": "ogazitt/oauth-authzen",
+      "baseRefName": "main",
+      "baseRefOid": "21a64510b6baa4f9cb89f37f554f70b10e3a3870",
+      "headRepository": "ogazitt/oauth-authzen",
+      "headRefName": "mapping-authority",
+      "headRefOid": "5faa6eb87a4c0bf49f1166c667978e2aec92b5d3",
+      "closedAt": "2026-10-26T12:17:14Z",
+      "mergedAt": "2026-10-26T12:17:14Z",
+      "mergedBy": "ogazitt",
+      "mergeCommit": {
+        "oid": "30adbe09467183cd262f036b096ecafdb4990304"
+      },
+      "comments": [],
+      "reviews": []
+    }
+  ]
 }
