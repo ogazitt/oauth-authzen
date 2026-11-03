@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2026-10-27T04:26:04.447520+00:00",
+  "timestamp": "2026-11-03T06:00:03.981167+00:00",
   "repo": "ogazitt/oauth-authzen",
   "labels": [
     {
@@ -498,9 +498,17 @@
       ],
       "body": "RFC 9396 Figure 4:\n\n```json\n{ \"type\": \"https://scheme.example.org/files\",\n  \"locations\": [\"https://example.com/files\"],\n  \"permissions\": [\n    { \"path\": \"/myfiles/A\",   \"access\": [\"read\"] },\n    { \"path\": \"/myfiles/A/X\", \"access\": [\"read\", \"write\"] } ] }\n```\n\nThe decision is three (path, access) pairs: `read /myfiles/A`, `read /myfiles/A/X`, `write /myfiles/A/X`. The issuance profile forms cells only from `locations`, `actions`, and `datatypes`, so this entry is one cell, and a mapping runs once for it.\n\n### What a mapping can do today\n\n- **Pass the array as a property** (`resource.properties`): one decision, but the paths are entities, and an advisory bag is the wrong place for decision-critical inputs.\n- **Address fixed indices** (`$detail.permissions[0]`): breaks on any other length, and an extra item goes unevaluated.\n- **One entry per item** (RFC 9396 Figure 6): works today, and a denied entry narrows the grant under the issuance profile's \"A Denied Cell Narrows an Entry\".\n\n### What per-item decisions would need\n\n**1. Fan-out (request side).** The limit isn't CEL (`detail.permissions.map(...)` is legal); it's Section 2.6 of the COAZ framework, which requires the number of decisions to be fixed by the envelope. Two options:\n\n- a. A binding-level declaration in the type metadata naming an array (by path, not by expression) as cell-forming, with an `item` cell variable. This is how this binding already reconciles a variable cell count with the framework for `locations` \u00d7 `actions`.\n- b. A framework-level `for_each` envelope, which would also serve COAZ-MCP tools that take arrays.\n\nEither needs a bound on the item count, so a client can't inflate the batch.\n\n**2. Reassembly (return side).** Without it, one denied item still denies the whole entry. To issue `[{A, [read]}, {A/X, [read]}]`, the AS has to know that dropping an item narrows the grant (true for file grants; not for a bulk payment, where dropping a line changes the transaction, or a list of required approvers, where it broadens it), and how to remove part of an item (`access` is a set, `path` is the key). Only the type definer knows this, so it would be declared per type, next to `authzen_mapping`. COAZ maps messages to requests and has no return path, so this would live in this binding.\n\n### Not affected\n\nThe Resource PEP. A call touches one path with one access, so its projection is one cell. The multiplicity exists only in a request for a grant.\n\n### Question\n\nShould this binding take on fan-out and reassembly (1a + 2), ask the framework for 1b, or leave such types to one entry per item and say so?\n",
       "createdAt": "2026-10-20T00:36:56Z",
-      "updatedAt": "2026-10-26T12:05:58Z",
+      "updatedAt": "2026-11-02T00:12:30Z",
       "closedAt": null,
-      "comments": []
+      "comments": [
+        {
+          "author": "ogazitt",
+          "authorAssociation": "OWNER",
+          "body": "A concrete version of 1a + 2, as a single declaration with no CEL. A type may declare a cell axis in its metadata, next to `authzen_mapping`:\n\n```json\n\"authzen_cells\": {\n  \"items\": \"permissions\",\n  \"location\": \"path\",\n  \"actions\": \"access\"\n}\n```\n\nFor an entry of that type, the Issuance PEP forms cells from each element of `permissions` instead of from `locations` \u00d7 `actions`: `cell.location` is the element's `path`, and there is one cell per value in its `access`. For RFC 9396 Figure 4 that gives the three cells `read /myfiles/A`, `read /myfiles/A/X` and `write /myfiles/A/X`. Because `cell.location` and `cell.action` are filled in, the default mapping applies unchanged, and the type needs no `authzen_mapping` at all.\n\nReassembly follows the same declaration. A denied cell removes its value from that element's `access`. An element whose `access` becomes empty is removed. An entry with no elements left is handled like any entry with no surviving cell (`invalid_authorization_details`).\n\nWhen a type definer declares `authzen_cells`, they are stating that removing elements narrows the grant. Types where it doesn't (a bulk payment, where dropping a line changes the transaction, or a list of required approvers, where dropping one broadens the grant) don't declare it. They stay one cell and are decided as a whole.\n\nThe AS should cap the number of items and reject an entry over the cap with `invalid_authorization_details`, so a client can't inflate the batch.\n\nThis keeps fan-out with the AS, as it already is for `locations`, and needs nothing from the framework. 1b (`for_each` in the framework) is still worth raising for COAZ-MCP tools that take arrays, but this binding doesn't depend on it.\n",
+          "createdAt": "2026-11-02T00:12:30Z",
+          "updatedAt": "2026-11-02T00:12:30Z"
+        }
+      ]
     },
     {
       "number": 18,
